@@ -1,35 +1,51 @@
 #install.packages("glmulti")
 library(glmulti)
-
-library("data.table")
+library(data.table)
 library(dplyr)
 library(vcd)
 
-sort(unique(pcc_data_2level$pcc_factor_unit))
-pcc_data_2level<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/pcc_data_2_levels_2024.01.19.csv",
+#Heterogeneity results
+#filter the factors with I^2 >= 75 (high variance Higgins et al. 2003)
+heterogeneity_2level<-read.csv(
+  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/heterogeneity_2levels.csv",
+  header = TRUE, sep = ",")%>%
+  filter(I2>=75)
+
+pcc_data_2level<-read.csv(
+  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_data_2levels.csv",
                      header = TRUE, sep = ",")%>%
-  filter(pcc_factor_unit=="Access to credit (1= yes)"|
-           pcc_factor_unit=="Gender (1= male)"|
-           pcc_factor_unit=="Access to training (1= yes)")%>%
+  dplyr::group_by(pcc_factor_unit) %>%
+  dplyr::mutate(n_articles = n_distinct(article_id))%>%
+  filter(n_articles>9)%>%
+  left_join(heterogeneity_2level, by="pcc_factor_unit")%>%
+  filter(!is.na(I2))%>%
   mutate_at(vars(
     #categorical moderators
-    UN_Regions,
-    UN_sub_region,
+    m_region,
+    m_sub_region,
     m_intervention_recla2,
-    model_method,
+    m_model_method,
     #binary moderators
     m_random_sample,
-    m_exact_variance_value), as.factor)%>%
+    m_exact_variance_value,
+    m_sampling_unit,
+    m_type_data), as.factor)%>%
   #continuous moderators
   mutate_at(vars(m_mean_farm_size_ha,
                  n_samples_num,
-                 n_predictors_num),as.numeric)
+                 n_predictors_num),as.numeric)%>%
+  filter(!is.na(m_sub_region))
+
+
+  filter(pcc_factor_unit== "Gender (1= male)")
+
+sort(unique(pcc_data_2level$pcc_factor_unit))
 
 #categorical
-sort(unique(pcc_data_2level$UN_Regions))
-sort(unique(pcc_data_2level$UN_sub_region))
+sort(unique(pcc_data_2level$m_region))
+sort(unique(pcc_data_2level$m_sub_region))
 sort(unique(pcc_data_2level$m_intervention_recla2))
-sort(unique(pcc_data_2level$model_method))
+sort(unique(pcc_data_2level$m_model_method))
 #Binary
 sort(unique(pcc_data_2level$m_random_sample))
 sort(unique(pcc_data_2level$m_exact_variance_value))
@@ -38,29 +54,41 @@ sort(unique(pcc_data_2level$m_mean_farm_size_ha))
 sort(unique(pcc_data_2level$n_samples_num))
 sort(unique(pcc_data_2level$n_predictors_num))
 
+sort(unique(pcc_data_2level$m_type_data))
+
 ############ CHECK FOR MULTICOLLINEARITY BETWEEN EXPLANATORY VARIABLES --------
 #http://www.sthda.com/english/wiki/correlation-test-between-two-variables-in-r
 
 #### Correlation between categorical variables
-old_column<-c("V1",  "V2",  "V3",  "V4",  "V5",  "V6")
+old_column<-c("V1",  "V2",  "V3",  "V4",  "V5",  "V6",  "V7",  "V8")
 new_column<- c(
-  #categorical
-  "UN_Regions", "UN_sub_region","m_intervention_recla2","model_method",
+  #categorical moderators
+  "m_region",
+  "m_sub_region",
+  "m_intervention_recla2",
+  "m_model_method",
   #binary moderators
-  "m_random_sample", "m_exact_variance_value")
-
+  "m_random_sample",
+  "m_exact_variance_value",
+  "m_sampling_unit",
+  "m_type_data")
 
 # Function to calculate Cramer's V correlations for a specific factor unit
 calculate_cramer_for_unit <- function(data, factor_unit) {
   cramer_data <- data %>%
-    select(pcc_factor_unit,
-           UN_Regions, UN_sub_region, m_intervention_recla2, model_method,
-           m_random_sample, m_exact_variance_value)
+    dplyr::select(pcc_factor_unit,
+           m_region,
+           m_sub_region,
+           m_intervention_recla2,
+           m_model_method,
+           m_random_sample,
+           m_exact_variance_value,
+           m_sampling_unit,
+           m_type_data)
   
   unit_data <- cramer_data %>%
     filter(pcc_factor_unit == factor_unit) %>%
-    filter(!is.na(UN_Regions)) %>%
-    select(2:7)
+    dplyr::select(-pcc_factor_unit)
   
   cor_cramer <- function(x) {
     nc <- ncol(x)
@@ -86,11 +114,11 @@ for (unit in unique_units) {
 
 
 # Combine the results into a single data frame
-cramer_results_df <- do.call(rbind, cramer_results_list)%>%
+cramer_results_df <- do.call(rbind, cramer_results_list)
   rownames_to_column(., var = "pcc_factor_unit.moderator")%>%
   mutate(moderator1= str_extract(pcc_factor_unit.moderator, '\\b\\w+$'))%>%
   mutate(pcc_factor_unit= str_extract(pcc_factor_unit.moderator, '^[^.]+'))%>%
-  select(pcc_factor_unit,moderator1,V1,V2,V3,V4,V5,V6)%>%
+  select(pcc_factor_unit,moderator1,V1,V2,V3,V4,V5,V6,V7,V8)%>%
   setnames(., old_column, new_column)%>%
   gather(key = "moderator2", value = "correlation", new_column, -pcc_factor_unit)%>%
   mutate(significance= if_else(correlation>=0.7,"*",""))%>%
