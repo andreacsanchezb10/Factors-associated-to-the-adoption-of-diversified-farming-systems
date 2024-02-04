@@ -3,7 +3,7 @@ library(glmulti)
 library(data.table)
 library(dplyr)
 library(vcd)
-
+library(stringr)
 #Heterogeneity results
 #filter the factors with I^2 >= 75 (high variance Higgins et al. 2003)
 heterogeneity_2level<-read.csv(
@@ -13,12 +13,12 @@ heterogeneity_2level<-read.csv(
 
 pcc_data_2level<-read.csv(
   "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_data_2levels.csv",
-                     header = TRUE, sep = ",")%>%
-  dplyr::group_by(pcc_factor_unit) %>%
-  dplyr::mutate(n_articles = n_distinct(article_id))%>%
-  filter(n_articles>9)%>%
+                     header = TRUE, sep = ",")
+  filter(n_articles>9)
   left_join(heterogeneity_2level, by="pcc_factor_unit")%>%
   filter(!is.na(I2))%>%
+  #filter(pcc_factor_unit=="Access to credit (1= yes)"|
+   #        pcc_factor_unit=="Gender (1= male)")%>%
   mutate_at(vars(
     #categorical moderators
     m_region,
@@ -33,14 +33,10 @@ pcc_data_2level<-read.csv(
   #continuous moderators
   mutate_at(vars(m_mean_farm_size_ha,
                  n_samples_num,
-                 n_predictors_num),as.numeric)%>%
-  filter(!is.na(m_sub_region))
-
-
-  filter(pcc_factor_unit== "Gender (1= male)")
+                 n_predictors_num),as.numeric)
 
 sort(unique(pcc_data_2level$pcc_factor_unit))
-
+table(pcc_data_2level$pcc_factor_unit,pcc_data_2level$n_articles)
 #categorical
 sort(unique(pcc_data_2level$m_region))
 sort(unique(pcc_data_2level$m_sub_region))
@@ -114,14 +110,14 @@ for (unit in unique_units) {
 
 
 # Combine the results into a single data frame
-cramer_results_df <- do.call(rbind, cramer_results_list)
-  rownames_to_column(., var = "pcc_factor_unit.moderator")%>%
+cramer_results_df <- do.call(rbind, cramer_results_list)%>%
+  tibble::rownames_to_column(., var = "pcc_factor_unit.moderator")%>%
   mutate(moderator1= str_extract(pcc_factor_unit.moderator, '\\b\\w+$'))%>%
   mutate(pcc_factor_unit= str_extract(pcc_factor_unit.moderator, '^[^.]+'))%>%
   select(pcc_factor_unit,moderator1,V1,V2,V3,V4,V5,V6,V7,V8)%>%
-  setnames(., old_column, new_column)%>%
-  gather(key = "moderator2", value = "correlation", new_column, -pcc_factor_unit)%>%
-  mutate(significance= if_else(correlation>=0.7,"*",""))%>%
+  setnames(., old_column, new_column)
+  tidyr::gather(key = "moderator2", value = "correlation", new_column, -pcc_factor_unit)
+  mutate(significance= if_else(correlation>=0.7,"*",""))
   mutate(moderator1 = new_column[as.numeric(moderator1)])
 
 
