@@ -1,57 +1,57 @@
-factor_sub_class,pcc_factor_unit,tau2_se,heterogeneity_test,I2
-Physical capital,Land tenure (continuous),0.002 (0.001),"Q(df = 20) = 76.304, p <0.001",69.733
-Accessibility,Distance road (continuous),0.002 (0.002),"Q(df = 9) = 26.723, p = 0.002",79.285
-Biophysical,Precipitation (mm/year),0.004 (0.002),"Q(df = 14) = 48.81, p <0.001",86.456
-Socio-demographic,Gender (1= male),0.033 (0.004),"Q(df = 136) = 232829.151, p <0.001",99.79
-Socio-demographic,Age (continuous),0.033 (0.004),"Q(df = 163) = 1577973.292, p <0.001",99.57
-Socio-demographic,Education (1= high school),0.002 (0.002),"Q(df = 8) = 20.64, p = 0.008",80.962
-Socio-demographic,Education (1= post-secondary),0.001 (0.001),"Q(df = 33) = 61.733, p = 0.002",51.075
-Accessibility,Distance input market (continuous),0.001 (0.001),"Q(df = 8) = 25.498, p = 0.001",55.052
-Socio-demographic,Education (continuous),0.039 (0.005),"Q(df = 131) = 271259.565, p <0.001",99.63
-Financial capital,Access to non-farm income (1= yes),0.011 (0.002),"Q(df = 60) = 5544.129, p <0.001",96.779
-Technical information,Extension frequency (number of contacts),0.081 (0.026),"Q(df = 22) = 5899.575, p <0.001",99.179
-Physical capital,Access to irrigation (1= yes),0.071 (0.026),"Q(df = 16) = 12375.715, p <0.001",99.146
-Socio-demographic,Household is native (1= yes),0.015 (0.008),"Q(df = 14) = 57.674, p <0.001",82.066
-Personal behaviour,Risk attitude (1= risk-averse),0.002 (0.002),"Q(df = 14) = 22.636, p = 0.066",40.528
-Personal behaviour,Perceived benefit (1= environmental),0 (0.003),"Q(df = 2) = 1.132, p = 0.568",0
-Physical capital,Land tenure (1= owned),0.083 (0.015),"Q(df = 62) = 147250.83, p <0.001",99.87
-Socio-demographic,Education (1= literate),0.003 (0.002),"Q(df = 14) = 46.357, p <0.001",68.46
-Technical information,Farming experience (continuous),0.057 (0.011),"Q(df = 66) = 31865.692, p <0.001",98.875
-Physical capital,Number of plots (number),0.002 (0.002),"Q(df = 18) = 33.858, p = 0.013",43.826
-Financial capital,Access to credit (1= yes),0.06 (0.011),"Q(df = 69) = 64640.418, p <0.001",98.947
-Socio-demographic,Education (1= primary),0.031 (0.022),"Q(df = 5) = 43.933, p <0.001",93.814
-Technical information,Access to training (1= yes),0.01 (0.003),"Q(df = 33) = 172.786, p <0.001",86.523
-Physical capital,Livestock owned (1= yes),0.071 (0.021),"Q(df = 26) = 21898.05, p <0.001",98.966
-Physical capital,Plot size (continuous),0.102 (0.033),"Q(df = 20) = 136513.941, p <0.001",100
-Social capital,Hired labour (continuous),0.004 (0.003),"Q(df = 9) = 22.661, p = 0.007",69.24
-Biophysical,Soil fertility (1= high),0.001 (0.001),"Q(df = 19) = 60.576, p <0.001",83.41
-Biophysical,Soil slope (1= flat),0.001 (0),"Q(df = 20) = 61.048, p <0.001",70.46
-Biophysical,Soil slope (1= moderate),0 (0),"Q(df = 19) = 24.487, p = 0.178",19.13
-Social capital,Non-hired labour (continuous),0 (0),"Q(df = 16) = 42.553, p <0.001",25.742
-Social capital,Relatives and friends (number),0.001 (0),"Q(df = 20) = 65.535, p <0.001",79.426
-Social capital,Communicate with other farmers (1= yes),0.004 (0.002),"Q(df = 15) = 112.497, p <0.001",95.126
-Social capital,Hired labour (1= yes),0.012 (0.009),"Q(df = 7) = 44.41, p <0.001",80.54
-Technical information,Use of DFS (1= yes),0.023 (0.008),"Q(df = 21) = 218.641, p <0.001",93.107
-Biophysical,Temperature (Celsius),0.055 (0.025),"Q(df = 11) = 1189.355, p <0.001",97.632
-Financial capital,Access to credit is a constraint (1= yes),0 (0),"Q(df = 13) = 19.17, p = 0.118",26.517
-Biophysical,Soil fertility (1= moderate),0.006 (0.002),"Q(df = 20) = 161.495, p <0.001",92.645
-Biophysical,Soil depth (1 = shallow),0 (0.001),"Q(df = 7) = 14.596, p = 0.042",51.965
-Biophysical,Soil depth (1 = moderate),0.001 (0.001),"Q(df = 14) = 43.798, p <0.001",73.677
-Financial capital,Receive support for conservation (1= yes),0.026 (0.009),"Q(df = 21) = 254.13, p <0.001",93.685
-Socio-demographic,Marital status (1= married),0.007 (0.003),"Q(df = 17) = 57.822, p <0.001",76.188
-Personal behaviour,Production constraint (1= soil fertility),0 (0.001),"Q(df = 4) = 2.573, p = 0.632",0
-Personal behaviour,Perceived constraint (1= financial),0.01 (0.012),"Q(df = 3) = 10.798, p = 0.013",76.562
-Personal behaviour,Attitude toward practice (1= negative),0 (0.004),"Q(df = 1) = 0.004, p = 0.948",0
-Personal behaviour,Perceived benefit (1= erosion reduction),0 (0.008),"Q(df = 1) = 0.757, p = 0.384",0
-Personal behaviour,Perceived benefit (1= soil fertility),0.01 (0.012),"Q(df = 3) = 10.519, p = 0.015",73.478
-Personal behaviour,Perceived benefit (1= financial),0.003 (0.004),"Q(df = 4) = 9.006, p = 0.061",54.347
-Biophysical,Soil fertility (1= poor),0 (0.001),"Q(df = 10) = 19.52, p = 0.034",45.1
-Financial capital,Total income (continuous),0.001 (0.001),"Q(df = 18) = 20.258, p = 0.318",16.558
-Personal behaviour,Production constraint (1= pest),0.049 (0.019),"Q(df = 14) = 1686.052, p <0.001",99.274
-Personal behaviour,Perception of extension (1= confident),0 (0),"Q(df = 14) = 26.505, p = 0.022",53.578
-Biophysical,Soil depth (1= deep),0.001 (0),"Q(df = 8) = 18.662, p = 0.017",60.446
-Personal behaviour,Production constraint (1= drought),0.001 (0.001),"Q(df = 6) = 17.016, p = 0.009",68.273
-Financial capital,Non-farm income (continuous),0.102 (0.034),"Q(df = 20) = 4533.636, p <0.001",99.797
-Personal behaviour,Attitude toward practice (1= positive),0.041 (0.028),"Q(df = 5) = 62.736, p <0.001",92.496
-Accessibility,Distance output market (continuous),0 (0),"Q(df = 3) = 3.817, p = 0.282",0.169
-Personal behaviour,Attitude toward practice (positive continuous),0.054 (0.05),"Q(df = 3) = 37.6, p <0.001",90.461
+"factor_sub_class","pcc_factor_unit","tau2_se","heterogeneity_test","I2"
+"Physical capital","Land tenure (continuous)","0.002 (0.001)","Q(df = 20) = 76.304, p <0.001",69.733
+"Accessibility","Distance road (continuous)","0.002 (0.002)","Q(df = 9) = 26.723, p = 0.002",79.285
+"Biophysical","Precipitation (mm/year)","0.004 (0.002)","Q(df = 14) = 48.81, p <0.001",86.456
+"Socio-demographic","Gender (1= male)","0.033 (0.004)","Q(df = 136) = 232829.151, p <0.001",99.79
+"Socio-demographic","Age (continuous)","0.033 (0.004)","Q(df = 163) = 1577973.292, p <0.001",99.57
+"Socio-demographic","Education (1= high school)","0.002 (0.002)","Q(df = 8) = 20.64, p = 0.008",80.962
+"Socio-demographic","Education (1= post-secondary)","0.001 (0.001)","Q(df = 33) = 61.733, p = 0.002",51.075
+"Accessibility","Distance input market (continuous)","0.001 (0.001)","Q(df = 8) = 25.498, p = 0.001",55.052
+"Socio-demographic","Education (continuous)","0.039 (0.005)","Q(df = 131) = 271259.565, p <0.001",99.63
+"Financial capital","Access to non-farm income (1= yes)","0.011 (0.002)","Q(df = 60) = 5544.129, p <0.001",96.779
+"Technical information","Extension frequency (number of contacts)","0.081 (0.026)","Q(df = 22) = 5899.575, p <0.001",99.179
+"Physical capital","Access to irrigation (1= yes)","0.071 (0.026)","Q(df = 16) = 12375.715, p <0.001",99.146
+"Socio-demographic","Household is native (1= yes)","0.015 (0.008)","Q(df = 14) = 57.674, p <0.001",82.066
+"Personal behaviour","Risk attitude (1= risk-averse)","0.002 (0.002)","Q(df = 14) = 22.636, p = 0.066",40.528
+"Personal behaviour","Perceived benefit (1= environmental)","0 (0.003)","Q(df = 2) = 1.132, p = 0.568",0
+"Physical capital","Land tenure (1= owned)","0.083 (0.015)","Q(df = 62) = 147250.83, p <0.001",99.87
+"Socio-demographic","Education (1= literate)","0.003 (0.002)","Q(df = 14) = 46.357, p <0.001",68.46
+"Technical information","Farming experience (continuous)","0.057 (0.011)","Q(df = 66) = 31865.692, p <0.001",98.875
+"Physical capital","Number of plots (number)","0.002 (0.002)","Q(df = 18) = 33.858, p = 0.013",43.826
+"Financial capital","Access to credit (1= yes)","0.06 (0.011)","Q(df = 69) = 64640.418, p <0.001",98.947
+"Socio-demographic","Education (1= primary)","0.031 (0.022)","Q(df = 5) = 43.933, p <0.001",93.814
+"Technical information","Access to training (1= yes)","0.01 (0.003)","Q(df = 33) = 172.786, p <0.001",86.523
+"Physical capital","Livestock owned (1= yes)","0.071 (0.021)","Q(df = 26) = 21898.05, p <0.001",98.966
+"Physical capital","Plot size (continuous)","0.102 (0.033)","Q(df = 20) = 136513.941, p <0.001",100
+"Social capital","Hired labour (continuous)","0.004 (0.003)","Q(df = 9) = 22.661, p = 0.007",69.24
+"Biophysical","Soil fertility (1= high)","0.001 (0.001)","Q(df = 19) = 60.576, p <0.001",83.41
+"Biophysical","Soil slope (1= flat)","0.001 (0)","Q(df = 20) = 61.048, p <0.001",70.46
+"Biophysical","Soil slope (1= moderate)","0 (0)","Q(df = 19) = 24.487, p = 0.178",19.13
+"Social capital","Non-hired labour (continuous)","0 (0)","Q(df = 16) = 42.553, p <0.001",25.742
+"Social capital","Relatives and friends (number)","0.001 (0)","Q(df = 20) = 65.535, p <0.001",79.426
+"Social capital","Communicate with other farmers (1= yes)","0.004 (0.002)","Q(df = 15) = 112.497, p <0.001",95.126
+"Social capital","Hired labour (1= yes)","0.012 (0.009)","Q(df = 7) = 44.41, p <0.001",80.54
+"Technical information","Use of DFS (1= yes)","0.023 (0.008)","Q(df = 21) = 218.641, p <0.001",93.107
+"Biophysical","Temperature (Celsius)","0.055 (0.025)","Q(df = 11) = 1189.355, p <0.001",97.632
+"Financial capital","Access to credit is a constraint (1= yes)","0 (0)","Q(df = 13) = 19.17, p = 0.118",26.517
+"Biophysical","Soil fertility (1= moderate)","0.006 (0.002)","Q(df = 20) = 161.495, p <0.001",92.645
+"Biophysical","Soil depth (1 = shallow)","0 (0.001)","Q(df = 7) = 14.596, p = 0.042",51.965
+"Biophysical","Soil depth (1 = moderate)","0.001 (0.001)","Q(df = 14) = 43.798, p <0.001",73.677
+"Financial capital","Receive support for conservation (1= yes)","0.026 (0.009)","Q(df = 21) = 254.13, p <0.001",93.685
+"Socio-demographic","Marital status (1= married)","0.007 (0.003)","Q(df = 17) = 57.822, p <0.001",76.188
+"Personal behaviour","Production constraint (1= soil fertility)","0 (0.001)","Q(df = 4) = 2.573, p = 0.632",0
+"Personal behaviour","Perceived constraint (1= financial)","0.01 (0.012)","Q(df = 3) = 10.798, p = 0.013",76.562
+"Personal behaviour","Attitude toward practice (1= negative)","0 (0.004)","Q(df = 1) = 0.004, p = 0.948",0
+"Personal behaviour","Perceived benefit (1= erosion reduction)","0 (0.008)","Q(df = 1) = 0.757, p = 0.384",0
+"Personal behaviour","Perceived benefit (1= soil fertility)","0.01 (0.012)","Q(df = 3) = 10.519, p = 0.015",73.478
+"Personal behaviour","Perceived benefit (1= financial)","0.003 (0.004)","Q(df = 4) = 9.006, p = 0.061",54.347
+"Biophysical","Soil fertility (1= poor)","0 (0.001)","Q(df = 10) = 19.52, p = 0.034",45.1
+"Financial capital","Total income (continuous)","0.001 (0.001)","Q(df = 18) = 20.258, p = 0.318",16.558
+"Personal behaviour","Production constraint (1= pest)","0.049 (0.019)","Q(df = 14) = 1686.052, p <0.001",99.274
+"Personal behaviour","Perception of extension (1= confident)","0 (0)","Q(df = 14) = 26.505, p = 0.022",53.578
+"Biophysical","Soil depth (1= deep)","0.001 (0)","Q(df = 8) = 18.662, p = 0.017",60.446
+"Personal behaviour","Production constraint (1= drought)","0.001 (0.001)","Q(df = 6) = 17.016, p = 0.009",68.273
+"Financial capital","Non-farm income (continuous)","0.102 (0.034)","Q(df = 20) = 4533.636, p <0.001",99.797
+"Personal behaviour","Attitude toward practice (1= positive)","0.041 (0.028)","Q(df = 5) = 62.736, p <0.001",92.496
+"Accessibility","Distance output market (continuous)","0 (0)","Q(df = 3) = 3.817, p = 0.282",0.169
+"Personal behaviour","Attitude toward practice (positive continuous)","0.054 (0.05)","Q(df = 3) = 37.6, p <0.001",90.461
