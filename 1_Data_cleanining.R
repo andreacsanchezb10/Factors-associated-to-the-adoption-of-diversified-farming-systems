@@ -672,7 +672,6 @@ factors<-data_adoption_binary%>%
   group_by(factor_sub_class, x_metric_recla2 ) %>%
   summarise(n_articles = n_distinct(article_id))
 
-sort(unique(factors$factor_metric))
 sort(unique(factors$factor_sub_class))
 
 
@@ -713,5 +712,6 @@ names(pcc_data_adoption_binary)
 #verificar cuantos articulos para log-odds ratio y cuantos para pcc
 #verificar si hay overlap entre probit y logit models
 
-write.csv(pcc_data_adoption_binary, "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/binary_adoption_clean_data_2024.01.31.csv", row.names=FALSE)
+write.csv(pcc_data_adoption_binary, 
+          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/binary_adoption_clean_data.csv", row.names=FALSE)
 
