@@ -11,14 +11,20 @@ heterogeneity_2level<-read.csv(
   header = TRUE, sep = ",")%>%
   filter(I2>=75)
 
+pcc_factors_2level<-read.csv(
+  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_data_2levels.csv",
+  header = TRUE, sep = ",")%>%
+  dplyr::group_by(factor_sub_class.x,pcc_factor_unit) %>%
+  dplyr::summarise(n_articles = n_distinct(article_id))%>%
+  filter(n_articles>9)
+
 pcc_data_2level<-read.csv(
   "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_data_2levels.csv",
-                     header = TRUE, sep = ",")
-  filter(n_articles>9)
+                     header = TRUE, sep = ",")%>%
+  left_join(pcc_factors_2level, by="pcc_factor_unit")%>%
+  filter(!is.na(n_articles))%>%
   left_join(heterogeneity_2level, by="pcc_factor_unit")%>%
   filter(!is.na(I2))%>%
-  #filter(pcc_factor_unit=="Access to credit (1= yes)"|
-   #        pcc_factor_unit=="Gender (1= male)")%>%
   mutate_at(vars(
     #categorical moderators
     m_region,
