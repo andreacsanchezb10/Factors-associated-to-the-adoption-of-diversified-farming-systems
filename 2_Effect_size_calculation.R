@@ -1,12 +1,6 @@
-#install.packages("plyr")
-#library(Rtools)
-#library(readr)
-#library(plyr)
 library(dplyr)
-
 library(readxl)
-#library(tidyverse)
-#library(tibble)
+
 
 ####### FACTORS -------
 factors_metric_assessed <- read_excel("C:/Users/AndreaSanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/Meta_data_2024.01.25.xlsx",
@@ -16,7 +10,7 @@ factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metri
                                                  " (",factors_metric_assessed$pcc_unit,")", sep="")
 
 
-data<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/binary_adoption_clean_data_2024.01.31.csv",
+data<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/binary_adoption_clean_data.csv",
                header = TRUE, sep = ",")%>%
   select( "article_id","model_id", "main_crop" ,"country",                        
           "intervention_recla","intervention_recla_detail_1" ,   
@@ -54,7 +48,7 @@ sort(unique(data$limitation_of_use_obs))
 #######  Included FACTORS -------
 length(unique(data$x_metric_recla)) #46
 sort(unique(data$x_metric_recla))
-length(unique(data$x_metric_recla2))#47
+length(unique(data$x_metric_recla2))#49
 sort(unique(data$x_metric_recla2))#47
 
 [1] "access to agricultural extension"                           "access to agricultural information"                        
@@ -92,7 +86,7 @@ factors_metric_unit<-data%>%
 
 sort(unique(factors_metric_unit$pcc_factor_unit)) # 135 factor_metric
 
-write.csv(factors_metric_unit, "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/pcc_factors_metric_unit_articles_2024.01.31.csv", row.names=FALSE)
+write.csv(factors_metric_unit, "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_factors_metric_unit_articles.csv", row.names=FALSE)
 
 ####################### EFFECT SIZE calculation---------------------------------
 library(metafor)
@@ -114,14 +108,5 @@ check_meta<- pcc_data%>%
 
 sort(unique(pcc_data$pcc_unit))
 
-write.csv(pcc_data, "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/pcc_data_2024.01.31.csv", row.names=FALSE)
-
-
-
-
-sort(unique(pcc_data$pcc_factor_unit))
-sort(unique(pcc_data$factor_sub_class))
-
-table(pcc_data$pcc_factor_unit)
-names(pcc_data)
+write.csv(pcc_data, "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_data.csv", row.names=FALSE)
 
