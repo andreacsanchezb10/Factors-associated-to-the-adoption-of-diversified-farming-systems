@@ -543,7 +543,7 @@ factors_articles_count <- adoption_binary %>%
 names(adoption_binary)
 
 write.csv(factors_articles_count, 
-          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/factors_articles_2024.02.02.csv", 
+          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/binary_adoption_factors_articles.csv", 
           row.names=FALSE)
 
 
