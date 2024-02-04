@@ -137,7 +137,7 @@ pcc_data_2level<- pcc_data%>%
   left_join(comparison, by= "pcc_factor_unit")%>%
   filter(best_model == "Two-level" )
 
-
+names(pcc_data_2level)
 sort(unique(pcc_data_2level$pcc_factor_unit))
 
 write.csv(pcc_data_2level,
