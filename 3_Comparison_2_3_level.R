@@ -1,10 +1,3 @@
-#install.packages("plyr")
-#library(Rtools)
-#library(readr)
-#library(plyr)
-#library(readxl)
-
-#library(tidyverse)
 library(tibble)
 library(readxl)
 library(stringr)
@@ -18,11 +11,12 @@ factors_metric_assessed <- read_excel("C:/Users/AndreaSanchez/OneDrive - CGIAR/1
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
                                                  " (",factors_metric_assessed$pcc_unit,")", sep="")
 
-pcc_data<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/pcc_data_2024.01.31.csv",
+pcc_data<-read.csv(
+  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_data.csv",
                    header = TRUE, sep = ",")%>%
   mutate(pcc_factor_unit= as.factor(pcc_factor_unit))
 
-levels(pcc_data$pcc_factor_unit)
+levels(pcc_data$pcc_factor_unit) #70
 names(pcc_data)
 ######## COMPARISON between 2-level and 3-level model structure -------------- 
 
@@ -182,8 +176,8 @@ comparison<- modelnovar2_results%>%
          "best_model")
 
 length((comparison$best_model[comparison$best_model %in% "Three-level"])) #14
-length((comparison$best_model[comparison$best_model %in% "Two-level"])) #54
+length((comparison$best_model[comparison$best_model %in% "Two-level"])) #56
 
 
-write.csv(comparison, "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/comparison_2024.01.31.csv", row.names=FALSE)
+write.csv(comparison, "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems//comparison_best_model.csv", row.names=FALSE)
 
