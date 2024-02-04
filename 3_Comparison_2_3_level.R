@@ -179,5 +179,5 @@ length((comparison$best_model[comparison$best_model %in% "Three-level"])) #14
 length((comparison$best_model[comparison$best_model %in% "Two-level"])) #56
 
 
-write.csv(comparison, "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems//comparison_best_model.csv", row.names=FALSE)
+write.csv(comparison, "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/comparison_best_model.csv", row.names=FALSE)
 

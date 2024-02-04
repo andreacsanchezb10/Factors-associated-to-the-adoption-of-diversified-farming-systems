@@ -1,10 +1,3 @@
-#install.packages("plyr")
-#library(Rtools)
-#library(readr)
-#library(plyr)
-
-#library(tidyverse)
-
 library(readxl)
 library(tidyr)
 library(stringr)
@@ -22,11 +15,11 @@ pcc_factor_class_unit<-factors_metric_assessed%>%
   select(factor_sub_class,pcc_factor_unit)
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
-pcc_data<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/pcc_data_2024.01.31.csv",
+pcc_data<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_data.csv",
                    header = TRUE, sep = ",")
 names(pcc_data)
 
-comparison<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/comparison_2024.01.31.csv",
+comparison<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/comparison_best_model.csv",
                    header = TRUE, sep = ",")
 
 sort(unique(comparison$best_model))
@@ -38,9 +31,8 @@ pcc_data_3level<- pcc_data%>%
 sort(unique(pcc_data_3level$pcc_factor_unit))
 
 write.csv(pcc_data_3level,
-          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/pcc_data_3_levels_2024.01.31.csv", row.names=FALSE)
+          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_data_3levels.csv", row.names=FALSE)
 
-names(pcc_data_3level)
 #### Estimate the overall effect by fitting an intercept-only model ----
 overall_3level <- function(data, metric_unit) {
   overal_model <- rma.mv(yi, vi, 
@@ -98,7 +90,7 @@ overall_3level_results <- as.data.frame(overall_3level_results_list)%>%
   
 
 write.csv(overall_3level_results,
-          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/overall_3level_results_2024.01.31.csv", row.names=FALSE)
+          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/overall_results_3levels.csv", row.names=FALSE)
 
 #### D istribution of the variance over the three levels of the meta-analytic model ----
 #Equation: Cheung (2014) Formula to calculate the estimate sampling variance (formula 14)
@@ -114,7 +106,7 @@ overall_3level_sampling_variance<- pcc_data_3level%>%
   group_by(pcc_factor_unit,sampling.variance)%>%
   tally()%>%
   left_join(overall_3level_results, by = ("pcc_factor_unit"))%>%
-  mutate(heterogeneity_test= paste("Q(df = ", QEdf,") = ",QE,", pval ", QEp, sep = ""))
+  mutate(heterogeneity_test= paste("Q(df = ", QEdf,") = ",QE,", p ", QEp, sep = ""))
 
 
 ## Each of the three variance components (I2_1, I2_2, I2_3) is divided by the total amount of variance
@@ -137,7 +129,7 @@ overall_3level_sampling_variance<-overall_3level_sampling_variance%>%
 
 
 write.csv(overall_3level_sampling_variance,
-          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/heterogeneity_3_levels_2024.01.31.csv", row.names=FALSE)
+          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/heterogeneity_3levels.csv", row.names=FALSE)
 
 
 ######## TWO-LEVEL META-ANALYSIS -------------- 
@@ -149,7 +141,7 @@ pcc_data_2level<- pcc_data%>%
 sort(unique(pcc_data_2level$pcc_factor_unit))
 
 write.csv(pcc_data_2level,
-          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/pcc_data_2_levels_2024.01.31.csv", row.names=FALSE)
+          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_data_2levels.csv", row.names=FALSE)
 
 #### Estimate the overall effect by fitting an intercept-only model ----
 overall_2level <- function(data, metric_unit) {
@@ -199,24 +191,23 @@ overall_2level_results <- as.data.frame(overall_2level_results_list)%>%
   mutate_at(8:14, as.numeric)
   
 write.csv(overall_2level_results,
-          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/overall_2level_results_2024.01.31.csv",
+          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/overall_results_2levels.csv",
           row.names=FALSE)
-str(overall_2level_results)
 
-
+## Distribution of the variance
 overall_2level_sampling_variance<-  overall_2level_results%>%
   select(pcc_factor_unit,tau2,se.tau2, I2, QE, dfs, QEp)%>%
   mutate_at(2:7, as.numeric)%>%
   mutate(across(where(is.numeric), ~ round(., 3)))%>%
   mutate(QEp= as.character(QEp))%>%
-  mutate(QEp= if_else(QEp==0, "<0.001", QEp))%>%
-  mutate(heterogeneity_test= paste("Q(df = ", dfs,") = ",QE,", pval ", QEp, sep = ""))%>%
+  mutate(QEp= if_else(QEp==0, "<0.001", paste("= ",QEp,sep = "")))%>%
+  mutate(heterogeneity_test= paste("Q(df = ", dfs,") = ",QE,", p ", QEp, sep = ""))%>%
   mutate(tau2_se= paste(tau2," (",se.tau2,")",sep=""))%>%
   left_join(pcc_factor_class_unit, by="pcc_factor_unit")%>%
   select(factor_sub_class,pcc_factor_unit,tau2_se, heterogeneity_test, I2)
   
 write.csv(overall_2level_sampling_variance,
-          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/heterogeneity_2_levels_2024.01.31.csv", row.names=FALSE)
+          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/heterogeneity_2levels.csv", row.names=FALSE)
 
 
 
