@@ -23,26 +23,21 @@ pcc_factor_class_unit<-factors_metric_assessed%>%
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 #### PCC data 
-pcc_data<- read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/pcc_data_3_levels_2024.01.31.csv",
-                    header = TRUE, sep = ",")  %>%
-  rbind(read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/pcc_data_2_levels_2024.01.31.csv",
-                 header = TRUE, sep = ","))
+pcc_data<- read.csv("pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
+  rbind(read.csv("pcc_data_2levels.csv",header = TRUE, sep = ","))
 
 #### Overall results
-#Two-level
-pcc_2level<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/pcc_data_2_levels_2024.01.31.csv",
-                     header = TRUE, sep = ",")  %>%
+#Two-levels
+pcc_2level<-read.csv("pcc_data_2levels.csv",header = TRUE, sep = ",")  %>%
   dplyr::group_by(factor_sub_class.x,pcc_factor_unit) %>%
   dplyr::summarise(n_articles = n_distinct(article_id))
 
-overall_2level_results<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/overall_2level_results_2024.01.31.csv",
-                                          header = TRUE, sep = ",")%>%
+overall_2level_results<-read.csv("overall_results_2levels.csv",header = TRUE, sep = ",")%>%
   left_join(pcc_2level,by="pcc_factor_unit")%>%
   select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","n_ES","n_articles")
   
 #Three-level
-overall_3level_results<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/overall_3level_results_2024.01.31.csv",
-                                 header = TRUE, sep = ",")%>%
+overall_3level_results<-read.csv("overall_results_3levels.csv",header = TRUE, sep = ",")%>%
   select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","n_ES","n_articles")
 
 #### OVERALL RESULTS
@@ -55,7 +50,7 @@ overall_results<- overall_3level_results%>%
                                 if_else(beta <0 & pval <=0.05, "significant_negative",
                                         if_else(beta>0&pval>0.05,"no_significant_positive",
                                                 "no_significant_negative"))))%>%
-  mutate(icon_n_articles= if_else(n_articles>=10,
+  mutate(icon_n_articles= if_else(n_articles>10,
                                   "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/more10.png",
                                   "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/less10.png" ))
 
