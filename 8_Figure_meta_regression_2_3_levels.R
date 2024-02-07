@@ -62,27 +62,19 @@ overall_results_more10$ID <- as.numeric(seq(39, 1, by = -1)) #add a new column w
 
 #### Meta-regression results
 #Two-level
-meta_regression_2levels<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/meta_regression_2_levels_2024.02.02.csv",
-                                  header = TRUE, sep = ",")%>%
-  select(pcc_factor_unit, factor_sub_class,moderator, moderator_class,
-         beta, significance2,pval)
+meta_regression_2levels<-read.csv("meta_regression_2levels.csv",header = TRUE, sep = ",")%>%
+  select(pcc_factor_unit, factor_sub_class,moderator, moderator_class,beta, significance2,pval)
 
 sort(unique(meta_regression_2levels$pcc_factor_unit))
 #Three-level
-meta_regression_3levels<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/meta_regression_3_levels_2024.02.02.csv",
-                                 header = TRUE, sep = ",")%>%
-  select(pcc_factor_unit, factor_sub_class,moderator, moderator_class,
-         beta, significance2,pval)
+meta_regression_3levels<-read.csv("meta_regression_3levels.csv",header = TRUE, sep = ",")%>%
+  select(pcc_factor_unit, factor_sub_class,moderator, moderator_class,beta, significance2,pval)
 sort(unique(meta_regression_3levels$pcc_factor_unit))
 
 meta_regression<- meta_regression_3levels%>%
   rbind(meta_regression_2levels)%>%
   arrange(factor_sub_class, moderator, 
-          moderator_class, desc(beta))%>%
-  mutate(significance2 = if_else(beta >0 & pval <=0.05, "significant_positive",
-                                 if_else(beta <0 & pval <=0.05, "significant_negative",
-                                         if_else(beta>0&pval>0.05,"no_significant_positive",
-                                                 "no_significant_negative"))))
+          moderator_class, desc(beta))
 
 sort(unique(meta_regression$pcc_factor_unit))
 
@@ -92,17 +84,23 @@ m_farm_size_distribution<-pcc_data%>%
   filter(!is.na(m_mean_farm_size_ha))%>%
   group_by( pcc_factor_unit)%>%
   dplyr::summarise(n_articles = n_distinct(article_id),
-                   n_ES = n_distinct(ES_ID))%>%
+                   n_ES = n_distinct(ES_ID))
   mutate(moderator_class="m_mean_farm_size_ha")
+
 names(m_farm_size_distribution)
 
 m_farm_size<- meta_regression%>%
   filter(moderator== "m_mean_farm_size_ha")%>%
   filter(moderator_class != "intrcpt")%>%
-  dplyr::left_join(select(overall_results_more10, c(ID,pcc_factor_unit)), by="pcc_factor_unit")%>%
-  dplyr::left_join(m_farm_size_distribution, by="pcc_factor_unit")%>%
-  filter(!is.na(ID))
+  #dplyr::left_join(select(overall_results_more10, c(ID,pcc_factor_unit)), 
+   #                by="pcc_factor_unit")%>%
+  dplyr::left_join(m_farm_size_distribution, 
+                   by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
+  mutate(icon_n_articles= if_else(n_articles>=10,
+                                  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/more10.png",
+                                  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/less10.png" ))
 
+m_farm_size$ID <- as.numeric(seq(32, 1, by = -1))
 
 #Moderator: diversified farming systems------
 m_dfs_distribution<-pcc_data%>%
@@ -114,7 +112,8 @@ names(pcc_data)
 
 m_dfs<- meta_regression%>%
   filter(moderator== "m_intervention_recla2")%>%
-  left_join(select(overall_results_more10, c(ID,pcc_factor_unit)), by="pcc_factor_unit")%>%
+  left_join(select(m_farm_size, c(ID,pcc_factor_unit)), 
+            by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
   mutate(
     y = case_when(
       moderator_class == "Agro-aquaculture" ~ 1 + (0.3 *1),
@@ -128,7 +127,8 @@ m_dfs<- meta_regression%>%
       moderator_class == "Intercropping" ~ 1 + (0.3 * 17),
       moderator_class == "Rotational grazing" ~ 1 + (0.3 * 19),
       TRUE ~ NA_real_))%>%
-  left_join(m_dfs_distribution, by=c("moderator_class","pcc_factor_unit"))%>%
+  left_join(m_dfs_distribution, by=c("pcc_factor_unit"="pcc_factor_unit",
+                                     "moderator_class"="moderator_class"))%>%
   filter(!is.na(ID))%>%
   mutate(icon_n_articles= if_else(n_articles>=10,
                                   "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/more10.png",
@@ -166,16 +166,17 @@ sort(unique(m_region$moderator_class))
 #https://stackoverflow.com/questions/15420621/reproduce-table-and-plot-from-journal -----
 ## SYNTHESIZE SOME PLOT DATA 
 ## OVERALL RESULTS
-overall<-overall_results_more10%>%
-  select(ID,beta, ci.lb,ci.ub)
+overall<-m_farm_size%>%
+  select(ID,beta, pcc_factor_unit)
 
-overall<-rbind(overall,data.frame(ID=c(max(overall_results_more10$ID)+1,
-                                       max(overall_results_more10$ID)+2),
+overall<-rbind(overall,data.frame(ID=c(max(m_farm_size$ID)+1,
+                                       max(m_farm_size$ID)+2),
                                        #max(overal_results$ID)+3),
                                        #max(overal_results$ID)+4),
-                                     beta=NA,ci.ub=NA,ci.lb=NA))
-overall<-overall%>%
-  left_join(overall_results_more10, by= c("ID","beta", "ci.lb","ci.ub" ))
+                                  beta=NA,
+                                  pcc_factor_unit=NA))
+#overall<-overall%>%
+ # left_join(overall_results_more10, by= c("ID","beta", "ci.lb","ci.ub" ))
 
 
 ## identify the rows to be highlighted, and 
@@ -192,10 +193,10 @@ hl_rows <- data.frame(ID = (1:floor(length(unique(overall$ID[which(overall$ID > 
                       col = "lightgrey", width = 1,height=1)
 
 # Set the color and width for ID = 40
-hl_rows$col[hl_rows$ID %in% 40] <- "white"
-hl_rows$col[hl_rows$ID %in% 41] <- "white"
+hl_rows$col[hl_rows$ID %in% 33] <- "white"
+hl_rows$col[hl_rows$ID %in% 34] <- "white"
+hl_rows$height[hl_rows$ID %in% 33] <- 4
 
-hl_rows$height[hl_rows$ID %in% 40] <- 3
 
 
 hl_rect <- function(col = "lightgrey", alpha = 0.8, 
@@ -213,6 +214,7 @@ systems_path1 <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons/"
 
 systems_icons <- list.files(systems_path1, pattern = "\\.png$", full.names = TRUE)
 systems_icons
+
 RtLabels <- data.frame(systems_path = systems_icons)%>%
   mutate(moderator_class = sub(paste0("^", systems_path1), "", systems_path))%>%
   mutate(moderator_class = sub("\\.png$", "", moderator_class))%>%
@@ -273,8 +275,7 @@ plot1 +
   geom_hline(aes(yintercept=5.8),linetype=2, size=0.5, colour="grey50")+
   geom_hline(aes(yintercept=6.4),linetype=2, size=0.5, colour="grey50")+
   geom_hline(aes(yintercept=7),linetype=1, size=0.5)+
-  geom_hline(aes(yintercept=7.6),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=8.2),linetype=2, size=0.5, colour="grey50")+
+  geom_hline(aes(yintercept=8),linetype=1)+
   geom_hline(aes(yintercept=8.8),linetype=2, size=0.5, colour="grey50")+
   geom_hline(aes(yintercept=9.4),linetype=2, size=0.5, colour="grey50")+
   geom_hline(aes(yintercept=10),linetype=1)+
@@ -283,14 +284,15 @@ plot1 +
   geom_text(data=overall,aes(x=factor(ID),y=-0.05,label=pcc_factor_unit),
             vjust=0.4, hjust=1, size=5)+
   coord_flip()+
-  #Overall effect
-  geom_point(data=overall_results_more10,aes(x=factor(ID),y=0.5,fill=factor(significance2),
-                                             colour= factor(significance2)),
-             size=9,shape=21,show.legend = F)+
-  geom_image(data=overall_results_more10, aes(x=factor(ID),y=0.5,image=icon_n_articles), 
-             colour="black",size=.02)+
+  
   #Sub-titles
-  geom_image(data=RtLabels, aes(x=40.5, y=y,image=systems_path), size=.05)+
+  geom_image(data=RtLabels, aes(x=33.5, y=y,image=systems_path), size=.05)+
+  #Moderator: Farm size
+  geom_point(data=m_farm_size,aes(x=factor(ID),y=0.5,fill=factor(significance2),
+                                  colour= factor(significance2)),
+             size=9,shape=21,show.legend = F)+
+  geom_image(data=m_farm_size, aes(x=factor(ID),y=0.5,image=icon_n_articles), 
+             colour="black",size=.02)+
   #Moderator: Diversified farming systems
   geom_point(data=m_dfs,aes(x=factor(ID),y=y,fill=factor(significance2),
                             colour= factor(significance2)),
@@ -304,7 +306,7 @@ plot1 +
   scale_y_continuous(position = "right",limit = c(-3.75,7),expand = c(0, 0),
                      breaks=c(-2,0.5,3.5,7.25,9,10,10.5),
                      labels=c("Determinant factors",
-                             "Overall\neffect",
+                             "Farm size\n(ha)",
                              "Diversified farming system",
                              "Regions",
                              "Farm size\n(ha)",
@@ -336,9 +338,7 @@ geom_vline(xintercept = 34.5, linetype = 1, size = 0.5)+
   
 
   
-  #geom_text(data=RtLabels,aes(x=x,y=y,label=title ),
-   #         vjust=0.4, size=4,lineheight = 0.7)+
-  
+
   #Moderator: region
   geom_point(data=m_region,aes(x=factor(ID),y=y,fill=factor(significance2),size=n_articles),
              shape=21,show.legend = F)+
