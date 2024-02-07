@@ -19,26 +19,23 @@ pcc_factor_class_unit<-factors_metric_assessed%>%
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 #### PCC data 
-pcc_data<- read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/pcc_data_3_levels_2024.01.31.csv",
-                    header = TRUE, sep = ",")  %>%
-  rbind(read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/pcc_data_2_levels_2024.01.31.csv",
-                 header = TRUE, sep = ","))
+pcc_data<- read.csv("pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
+  rbind(read.csv("pcc_data_2levels.csv",header = TRUE, sep = ","))
 
 #### Overall results
 #Two-level
-pcc_2level<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/pcc_data_2_levels_2024.01.31.csv",
+pcc_2level<-read.csv("pcc_data_2levels.csv",
                      header = TRUE, sep = ",")  %>%
   dplyr::group_by(factor_sub_class.x,pcc_factor_unit) %>%
   dplyr::summarise(n_articles = n_distinct(article_id))
 
-overall_2level_results<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/overall_2level_results_2024.01.31.csv",
+overall_2level_results<-read.csv("overall_results_2levels.csv",
                                           header = TRUE, sep = ",")%>%
   left_join(pcc_2level,by="pcc_factor_unit")%>%
   select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","n_ES","n_articles")
   
 #Three-level
-overall_3level_results<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/overall_3level_results_2024.01.31.csv",
-                                 header = TRUE, sep = ",")%>%
+overall_3level_results<-read.csv("overall_results_3levels.csv",header = TRUE, sep = ",")%>%
   select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","n_ES","n_articles")
 
 sort(unique(overall_3level_results$pcc_factor_unit))
@@ -61,7 +58,10 @@ overal_results$ID <- as.numeric(seq(70, 1, by = -1)) #add a new column with the 
 ############# OVERALL RESULTS ONLY  ########################################################################################################
 ########################################################################################################
 ## Overall results for the most studied factors
-fills_more10 <- c("#f0c602", "#ea6044","#d896ff","#87CEEB",   "#496491", "#92c46d", "#297d7d")
+fills_more10 <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#297d7d")
+
+  
+c("#f0c602", "#ea6044","#d896ff","#87CEEB",   "#496491", "#92c46d", "#297d7d")
 
 overall_strips <- strip_themed(
   # Vertical strips
@@ -89,7 +89,8 @@ theme_overall<-theme(
   axis.line.x = element_line(colour = "black"))
 
 overall_effect_more10<-
-  ggplot(subset(overal_results,n_articles>9), 
+  ggplot(overal_results, 
+  #ggplot(subset(overal_results,n_articles>9), 
          aes(y=reorder(pcc_factor_unit, beta),x=beta,xmin=ci.lb, xmax=ci.ub,
              colour = factor(factor_sub_class) ))+
   geom_vline(xintercept=0, colour = "grey30",linetype = 1, linewidth=0.5)+
@@ -113,13 +114,19 @@ overall_effect_more10<-
 overall_effect_more10
 
 overall_distribution_more10<-
-  ggplot(subset(overal_results,n_articles>9), 
+  ggplot(overal_results, 
+  
+  #ggplot(subset(overal_results,n_articles>9), 
          aes(x=n_articles, y=reorder(pcc_factor_unit, beta),
                                   fill = factor(factor_sub_class))) +
   geom_bar(stat="identity",show.legend = F)+
   geom_errorbar(aes(xmin=0, xmax=n_ES), 
-                width=0.5, position = position_dodge(width = 0.9),size = 0.7,
+                width=0, position = position_dodge(width = 0.9),size = 0.7,
                 show.legend = F) +
+    geom_point(aes(x=n_ES, y=reorder(pcc_factor_unit, beta),
+                   fill = factor(factor_sub_class)),
+               shape=18,size=2, position = (position_dodge(width = -0.2)),
+               show.legend = F)+
   scale_fill_manual(values = fills_more10)+
   facet_grid2(vars(factor_sub_class),
               scales= "free", space='free_y', switch = "x", strip=overall_distribution_strips)+
