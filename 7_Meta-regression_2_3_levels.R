@@ -17,17 +17,27 @@ pcc_factor_class_unit<-factors_metric_assessed%>%
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 #### THREE-LEVEL META-ANALYSIS
-pcc_data_3level<- read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/pcc_data_3_levels_2024.01.31.csv",
+#Data
+pcc_data_3level<- read.csv(
+  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_data_3levels.csv",
                            header = TRUE, sep = ",")%>%
-  mutate_at(vars(m_mean_farm_size_ha), as.numeric)%>%
+  mutate_at(vars(m_mean_farm_size_ha,n_samples_num,n_predictors_num ), as.numeric)%>%
   group_by( pcc_factor_unit)%>%
-  dplyr::mutate(n_ES = n_distinct(ES_ID))%>%
-  filter(n_ES>4)
-
+  dplyr::mutate(n_articles = n_distinct(article_id))%>%
+  filter(n_articles>9)
 
 sort(unique(pcc_data_3level$pcc_factor_unit))
+sort(unique(pcc_data_3level$n_articles))
+
+#Heterogeneity
+heterogeneity_3level<- read.csv("heterogeneity_3levels.csv",header = TRUE, sep = ",")
+
+sort(unique(heterogeneity_3level$pcc_factor_unit))
+
 # List of moderators
-moderators <- c("m_region", "m_sub_region","m_intervention_recla2","m_mean_farm_size_ha")
+moderators <- c("m_region", "m_sub_region","m_intervention_recla2","m_mean_farm_size_ha",
+                "m_model_method","m_random_sample","m_exact_variance_value","m_type_data",
+                "n_samples_num","n_predictors_num")
 
 # List of pcc_factor_unit
 pcc_factor_units <- unique(pcc_data_3level$pcc_factor_unit)
@@ -82,7 +92,7 @@ for (moderator in moderators) {
 }
 
 # Combine results from the list into a single data frame
-meta_regression_3levels_df <- bind_rows(results_list)
+meta_regression_3levels_df <- bind_rows(results_list)%>%
   left_join(pcc_factor_class_unit, by= "pcc_factor_unit")%>%
   mutate(significance2 = if_else(beta >0 & pval <=0.05, "significant_positive",
                                  if_else(beta <0 & pval <=0.05, "significant_negative",
@@ -92,24 +102,41 @@ meta_regression_3levels_df <- bind_rows(results_list)
   mutate(moderator=str_replace_all(moderator, "-1", ""))%>%
   mutate(moderator_class= str_replace(.$moderator_class, paste0(".*", .$moderator), ""))
 
-write.csv(meta_regression_3levels_df,
-          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/meta_regression_3_levels_2024.02.02.csv", row.names=FALSE)
+sort(unique(meta_regression_3levels_df$moderator))
+sort(unique(meta_regression_3levels_df$pcc_factor_unit))
 
-#### TWO-LEVEL META-ANALYSIS
-pcc_data_2level<- read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/pcc_data_2_levels_2024.01.31.csv",
-                           header = TRUE, sep = ",")%>%
+write.csv(meta_regression_3levels_df,"meta_regression_3levels.csv", row.names=FALSE)
+
+##########################################################################################
+########### TWO-LEVEL META-ANALYSIS ############################################
+#Data
+pcc_data_2level<- read.csv("pcc_data_2levels.csv",header = TRUE, sep = ",")%>%
   mutate(m_mean_farm_size_ha= as.numeric(m_mean_farm_size_ha))%>%
   group_by( pcc_factor_unit)%>%
-  dplyr::mutate(n_ES = n_distinct(ES_ID))%>%
-  filter(n_ES>4)
-    
-                                        
-# List of moderators
-moderators <- c("m_region", "m_sub_region","m_intervention_recla2","m_mean_farm_size_ha")
-moderators <- c("m_region","m_intervention_recla2","m_mean_farm_size_ha")
+  dplyr::mutate(n_articles = n_distinct(article_id))%>%
+  filter(n_articles>9)
+sort(unique(pcc_data_2level$pcc_factor_unit))    
+          
+#Heterogeneity
+heterogeneity_2level<- read.csv("heterogeneity_2levels.csv",header = TRUE, sep = ",")%>%
+  filter(I2>=75)
 
+sort(unique(heterogeneity_2level$pcc_factor_unit))
+
+#pcc database after removing factors with <10 studies;
+#factors with sampling variance > 25% 
+m_pcc_data_2level<- pcc_data_2level%>%
+  dplyr::left_join(heterogeneity_2level, by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
+  filter(!is.na(I2))
+
+sort(unique(m_pcc_data_2level$pcc_factor_unit))
+
+# List of moderators
+moderators <- c("m_region", "m_sub_region","m_intervention_recla2","m_mean_farm_size_ha",
+                "m_model_method","m_random_sample","m_exact_variance_value","m_type_data",
+                "n_samples_num","n_predictors_num")
 # List of pcc_factor_unit
-pcc_factor_units <- unique(pcc_data_2level$pcc_factor_unit)
+pcc_factor_units <- unique(m_pcc_data_2level$pcc_factor_unit)
 
 # Create an empty list to store results
 results_list2 <- list()
@@ -118,7 +145,7 @@ for (moderator in moderators) {
   results <- pcc_factor_units %>% 
     map_df(~ {
       # Create subset for the current pcc_factor_unit
-      subset_data <- subset(pcc_data_2level, pcc_factor_unit == .x)
+      subset_data <- subset(m_pcc_data_2level, pcc_factor_unit == .x)
       
       # Check if the current pcc_factor_unit has more than one level for the moderator
       if (length(unique(subset_data[[moderator]])) > 1) {
@@ -170,9 +197,7 @@ meta_regression_2levels_df <- bind_rows(results_list2)%>%
   mutate(moderator=str_replace_all(moderator, "-1", ""))%>%
   mutate(moderator_class= str_replace(.$moderator_class, paste0(".*", .$moderator), ""))
 
+sort(unique(meta_regression_2levels_df$moderator))
+sort(unique(meta_regression_2levels_df$pcc_factor_unit))
 
-names(meta_regression_2levels_df)
-length(unique(meta_regression_2levels_df$pcc_factor_unit))
-
-write.csv(meta_regression_2levels_df,
-          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis/meta_regression_2_levels_2024.02.02.csv", row.names=FALSE)
+write.csv(meta_regression_2levels_df,"meta_regression_2levels.csv", row.names=FALSE)

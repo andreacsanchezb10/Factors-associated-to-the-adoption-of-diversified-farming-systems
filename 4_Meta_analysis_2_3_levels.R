@@ -2,9 +2,10 @@ library(readxl)
 library(tidyr)
 library(stringr)
 library(dplyr)
-
 library(metafor)
 library(tibble)
+
+
 factors_metric_assessed <- read_excel("C:/Users/AndreaSanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/Meta_data_2024.01.25.xlsx",
                                       sheet = "FACTORS_metric_assessed")
 
@@ -15,14 +16,17 @@ pcc_factor_class_unit<-factors_metric_assessed%>%
   select(factor_sub_class,pcc_factor_unit)
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
-pcc_data<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_data.csv",
+pcc_data<-read.csv(
+  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_data.csv",
                    header = TRUE, sep = ",")
 names(pcc_data)
 
-comparison<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/comparison_best_model.csv",
+comparison<-read.csv(
+  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/comparison_best_model.csv",
                    header = TRUE, sep = ",")
 
 sort(unique(comparison$best_model))
+
 ######## THREE-LEVEL META-ANALYSIS -------------- 
 pcc_data_3level<- pcc_data%>%
   left_join(comparison, by= "pcc_factor_unit")%>%
