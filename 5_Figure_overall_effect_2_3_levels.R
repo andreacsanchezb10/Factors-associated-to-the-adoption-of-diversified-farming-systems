@@ -48,7 +48,11 @@ overal_results<- overall_3level_results%>%
   mutate(significance2 = if_else(beta >0 & pval <=0.05, "significant_positive",
                                 if_else(beta <0 & pval <=0.05, "significant_negative",
                                         if_else(beta>0&pval>0.05,"no_significant_positive",
-                                                "no_significant_negative"))))
+                                                "no_significant_negative"))))%>%
+  mutate(ci.lb_l = ifelse(ci.lb < -0.25, -0.25, NA),
+         ci.ub_l = ifelse(ci.ub > 0.5, 0.5, NA))%>%
+  mutate(ci.ub_l1= ifelse(pcc_factor_unit=="Soil slope (1= steep)",
+                         ci.ub,NA))
 
 #overal_results$factor_sub_class <- toupper(overal_results$factor_sub_class)
 
@@ -99,6 +103,18 @@ overall_effect_more10<-
   geom_point(size = 3, position = (position_dodge(width = -0.2)),show.legend = F)+
   geom_text(aes(label=significance, x=ci.ub+0.01, group=pcc_factor_unit), vjust=0.7, hjust=-0.005,
             color="black", size=7, family="sans",position = (position_dodge(width = -0.5)))+
+    geom_segment(aes(y = reorder(pcc_factor_unit, beta),
+                     yend = reorder(pcc_factor_unit, beta),
+                     x=beta, xend = ci.lb_l),show.legend = F,size=1,
+                 arrow = arrow(length = unit(0.2, "cm")))+
+    geom_segment(aes(y = reorder(pcc_factor_unit, beta),
+                     yend = reorder(pcc_factor_unit, beta),
+                     x=beta, xend = ci.ub_l),show.legend = F,size=1,
+                 arrow = arrow(length = unit(0.2, "cm")))+
+    geom_segment(aes(y = reorder(pcc_factor_unit, beta),
+                     yend = reorder(pcc_factor_unit, beta),
+                     x=beta, xend = ci.ub_l1),show.legend = F,size=1)+
+                 #arrow = arrow(length = unit(0.2, "cm")))+
   scale_colour_manual(values = fills_more10)+
   facet_grid2(vars(factor_sub_class),
               scales= "free", space='free_y', switch = "y",
@@ -115,7 +131,6 @@ overall_effect_more10
 
 overall_distribution_more10<-
   ggplot(overal_results, 
-  
   #ggplot(subset(overal_results,n_articles>9), 
          aes(x=n_articles, y=reorder(pcc_factor_unit, beta),
                                   fill = factor(factor_sub_class))) +
@@ -172,6 +187,12 @@ grid.text("FINANCIAL\nCAPITAL",
           y = unit(0.74, "npc"),
           just = "right", 
           gp = gpar(col = "#d896ff", fontsize = 11, family = "sans",fontface = "bold"))
+
+grid.text("PERSONAL\nBEHAVIOUR", 
+          x = unit(0.16, "npc"), 
+          y = unit(0.63, "npc"),
+          just = "right", 
+          gp = gpar(col = "#6a57b8", fontsize = 11, family = "sans",fontface = "bold"))
 
 grid.text("PHYSICAL\nCAPITAL", 
           x = unit(0.16, "npc"), 
