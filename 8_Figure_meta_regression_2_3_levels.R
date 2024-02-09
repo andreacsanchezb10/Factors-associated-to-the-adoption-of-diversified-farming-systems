@@ -85,7 +85,6 @@ m_farm_size_distribution<-pcc_data%>%
   group_by( pcc_factor_unit)%>%
   dplyr::summarise(n_articles = n_distinct(article_id),
                    n_ES = n_distinct(ES_ID))
-  mutate(moderator_class="m_mean_farm_size_ha")
 
 names(m_farm_size_distribution)
 
@@ -134,7 +133,7 @@ m_dfs<- meta_regression%>%
                                   "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/more10.png",
                                   "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/less10.png" ))
 
-m_dfs <- complete(m_dfs, pcc_factor_unit, moderator_class, fill = list(beta = NA))
+m_dfs <- tidyr::complete(m_dfs, pcc_factor_unit, moderator_class, fill = list(beta = NA))
 
 
 sort(unique(m_dfs$moderator_class))
