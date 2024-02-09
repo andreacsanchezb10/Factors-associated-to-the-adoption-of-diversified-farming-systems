@@ -128,7 +128,7 @@ systems<- pcc_data%>%
   mutate(percentage_ES= (n_ES/sum(n_ES))*100,
          percentage_articles= (n_articles/sum(n_articles))*100)
 
-sum(pcc_data$n_ES)
+sum(systems$n_ES)
 
 ## Data distribution by region, factor class, system
 region_factor_systems<- pcc_data%>%
