@@ -44,7 +44,6 @@ pcc_data<- read.csv("pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
   rbind(read.csv("pcc_data_2levels.csv",header = TRUE, sep = ","))
 
 
-names(pcc_data)
 sort(unique(pcc_data$x_metric_recla2))
 sort(unique(pcc_data$x_metric_recla))
 
@@ -70,9 +69,6 @@ country<- pcc_data%>%
 
 sort(unique(country$m_region))
 
-length(sort(unique(country$country))) #total number of countries #29
-
-
 world <- ggplot2::map_data("world")%>%filter(region != "Antarctica")
 
 world_map <- ggplot2::map_data("world")%>%filter(region != "Antarctica")%>%
@@ -85,14 +81,15 @@ world_map <- ggplot2::map_data("world")%>%filter(region != "Antarctica")%>%
 
 world<-
   ggplot(data = world_map, aes(x = long, y = lat, group = group, fill = m_region)) +
-  geom_polygon(aes(group = group, fill = n_ES),colour="grey25",
+  geom_polygon(aes(group = group, fill = m_region),colour="grey25",
                size = 0.05, show.legend = TRUE) +
   coord_fixed() +
-  #scale_fill_manual(
+  scale_fill_manual(
     #labels = c("No data", "1-2", "3-4", "5-6","7-8"),
     #breaks = c("0", "(1,2]", "(2,4]", "(4,6]","(6,8]"),
-   # values = c("grey95", "#7f2b89","#517eb5","#7eccb4","#d78f23","#743341"),
-    #guide = guide_legend(label.position = "top"))+
+    values = c("grey95", "#843272","#b5562f","#743341", "#f1ba41",
+                 "#5b6454"),
+    guide = guide_legend(label.position = "top"))+
   theme(legend.position = "none",
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
@@ -105,7 +102,85 @@ world<-
 
 world
 
-## Data distribution by m_region and systems/factors
+## Data distribution by m_region 
+region<- pcc_data%>%
+  group_by(m_region)%>%
+  dplyr::summarise(n_articles = n_distinct(article_id),
+                   n_ES = n_distinct(ES_ID))%>%
+  mutate(percentage_ES= (n_ES/sum(n_ES))*100,
+         percentage_articles= (n_articles/sum(n_articles))*100)
+filter(m_region=="Africa")
+
+## Data distribution by pcc_factor_sub_class 
+factor_sub_class<- pcc_data%>%
+  group_by(factor_sub_class.x)%>%
+  dplyr::summarise(n_articles = n_distinct(article_id),
+                   n_ES = n_distinct(ES_ID))%>%
+  mutate(percentage_ES= (n_ES/sum(n_ES))*100,
+         percentage_articles= (n_articles/sum(n_articles))*100)
+
+
+## Data distribution by m_intervention_recla2 
+systems<- pcc_data%>%
+  group_by(m_intervention_recla2)%>%
+  dplyr::summarise(n_articles = n_distinct(article_id),
+                   n_ES = n_distinct(ES_ID))%>%
+  mutate(percentage_ES= (n_ES/sum(n_ES))*100,
+         percentage_articles= (n_articles/sum(n_articles))*100)
+
+sum(pcc_data$n_ES)
+
+## Data distribution by region, factor class, system
+region_factor_systems<- pcc_data%>%
+  select(ES_ID,m_region, factor_sub_class.y,m_intervention_recla2)
+
+skey_region_factor_systems <- region_factor_systems %>%
+  make_long(m_region, factor_sub_class.y,m_intervention_recla2)              
+
+
+fills <- c("Africa"="#843272","Asia"="#b5562f",
+           "Northern America"="#5b6454",
+           "Latin America and the Caribbean"= "#f1ba41",
+           "Europe"="#743341",
+           "Accessibility"= "#f0c602","Biophysical"= "#ea6044","Financial capital"="#d896ff",
+           "Physical capital"=  "#87CEEB","Personal behaviour"="#6a57b8",
+           "Social capital"="#496491","Socio-demographic"="#92c46d",
+           "Technical information"= "#297d7d",
+           "Agroforestry"=  "#545454", "Crop rotation"="#545454", 
+           "Cover crops"="#545454", "Fallow"="#545454",
+           "Intercropping"="#545454",
+           "Rotational grazing"="#545454",
+           "Combined systems"="#545454",
+           "Agro-aquaculture"="#545454","Embedded seminatural habitats"="#545454",
+           "Agro-silvopasture"="#545454")
+
+
+ggplot(skey_region_factor_systems, 
+       aes(x = x,         next_x = next_x, node = node,
+           next_node = next_node,
+           fill = node,
+           colour=node),
+       label = node) +
+  geom_sankey(flow.alpha = 0.4,
+              #space = 15,
+              #node.color = "black",
+              show.legend = FALSE)+
+  scale_fill_manual(values= fills)+
+  scale_colour_manual(values= fills)+
+  scale_y_continuous(expand = c(0, 0))+
+  scale_x_discrete(expand = c(0, 0))+
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    axis.text = element_blank(),
+    
+    axis.title = element_blank(), 
+    axis.ticks = element_blank(),
+    panel.background = element_rect(fill = "transparent"))
+plot.margin = unit(c(t=1,r=1,b=1,l=1), "cm"))
+
+
+######################################################
 
 article_continent<- pcc_data%>%
   #select("id", "country")%>%
