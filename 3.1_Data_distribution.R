@@ -19,7 +19,7 @@ library(egg)
 library(hrbrthemes)
 library(plotly)
 library(ggh4x)
-library(grid)
+
 library(gtable)
 
 library(dplyr)
@@ -27,7 +27,10 @@ library(forcats)
 library(ggplot2)
 library(readxl)
 library(countrycode)
-
+library(geosphere)
+library(cowplot)
+library(grid)
+library(gridExtra) 
 
 factors_metric_assessed <- read_excel("C:/Users/AndreaSanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/Meta_data_2024.01.25.xlsx",
                                       sheet = "FACTORS_metric_assessed")
@@ -43,24 +46,20 @@ pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 pcc_data<- read.csv("pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
   rbind(read.csv("pcc_data_2levels.csv",header = TRUE, sep = ","))
 
-
+length(unique(pcc_data$article_id)) #153
 sort(unique(pcc_data$x_metric_recla2))
 sort(unique(pcc_data$x_metric_recla))
 
 sort(unique(pcc_data$pcc_factor_unit))
 
 ### Figure: Represented countries ---------
-pcc_data$country[pcc_data$country %in% "Vietnam, Thailand"] <- "Thailand"
-pcc_data$country[pcc_data$country %in% "Ethiopia, Ghana, Kenya, Malawi,  Mozambique, Nigeria, Tanzania, Uganda,  Zambia"] <- "Ethiopia"
 pcc_data$country[pcc_data$country %in% "Vietnam"] <- "Viet Nam"
 
 sort(unique(pcc_data$pcc_factor_unit))
-sort(unique(pcc_data$country)) #42
-
+sort(unique(pcc_data$country)) #44
 table(pcc_data$m_region , pcc_data$pcc_factor_unit)
 sort(unique(pcc_data$country))
 
-length(unique(pcc_data$article_id)) #153
 
 country<- pcc_data%>%
   group_by(country,m_region)%>%
@@ -73,11 +72,18 @@ world <- ggplot2::map_data("world")%>%filter(region != "Antarctica")
 
 world_map <- ggplot2::map_data("world")%>%filter(region != "Antarctica")%>%
   left_join(country, by =  c("region" ="country"))%>%
-  mutate_all(~replace(., is.na(.), 0))%>%
-  mutate(n_articles_intervals= cut(n_articles,seq(0,8,2)))%>%
-  mutate(n_articles_intervals= if_else(n_articles_intervals=="(0,2]", "(1,2]",
-                                       n_articles_intervals))%>%
   mutate_all(~replace(., is.na(.), 0))
+
+centroids <- world_map%>%
+  filter(subregion!="Hawaii")%>%
+  filter(subregion!="Alaska")%>%
+  filter(subregion!="Marion Island")%>%
+  group_by(region) %>% 
+  group_modify(~ data.frame(centroid(cbind(.x$long, .x$lat))))%>%
+  left_join(country, by =  c("region" ="country"))
+  
+sort(unique(world_map$n_ES))
+
 
 world<-
   ggplot(data = world_map, aes(x = long, y = lat, group = group, fill = m_region)) +
@@ -90,6 +96,13 @@ world<-
     values = c("grey95", "#843272","#b5562f","#743341", "#f1ba41",
                  "#5b6454"),
     guide = guide_legend(label.position = "top"))+
+  
+  geom_point(data = centroids, 
+             aes(x= lon, y=lat, group=region,size =n_ES), 
+             shape=16,fill="black",color="grey20", alpha = 0.5,show.legend = F)+
+  
+  scale_size_continuous(limits=c(1,361),breaks = c(5,10,25,50,75,100),
+                        name = "Number of effect sizes",range = c(3, 15))+
   theme(legend.position = "none",
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
@@ -99,8 +112,53 @@ world<-
         axis.ticks = element_blank(),
         plot.margin = margin(0, 0, 0, 0, "cm"))+
   labs(x = NULL, y = NULL)
-
 world
+world<- world+
+  geom_point(data = centroids, 
+             aes(x= lon, y=lat, group=region,size =n_articles), 
+             shape=15,fill="black",color="grey20", alpha = 0.5,show.legend = F)
+world
+
+legend_ES<- ggplot()+
+  geom_point(data = centroids, 
+             aes(x= lon, y=lat, group=region,size =n_ES), 
+             shape=16,fill="black",color="grey20", alpha = 0.5)+
+  scale_size_continuous(limits=c(1,361),breaks = c(5,10,25,50,75,100),
+                        labels=c("5","10","25","50","70","≥100"),
+                        name = "Effect sizes",range = c(3, 15))+
+  theme(legend.position = "bottom",
+        legend.direction = "horizontal", 
+        legend.text = element_text(size = 8),
+        legend.key.size = unit(0.5, "cm"),
+        legend.title=element_text(size=9,face="bold"))+
+  guides(size = guide_legend(title.position = "left",
+                             title.hjust = 0.5, label.position = "left", nrow = 1,
+                             label.hjust = 1))
+
+legend_ES
+legend_ES <- get_legend(legend_ES)
+grid.newpage()
+grid.draw(legend_ES)
+
+legend_articles<- ggplot()+
+  geom_point(data = centroids, 
+             aes(x= lon, y=lat, group=region,size =n_articles), 
+             shape=15,fill="black",color="grey20", alpha = 0.5)+
+  scale_size_continuous(limits=c(1,30),breaks = c(1,5,10,15,20,25,30),
+                      name = "Articles",range = c(3, 6))+
+    theme(legend.position = "bottom",
+          legend.direction = "horizontal", 
+          legend.text = element_text(size = 8),
+          legend.key.size = unit(0.5, "cm"),
+          legend.title=element_text(size=9,face="bold"))+
+    guides(size = guide_legend(title.position = "left",
+                               title.hjust = 0.5, label.position = "left", nrow = 1,
+                               label.hjust = 1))
+legend_articles
+legend_articles <- get_legend(legend_articles)
+grid.newpage()
+grid.draw(legend_articles)
+
 
 ## Data distribution by m_region 
 region<- pcc_data%>%
