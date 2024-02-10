@@ -17,6 +17,7 @@ sort(unique(data$limitation_of_use_obs))
 
 table(data$y_metric_recla)
 table(data$y_metric_recla_2)
+#[1] "adoption"    "awareness"   "disadoption" "interest"   
 table(data$y_metric_recla, data$y_metric_recla_2)
 names(data)
 
@@ -27,9 +28,9 @@ adoption<- data%>%
 length(sort(unique(adoption$article_id))) # Number of articles 174
 table(adoption$y_metric_recla) #Number of rows 4678
 sort(unique(adoption$country)) #Countries 47
-length(sort(unique(adoption$x_metric_recla))) # Unique factors 163
-sort(unique(adoption$Factor_and_metric)) #Unique factors and metric 481
-names(adoption)
+length(sort(unique(adoption$x_metric_recla))) # Unique factors 164
+sort(unique(adoption$Factor_and_metric)) #Unique factors and metric 483
+
 ### Select only necessary columns ----
 adoption_clean<- adoption%>%
   #Convert to numeric the necessary columns
@@ -41,6 +42,7 @@ adoption_clean<- adoption%>%
          p_value_num = as.numeric(p_value),
          n_predictors_num= as.numeric(n_predictors),
          n_samples_num= as.numeric(n_samples),
+         x_mean_value_num =as.numeric(x_mean_value),
          transformation_coefficient_num = as.numeric(transformation_coefficient),
          transformation_variance_num = as.numeric(transformation_variance),
          country = as.character(country))%>%
@@ -54,6 +56,8 @@ adoption_clean<- adoption%>%
                 transformation_coefficient,	transformation_coefficient_num,
                 transformation_variance,
                 transformation_variance_num,
+                x_mean_value,x_mean_value_num,
+                
                 model_analysis_raw,model_method,coefficient_type, 
                 coefficient, coefficient_num,
                 variance_metric,variance_value,variance_value_num,
@@ -67,7 +71,6 @@ adoption_clean<- adoption%>%
                 type_data)%>%
   mutate(factor_metric= paste(x_metric_recla, " (", x_metric_unit_recla, ")", sep=""))
 
-str(adoption_clean)
 
 length(sort(unique(adoption_clean$article_id))) # Number of articles 174
 sort(unique(adoption_clean$article_id))
@@ -101,37 +104,60 @@ table(adoption_clean$m_intervention_recla2)
 
 ##m_intervention_recla3: by system components
 adoption_clean$m_intervention_recla3<- stringr::str_to_sentence(adoption_clean$intervention_recla)
+sort(unique(adoption_clean$intervention_recla))
 sort(unique(adoption_clean$m_intervention_recla3))
 
 sort(unique(adoption_clean$intervention_recla_detail_1))
-table(adoption_clean$intervention_recla_detail_1,adoption_clean$m_intervention_recla3 )
+table(adoption_clean$intervention_recla_detail_1,adoption_clean$intervention_recla )
 names(adoption_clean)
+                       
+[7] "Embedded seminatural infrastructures"                            
+ 
+"buffer strips"
 
 #Only crops
-#Only animals
-#Crops and trees
-#Crops and animals
-#Animals and trees
-#Crops, animals and trees
-
-adoption_clean$m_intervention_recla3[adoption_clean$m_intervention_recla3 %in% c("Agroforestry",
-                                                                                 "Agroforestry and fallow")]<-"Crop and trees"
-  
-"hedgerow"
-
 adoption_clean$m_intervention_recla3[adoption_clean$m_intervention_recla3 %in% c("Cover crops",
                                                                                  "Crop rotation",
                                                                                  "Crop rotation and cover crops",
                                                                                  "Crop rotation and intercropping",
-                                                                                 "Intercropping")]<-"Crops"
+                                                                                 "Intercropping",
+                                                                                 "Land with temporary fallow and cover crops",
+                                                                                 "Land with temporary fallow")]<-"Only crops"
 
-                        
-[7] "Embedded seminatural infrastructures"       "Grazing cut and carry"                     
-[9] "Integrated aquaculture-agriculture"         "Integrated crop-livestock"                 
-[11]                               "Land with temporary fallow"                
-[13] "Land with temporary fallow and cover crops" "Rotational grazing"                        
-[15] "Silvopasture"                              
+#Only animals
+adoption_clean$m_intervention_recla3[adoption_clean$m_intervention_recla3 %in% c("Rotational grazing")]<-"Only animals"
 
+#Crops and trees 
+adoption_clean$m_intervention_recla3[adoption_clean$m_intervention_recla3 %in% c("Agroforestry",
+                                                                                 "Agroforestry and fallow")]<-"Crops and trees"
+
+adoption_clean$m_intervention_recla3[adoption_clean$m_intervention_recla3 %in% c("Embedded seminatural infrastructures")&
+                                       adoption_clean$intervention_recla_detail_3 %in% c("grass or woody buffer strips",
+                                                                                         "grass,legumes, trees, or shrubs",
+                                                                                         "shrubs, trees and native wildﬂower and/or native grass",
+                                                                                         "trees",
+                                                                                         "trees or shrubs",
+                                                                                         "trees, shrubs, vines, grasses, or legumes")]<-"Crops and trees"
+
+adoption_clean$m_intervention_recla3[adoption_clean$m_intervention_recla3 %in% c("Embedded seminatural infrastructures")&
+                                       adoption_clean$intervention_recla_detail_3 %in% c("flower strips",
+                                                                                         "grass",
+                                                                                         "perennial grass",
+                                                                                         "shrubs and grasses")]<-"Crops and grass/flowers"
+
+#Crops and animals
+adoption_clean$m_intervention_recla3[adoption_clean$m_intervention_recla3 %in% c("Integrated crop-livestock",
+                                                                                 "Integrated aquaculture-agriculture")]<-"Crops and animals"
+#Animals and trees
+adoption_clean$m_intervention_recla3[adoption_clean$m_intervention_recla3 %in% c("Silvopasture",
+                                                                                 "Grazing cut and carry")]<-"Trees and animals"
+
+sort(unique(adoption_clean$m_intervention_recla3))
+
+sort(unique(adoption_clean$intervention_recla_detail_1[adoption_clean$m_intervention_recla3 %in% c("Embedded seminatural infrastructures")]))
+sort(unique(adoption_clean$intervention_recla_detail_3[adoption_clean$m_intervention_recla3 %in% c("Embedded seminatural infrastructures")]))
+
+                         
 
 ####### Prepare data for the analysis -------
 
@@ -394,7 +420,7 @@ sort(unique(adoption_binary$model_coefficient_variance_type))
 length(sort(unique(adoption_binary$article_id))) # Number of articles 154
 table(adoption_binary$y_metric_recla) #Number of rows 3905
 sort(unique(adoption_binary$country)) #Countries 44
-length(sort(unique(adoption_binary$x_metric_recla))) # Unique factors 161
+length(sort(unique(adoption_binary$x_metric_recla))) # Unique factors 163
 sort(unique(adoption_binary$article_id))
 
 table(adoption_binary$coefficient_variance_type,adoption_binary$model_method)
@@ -513,8 +539,6 @@ sort(unique(check$article_id))
 
 ### Convert the coefficient and variance values to the same metric (e.g., acres, hours, miles, etc.)--------
 # Transforms the t_value_pcc
-names(adoption_binary)
-
 adoption_binary$t_value_pcc[adoption_binary$transformation_coefficient_num %in% -1] <- 
   adoption_binary$t_value_pcc[adoption_binary$transformation_coefficient_num %in% -1]*
   adoption_binary$transformation_coefficient_num[adoption_binary$transformation_coefficient_num %in% -1]   
@@ -531,7 +555,7 @@ adoption_binary$se_logOR[!is.na(adoption_binary$transformation_variance_num)] <-
 
 
 length(unique(adoption_binary$article_id)) # Number of PCC studies 154
-length(unique(adoption_binary$article_id[!is.na(adoption_binary$b_logOR)]))
+length(unique(adoption_binary$article_id[!is.na(adoption_binary$b_logOR)])) #137
 length(unique(adoption_binary$x_metric_recla)) #164 factors
 sort(unique(adoption_binary$article_id))
 
@@ -654,9 +678,15 @@ data_adoption_binary$m_region[
 sort(unique(data_adoption_binary$country[is.na(data_adoption_binary$m_sub_region)])) #1
 sort(unique(data_adoption_binary$country)) #44
 sort(unique(data_adoption_binary$m_region)) #5
+sort(unique(data_adoption_binary$m_sub_region)) #14
+
 table(data_adoption_binary$country,data_adoption_binary$m_region)
 length(unique(data_adoption_binary$article_id)) #154 articles 
 sort(unique(data_adoption_binary$article_id))
+sort(unique(data_adoption_binary$country[data_adoption_binary$m_sub_region %in% c("Central America")]))
+
+table(data_adoption_binary$country,data_adoption_binary$m_sub_region)
+
 
 ####### Factors classification -------
 
@@ -671,18 +701,25 @@ factors<-data_adoption_binary%>%
   filter(limitation_of_use_obs== "no limitation")%>%
   group_by(factor_sub_class, x_metric_recla2 ) %>%
   summarise(n_articles = n_distinct(article_id))
+  
 
 sort(unique(factors$factor_sub_class))
 
 
-####### Remove !=no limitation data -------
+####### Remove !=no limitation data AND reclassify MODERATORS-------
+m_education_years<- data_adoption_binary%>%
+  filter(factor_metric == "hh education (years)")%>%
+  select(article_id, model_id, x_mean_value)%>%
+  rename("m_education_years"="x_mean_value")
+
 pcc_data_adoption_binary<- data_adoption_binary%>%
-  #left_join(factors_assessed, by="x_metric_recla")%>%
   filter(!is.na(t_value_pcc))%>%
   filter(limitation_of_use_obs== "no limitation")%>%
-  
-  #Moderators
+  # MODERATORS
   rename("m_model_method"= "model_method")%>%
+  left_join(m_education_years, by=c("article_id"="article_id",
+                                    "model_id"="model_id"))%>%
+  
   mutate(m_sampling_unit= if_else(sampling_unit== "farmers" |
                                     sampling_unit=="household"|
                                     sampling_unit=="household data collection"|
@@ -691,7 +728,7 @@ pcc_data_adoption_binary<- data_adoption_binary%>%
                                     sampling_unit=="managers", 1, 0))%>%
   mutate(m_type_data = if_else(type_data== "primary and secondary data" |
                                  type_data==  "primary data",1,0  ))%>%
-  mutate_at(vars("year_assessment_start", "year_assessment_end"), as.numeric)%>%
+  mutate_at(vars("year_assessment_start", "year_assessment_end", "m_education_years"), as.numeric)%>%
   mutate(m_av_year_assessment= if_else(is.na(year_assessment_end),
                                        year_assessment_start,
                                        ((year_assessment_start+year_assessment_end)/2)))%>%
@@ -702,7 +739,7 @@ sort(unique(pcc_data_adoption_binary$m_av_year_assessment)) #
 length(unique(pcc_data_adoption_binary$article_id)) #153 articles for PCC analysis
 sort(unique(pcc_data_adoption_binary$article_id)) #113 articles 
 length(unique(pcc_data_adoption_binary$m_intervention_recla2)) #10 systems
-length(unique(pcc_data_adoption_binary$x_metric_recla)) #47
+length(unique(pcc_data_adoption_binary$x_metric_recla)) #48
 sort(unique(pcc_data_adoption_binary$country)) #44
 sort(unique(pcc_data_adoption_binary$limitation_of_use_obs)) 
 
@@ -710,8 +747,6 @@ sort(unique(pcc_data_adoption_binary$limitation_of_use_obs))
 names(pcc_data_adoption_binary)
 
 #verificar cuantos articulos para log-odds ratio y cuantos para pcc
-#verificar si hay overlap entre probit y logit models
 
-write.csv(pcc_data_adoption_binary, 
-          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/binary_adoption_clean_data.csv", row.names=FALSE)
+write.csv(pcc_data_adoption_binary,"binary_adoption_clean_data.csv", row.names=FALSE)
 
