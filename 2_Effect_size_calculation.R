@@ -10,7 +10,7 @@ factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metri
                                                  " (",factors_metric_assessed$pcc_unit,")", sep="")
 
 
-data<-read.csv("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/binary_adoption_clean_data.csv",
+data<-read.csv("binary_adoption_clean_data.csv",
                header = TRUE, sep = ",")%>%
   select( "article_id","model_id", "main_crop" ,"country",                        
           "intervention_recla","intervention_recla_detail_1" ,   
