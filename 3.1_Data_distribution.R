@@ -82,8 +82,10 @@ centroids <- world_map%>%
   group_modify(~ data.frame(centroid(cbind(.x$long, .x$lat))))%>%
   left_join(country, by =  c("region" ="country"))
   
-sort(unique(world_map$n_ES))
-
+centroids$lon[centroids$region %in% "Malaysia"] <- 102.171799
+centroids$lat[centroids$region %in% "Malaysia"] <- 4.166895
+centroids$lon[centroids$region %in% "Indonesia"] <- 120.842625
+centroids$lat[centroids$region %in% "Indonesia"] <- -2.164827
 
 world<-
   ggplot(data = world_map, aes(x = long, y = lat, group = group, fill = m_region)) +
@@ -99,7 +101,7 @@ world<-
   
   geom_point(data = centroids, 
              aes(x= lon, y=lat, group=region,size =n_ES), 
-             shape=16,fill="black",color="grey20", alpha = 0.5,show.legend = F)+
+             shape=16,fill="black",color="grey30", alpha = 0.5,show.legend = F)+
   
   scale_size_continuous(limits=c(1,361),breaks = c(5,10,25,50,75,100),
                         name = "Number of effect sizes",range = c(3, 15))+
@@ -116,7 +118,7 @@ world
 world<- world+
   geom_point(data = centroids, 
              aes(x= lon, y=lat, group=region,size =n_articles), 
-             shape=15,fill="black",color="grey20", alpha = 0.5,show.legend = F)
+             shape=15,color="black", alpha = 0.5,show.legend = F)
 world
 
 legend_ES<- ggplot()+
