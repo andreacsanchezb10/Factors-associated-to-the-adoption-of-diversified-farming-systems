@@ -4,23 +4,18 @@ library(data.table)
 library(dplyr)
 library(vcd)
 library(stringr)
+
 #Heterogeneity results
 #filter the factors with I^2 >= 75 (high variance Higgins et al. 2003)
-heterogeneity_2level<-read.csv(
-  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/heterogeneity_2levels.csv",
-  header = TRUE, sep = ",")%>%
+heterogeneity_2level<-read.csv("heterogeneity_2levels.csv",header = TRUE, sep = ",")%>%
   filter(I2>=75)
 
-pcc_factors_2level<-read.csv(
-  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_data_2levels.csv",
-  header = TRUE, sep = ",")%>%
+pcc_factors_2level<-read.csv("pcc_data_2levels.csv",header = TRUE, sep = ",")%>%
   dplyr::group_by(factor_sub_class.x,pcc_factor_unit) %>%
   dplyr::summarise(n_articles = n_distinct(article_id))%>%
   filter(n_articles>9)
 
-pcc_data_2level<-read.csv(
-  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_data_2levels.csv",
-                     header = TRUE, sep = ",")%>%
+pcc_data_2level<-read.csv("pcc_data_2levels.csv",header = TRUE, sep = ",")%>%
   left_join(pcc_factors_2level, by="pcc_factor_unit")%>%
   filter(!is.na(n_articles))%>%
   left_join(heterogeneity_2level, by="pcc_factor_unit")%>%
@@ -39,7 +34,9 @@ pcc_data_2level<-read.csv(
   #continuous moderators
   mutate_at(vars(m_mean_farm_size_ha,
                  n_samples_num,
-                 n_predictors_num),as.numeric)
+                 n_predictors_num,
+                 m_av_year_assessment,
+                 m_education_years),as.numeric)
 
 sort(unique(pcc_data_2level$pcc_factor_unit))
 table(pcc_data_2level$pcc_factor_unit,pcc_data_2level$n_articles)
@@ -261,10 +258,12 @@ library(stringr)
 library(metafor)
 eval(metafor:::.MuMIn)
 
-moderators <- as.formula("~ 
-UN_Regions+ UN_sub_region + m_intervention_recla2+model_method +
-m_random_sample + m_exact_variance_value +
-m_mean_farm_size_ha + n_samples_num + n_predictors_num")
+moderators <- as.formula("~m_region+ m_sub_region+m_intervention_recla2+
+                m_model_method+m_random_sample+m_exact_variance_value+
+                m_type_data+m_sampling_unit+
+                m_mean_farm_size_ha+n_samples_num+n_predictors_num+
+                m_av_year_assessment+
+                m_education_years")
 
 ##### TWO-LEVEL META-ANALYSIS
 
@@ -284,7 +283,7 @@ for (unit in unique_units) {
   subset_data <- as.data.frame(subset_data)
   
   # Perform analysis
-  full <- rma(yi, vi, mods = models_2levels,
+  full <- rma(yi, vi, mods = moderators,
               data=subset_data, method="ML")
   
   # Store weightable results in the list

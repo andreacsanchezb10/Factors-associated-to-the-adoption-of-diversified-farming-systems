@@ -18,26 +18,40 @@ pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 #### THREE-LEVEL META-ANALYSIS
 #Data
-pcc_data_3level<- read.csv(
-  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_data_3levels.csv",
-                           header = TRUE, sep = ",")%>%
-  mutate_at(vars(m_mean_farm_size_ha,n_samples_num,n_predictors_num ), as.numeric)%>%
+pcc_data_3level<- read.csv("pcc_data_3levels.csv",header = TRUE, sep = ",")%>%
+  mutate_at(vars(m_mean_farm_size_ha,n_samples_num,n_predictors_num,m_education_years ), as.numeric)%>%
   group_by( pcc_factor_unit)%>%
   dplyr::mutate(n_articles = n_distinct(article_id))%>%
   filter(n_articles>9)
-
 sort(unique(pcc_data_3level$pcc_factor_unit))
-sort(unique(pcc_data_3level$n_articles))
+sort(unique(pcc_data_3level$m_model_method))
 
 #Heterogeneity
 heterogeneity_3level<- read.csv("heterogeneity_3levels.csv",header = TRUE, sep = ",")
 
 sort(unique(heterogeneity_3level$pcc_factor_unit))
 
+x<- rma.mv(yi, vi, 
+       random = list(~ 1 | ES_ID, ~ 1 | article_id),
+       mods = ~m_intervention_recla2-1,
+       data = pcc_data_3level,
+       subset=pcc_factor_unit=="Awareness of practice (1= yes)",
+       method = "REML", 
+       test = "t", dfs = "contain")
+
+summary(x)
+str(x)
+
 # List of moderators
-moderators <- c("m_region", "m_sub_region","m_intervention_recla2","m_mean_farm_size_ha",
-                "m_model_method","m_random_sample","m_exact_variance_value","m_type_data",
-                "n_samples_num","n_predictors_num")
+moderators <- c("m_region", "m_sub_region","m_intervention_recla2",
+                "m_model_method","m_random_sample","m_exact_variance_value",
+                "m_type_data","m_sampling_unit",
+                "m_mean_farm_size_ha","n_samples_num","n_predictors_num",
+                "m_av_year_assessment",
+                "m_education_years")
+
+### FALTA: type of crop?, diversfied farming systems components,
+### in person survey, exposure correction.
 
 # List of pcc_factor_unit
 pcc_factor_units <- unique(pcc_data_3level$pcc_factor_unit)
@@ -52,47 +66,55 @@ for (moderator in moderators) {
       subset_data <- subset(pcc_data_3level, pcc_factor_unit == .x)
       
       # Check if the current pcc_factor_unit has more than one level for the moderator
-      if (length(unique(subset_data[[moderator]])) > 1) {
+      if (length(unique(subset_data[[moderator]])) > 1 && !all(is.na(subset_data[[moderator]]))) {
         # Determine whether to include "-1" in the formula
-        formula_suffix <- ifelse(grepl("m_region|m_sub_region|m_intervention_recla2", moderator), "-1", "")
+        formula_suffix <- ifelse(grepl(
+        "m_region|m_sub_region|m_intervention_recla2|m_model_method|m_random_sample|m_exact_variance_value|m_type_data|m_sampling_unit",
+        moderator), "-1", "")
         
-        # Run the analysis
-        extension <- rma.mv(yi, vi, 
-                            random = list(~ 1 | ES_ID, ~ 1 | article_id),
-                            mods = as.formula(paste("~", moderator, formula_suffix)),
-                            data = subset_data,
-                            method = "REML", 
-                            test = "t",
-                            dfs = "contain")
-        
-        # Extract relevant information from the summary
-        summary_data <- data.frame(
-          pcc_factor_unit = as.character(.x),
-          moderator = as.character(moderator),
-          rownames_to_column(coef(summary(extension)), var = "moderator_class"),
-          beta = coef(summary(extension))[, "estimate"],
-          se = coef(summary(extension))[, "se"],
-          ci.lb = coef(summary(extension))[, "ci.lb"],
-          ci.ub = coef(summary(extension))[, "ci.ub"],
-          tval = coef(summary(extension))[, "tval"],
-          pval = coef(summary(extension))[, "pval"],
-          df = coef(summary(extension))[, "df"],
-          stringsAsFactors = FALSE
-        )
-        
-        return(summary_data)
+        # Check if there are more than one level for the moderator in this subset
+        if (length(unique(subset_data[[moderator]])) > 1) {
+          tryCatch({
+            # Run the analysis
+            extension <- rma.mv(yi, vi, 
+                                random = list(~ 1 | ES_ID, ~ 1 | article_id),
+                                mods = as.formula(paste("~", moderator, formula_suffix)),
+                                data = subset_data,
+                                method = "REML", 
+                                test = "t",
+                                dfs = "contain")
+            # Extract relevant information from the summary
+            summary_data <- data.frame(
+              pcc_factor_unit = as.character(.x),
+              moderator = as.character(moderator),
+              rownames_to_column(coef(summary(extension)), var = "moderator_class"),
+              stringsAsFactors = FALSE
+            )
+            
+            return(summary_data)
+          }, error = function(e) {
+            # Print information when an error occurs
+            cat("Error occurred for pcc_factor_unit:", .x, "and moderator:", moderator, "\n")
+            print(e)
+            return(NULL)
+          })
+        } else {
+          # If less than 2 levels, return NULL
+          return(NULL)
+        }
       } else {
-        # If less than 2 levels, return NULL
+        # If less than 2 levels or all NAs, return NULL
         return(NULL)
       }
     })
   
-  # Filter out NULL results and store the non-empty results in the list
   results_list[[moderator]] <- results[!sapply(results, is.null)]
 }
+  
 
 # Combine results from the list into a single data frame
 meta_regression_3levels_df <- bind_rows(results_list)%>%
+  rename("beta"="estimate")%>%
   left_join(pcc_factor_class_unit, by= "pcc_factor_unit")%>%
   mutate(significance2 = if_else(beta >0 & pval <=0.05, "significant_positive",
                                  if_else(beta <0 & pval <=0.05, "significant_negative",
@@ -132,9 +154,13 @@ m_pcc_data_2level<- pcc_data_2level%>%
 sort(unique(m_pcc_data_2level$pcc_factor_unit))
 
 # List of moderators
-moderators <- c("m_region", "m_sub_region","m_intervention_recla2","m_mean_farm_size_ha",
-                "m_model_method","m_random_sample","m_exact_variance_value","m_type_data",
-                "n_samples_num","n_predictors_num")
+moderators <- c("m_region", "m_sub_region","m_intervention_recla2",
+                "m_model_method","m_random_sample","m_exact_variance_value",
+                "m_type_data","m_sampling_unit",
+                "m_mean_farm_size_ha","n_samples_num","n_predictors_num",
+                "m_av_year_assessment",
+                "m_education_years")
+
 # List of pcc_factor_unit
 pcc_factor_units <- unique(m_pcc_data_2level$pcc_factor_unit)
 
@@ -150,7 +176,9 @@ for (moderator in moderators) {
       # Check if the current pcc_factor_unit has more than one level for the moderator
       if (length(unique(subset_data[[moderator]])) > 1) {
         # Determine whether to include "-1" in the formula
-        formula_suffix <- ifelse(grepl("m_region|m_sub_region|m_intervention_recla2", moderator), "-1", "")
+        formula_suffix <- ifelse(grepl(
+          "m_region|m_sub_region|m_intervention_recla2|m_model_method|m_random_sample|m_exact_variance_value|m_type_data|m_sampling_unit",
+          moderator), "-1", "")
         
         # Run the analysis
         extension <- rma.uni(yi, vi,
@@ -164,13 +192,6 @@ for (moderator in moderators) {
           pcc_factor_unit = as.character(.x),
           moderator = as.character(moderator),
           rownames_to_column(coef(summary(extension)), var = "moderator_class"),
-          beta = coef(summary(extension))[, "estimate"],
-          se = coef(summary(extension))[, "se"],
-          ci.lb = coef(summary(extension))[, "ci.lb"],
-          ci.ub = coef(summary(extension))[, "ci.ub"],
-          tval = coef(summary(extension))[, "tval"],
-          pval = coef(summary(extension))[, "pval"],
-          df = coef(summary(extension))[, "df"],
           stringsAsFactors = FALSE
         )
         
@@ -185,9 +206,9 @@ for (moderator in moderators) {
   results_list2[[moderator]] <- results[!sapply(results, is.null)]
 }
 
-
 # Combine results from the list into a single data frame
 meta_regression_2levels_df <- bind_rows(results_list2)%>%
+  rename("beta"="estimate")%>%
   left_join(pcc_factor_class_unit, by= "pcc_factor_unit")%>%
   mutate(significance2 = if_else(beta >0 & pval <=0.05, "significant_positive",
                                  if_else(beta <0 & pval <=0.05, "significant_negative",
