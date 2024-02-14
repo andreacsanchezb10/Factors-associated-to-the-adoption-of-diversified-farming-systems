@@ -68,7 +68,7 @@ fills <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92
 overall_strips <- strip_themed(
   # Vertical strips
   background_y = elem_list_rect(
-    fill = fills_more10),
+    fill = fills),
   text_y = elem_list_text(size= 1,colour= fills,angle = 90),
   by_layer_y = FALSE
 )

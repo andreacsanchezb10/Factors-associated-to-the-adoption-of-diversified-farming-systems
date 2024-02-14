@@ -38,9 +38,11 @@ x<- rma.mv(yi, vi,
        subset=pcc_factor_unit=="Awareness of practice (1= yes)",
        method = "REML", 
        test = "t", dfs = "contain")
-
+x$QE
 summary(x)
+coef(summary(x))
 str(x)
+x$QMdf
 
 # List of moderators
 moderators <- c("m_region", "m_sub_region","m_intervention_recla2",
@@ -69,8 +71,8 @@ for (moderator in moderators) {
       if (length(unique(subset_data[[moderator]])) > 1 && !all(is.na(subset_data[[moderator]]))) {
         # Determine whether to include "-1" in the formula
         formula_suffix <- ifelse(grepl(
-        "m_region|m_sub_region|m_intervention_recla2|m_model_method|m_random_sample|m_exact_variance_value|m_type_data|m_sampling_unit",
-        moderator), "-1", "")
+          "m_region|m_sub_region|m_intervention_recla2|m_model_method",
+          moderator), "-1", "")
         
         # Check if there are more than one level for the moderator in this subset
         if (length(unique(subset_data[[moderator]])) > 1) {
@@ -88,6 +90,10 @@ for (moderator in moderators) {
               pcc_factor_unit = as.character(.x),
               moderator = as.character(moderator),
               rownames_to_column(coef(summary(extension)), var = "moderator_class"),
+              QM = extension$QM,
+              QMdf1 = extension$QMdf[1],
+              QMdf2 =extension$QMdf[2],
+              QMp= extension$QMp,
               stringsAsFactors = FALSE
             )
             
@@ -122,8 +128,16 @@ meta_regression_3levels_df <- bind_rows(results_list)%>%
                                                  "no_significant_negative"))))%>%
   mutate(moderator=str_replace_all(moderator, "~", ""))%>%
   mutate(moderator=str_replace_all(moderator, "-1", ""))%>%
-  mutate(moderator_class= str_replace(.$moderator_class, paste0(".*", .$moderator), ""))
+  mutate(moderator_class= str_replace(.$moderator_class, paste0(".*", .$moderator), ""))%>%
+  mutate_at(c("beta","se","tval","pval" ,"ci.lb","ci.ub",
+              "QM", "QMp"),  ~round(.,4))%>%
+  mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p =",QMp, sep = ""))%>%
+  select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
+         "beta","ci.lb","ci.ub","tval","df","pval" ,
+         "f_test","significance2")
 
+                     
+names(meta_regression_3levels_df)
 sort(unique(meta_regression_3levels_df$moderator))
 sort(unique(meta_regression_3levels_df$pcc_factor_unit))
 
@@ -177,7 +191,7 @@ for (moderator in moderators) {
       if (length(unique(subset_data[[moderator]])) > 1) {
         # Determine whether to include "-1" in the formula
         formula_suffix <- ifelse(grepl(
-          "m_region|m_sub_region|m_intervention_recla2|m_model_method|m_random_sample|m_exact_variance_value|m_type_data|m_sampling_unit",
+          "m_region|m_sub_region|m_intervention_recla2|m_model_method",
           moderator), "-1", "")
         
         # Run the analysis
@@ -216,9 +230,31 @@ meta_regression_2levels_df <- bind_rows(results_list2)%>%
                                                  "no_significant_negative"))))%>%
   mutate(moderator=str_replace_all(moderator, "~", ""))%>%
   mutate(moderator=str_replace_all(moderator, "-1", ""))%>%
-  mutate(moderator_class= str_replace(.$moderator_class, paste0(".*", .$moderator), ""))
+  mutate(moderator_class= str_replace(.$moderator_class, paste0(".*", .$moderator), ""))%>%
+    mutate_at(c("beta","se","tval","pval" ,"ci.lb","ci.ub",
+                "QM", "QMp"),  ~round(.,4))%>%
+    mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p =",QMp, sep = ""))%>%
+    select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
+           "beta","ci.lb","ci.ub","tval","df","pval" ,
+           "f_test","significance2")
 
 sort(unique(meta_regression_2levels_df$moderator))
 sort(unique(meta_regression_2levels_df$pcc_factor_unit))
 
 write.csv(meta_regression_2levels_df,"meta_regression_2levels.csv", row.names=FALSE)
+
+meta_regression_df<- rbind(meta_regression_3levels_df,meta_regression_2levels_df)%>%
+  mutate(significance = if_else(pval <=0.001,paste(pval,"***",sep=""),
+                                if_else(pval>0.001&pval<0.01,paste(pval,"**",sep=""),
+                                        if_else(pval>0.01&pval<=0.05,paste(pval,"*",sep=""),
+                                                paste(pval)))))
+write.csv(meta_regression_df,"meta_regression.csv", row.names=FALSE)
+
+
+extension <- rma.uni(yi, vi,
+                     mods = ~ m_random_sample,
+                     data = m_pcc_data_2level,
+                     subset = pcc_factor_unit=="Land tenure (1= owned)",
+                     method = "REML", 
+                     test = "knha")
+summary(extension)
