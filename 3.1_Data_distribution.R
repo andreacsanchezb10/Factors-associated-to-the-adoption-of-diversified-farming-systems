@@ -238,13 +238,13 @@ ggplot(skey_region_factor_systems,
     axis.title = element_blank(), 
     axis.ticks = element_blank(),
     panel.background = element_rect(fill = "transparent"))
-plot.margin = unit(c(t=1,r=1,b=1,l=1), "cm"))
 
 
 ######################################################
-#######
-# Data distribution by x_metric_recla2
+####### Data distribution plots ####################
 library(ggh4x)
+
+# Data distribution by pcc_factor_unit and m_intervention_recla2
 
 dist_factor_system <-pcc_data%>%
   group_by(factor_sub_class.x,pcc_factor_unit,m_intervention_recla2 )%>%
@@ -252,8 +252,12 @@ dist_factor_system <-pcc_data%>%
             n_ES = n_distinct(ES_ID))%>%
   mutate(n_articles_es = paste("(", n_articles," | ",n_ES,")", sep = "" ),
          more_10= if_else(n_articles>9,"more_equal10",
-                          "less10"))
- 
+                          "less10"))%>%
+  arrange(pcc_factor_unit,pcc_factor_unit)
+
+unique_levels <- unique(dist_factor_system$pcc_factor_unit)
+dist_factor_system$pcc_factor_unit <- factor(dist_factor_system$pcc_factor_unit, levels = rev(sort(unique_levels)))
+
 factors <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#297d7d")
 
 overall_strips <- strip_themed(
@@ -266,56 +270,161 @@ overall_strips <- strip_themed(
   by_layer_y = FALSE
 )
 
+distr_theme<- theme(strip.placement.y = "outside",
+      axis.title = element_blank(),
+      axis.text.y =element_text(color="black",size=12, family = "sans"),
+      axis.text.x = element_blank(),
+      panel.border = element_rect(colour = "black", fill=NA, size=0.5),
+      panel.background = element_blank(),
+      plot.background = element_blank(),
+      panel.grid  = element_blank(),
+      axis.ticks.x = element_blank(),
+      axis.line.x = element_line(colour = "black"),
+      plot.margin = unit(c(t=0.5,r=0.5,b=0.5,l=2), "cm")) # Adjust margin to create a frame
+  
+
 ggplot(dist_factor_system, 
-       aes(y=pcc_factor_unit,x=m_intervention_recla2, fill= more_10))+ 
-  geom_tile()+
-  scale_fill_manual(values= c("grey","#5CB270"), na.value = "red", guide = "legend") +  # Set up a gradient color scale
+       aes(y=pcc_factor_unit,
+           x=m_intervention_recla2, fill= more_10))+ 
+
   facet_grid2(vars(factor_sub_class.x), vars(m_intervention_recla2),
              scales= "free", space='free_y', switch = "y",
              strip = overall_strips)+
-  geom_text(aes(label = n_articles_es),  size = 3, colour="black")+
- theme(strip.placement.y = "outside",
-    axis.title = element_blank(),
-    axis.text.y =element_text(color="black",size=12, family = "sans"),
-    axis.text.x = element_blank(),
-    panel.border = element_rect(colour = "grey", fill=NA, size=1),
-    panel.background = element_blank(),
-    legend.position = "none",
-    plot.background = element_blank(),
-    panel.grid  = element_blank(),
-    axis.line.x = element_line(colour = "black"),
-    plot.margin = unit(c(t=0.5,r=0.5,b=0.5,l=2), "cm"))+ # Adjust margin to create a frame
-    geom_hline(yintercept = seq(0.5, nrow(dist_factor_system) - 0.5), color = "grey", linetype = "dotted", size = 0.5)
-
-
-
-
-
-ggplot(dist_factor_system, 
-       aes(y=pcc_factor_unit,x=m_intervention_recla2,
-           #colour = n_articles,
-           fill= n_articles))+
   geom_tile()+
-  scale_fill_gradient(low = "grey", high = "#5CB270", na.value = "white", guide = "legend")+   # Set up a gradient color scale
-  facet_grid(vars(factor_sub_class.x),
-             scales= "free", space='free_y', switch = "y")
+  scale_fill_manual(values= c("grey","#8bac37","white"), guide = "legend")+
   geom_text(aes(label = n_articles_es),  size = 4, colour="black")+
-  theme(plot.margin = unit(c(0.5,0.5,0.5,0.5), "cm"), # Adjust margin to create a frame
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        axis.text.x = element_blank(),
-        plot.background = element_blank(),
-        panel.background = element_blank(),
-        axis.ticks.x = element_blank(),
-        axis.ticks.y =  element_blank(),
-        panel.border = element_rect(colour = "grey", fill=NA, size=1),
-        axis.line.y = element_line(size = 1, colour = "black"),
-        axis.line.x = element_line(size = 1, colour = "black"),
-        axis.text.y = element_text(size=11, color="black",family = "sans"),
-        strip.text= element_text(size=12, face="bold", color="black",family = "sans"),
-        legend.position = "none",
-        strip.placement.y = "outside")
-geom_hline(yintercept = seq(0.5, nrow(subset_data) - 0.5), color = "black", linetype = "dotted", size = 0.5)
+  distr_theme+
+  theme(legend.position = "none")+
+  geom_hline(yintercept = seq(0.5, nrow(dist_factor_system) - 0.5),
+             color = "black", linetype = "solid", size = 0.5)
+  
+#1200 x 1700
+
+distr_legend<- ggplot(dist_factor_system, 
+                      aes(y=pcc_factor_unit,
+                          x=m_intervention_recla2, fill= more_10))+ 
+  
+  facet_grid2(vars(factor_sub_class.x), vars(m_intervention_recla2),
+              scales= "free", space='free_y', switch = "y",
+              strip = overall_strips)+
+  geom_tile()+
+  scale_fill_manual(values= c("grey","#8bac37","white"), guide = "legend",
+                    name="Number of articles")+
+  geom_text(aes(label = n_articles_es),  size = 4, colour="black")+
+  distr_theme+
+  theme(legend.position = "bottom",
+        legend.direction = "horizontal", 
+        legend.text = element_text(size = 8))
+distr_legend
+distr_legend <- get_legend(distr_legend)
+grid.newpage()
+grid.draw(distr_legend)
+
+
+
+# Data distribution by pcc_factor_unit and region
+dist_factor_region <-pcc_data%>%
+  group_by(factor_sub_class.x,pcc_factor_unit,m_region )%>%
+  dplyr::summarise(n_articles = n_distinct(article_id),
+                   n_ES = n_distinct(ES_ID))%>%
+  mutate(n_articles_es = paste("(", n_articles," | ",n_ES,")", sep = "" ),
+         more_10= if_else(n_articles>9,"more_equal10",
+                          "less10"))%>%
+  arrange(pcc_factor_unit,pcc_factor_unit)
+
+unique_levels <- unique(dist_factor_region$pcc_factor_unit)
+dist_factor_region$pcc_factor_unit <- factor(dist_factor_region$pcc_factor_unit, levels = rev(sort(unique_levels)))
+
+fills <- c("Africa"="#843272","Asia"="#b5562f",
+           "Northern America"="#5b6454",
+           "Latin America and the Caribbean"= "#f1ba41",
+           "Europe"="#743341")
+           
+           
+overall_strips <- strip_themed(
+  # Vertical strips
+  background_y = elem_list_rect(fill = factors),
+  background_x = elem_list_rect(fill = fills),
+  
+  text_y = elem_list_text(size= 1,colour= factors,angle = 90),
+  text_x = elem_list_text(size= 12,colour= fills,angle = 0),
+  by_layer_y = FALSE)
+
+ggplot(dist_factor_region, 
+       aes(y=pcc_factor_unit,
+           x=m_region, fill= more_10))+ 
+  facet_grid2(vars(factor_sub_class.x), vars(m_region),
+              scales= "free", space='free_y', switch = "y",
+              strip = overall_strips)+
+  geom_tile()+
+  scale_fill_manual(values= c("grey","#8bac37","white"), guide = "legend")+
+  geom_text(aes(label = n_articles_es),  size = 4, colour="black")+
+  distr_theme+
+  theme(legend.position = "none")+
+  geom_hline(yintercept = seq(0.5, nrow(dist_factor_system) - 0.5),
+             color = "black", linetype = "solid", size = 0.5)
+
+#1200 x 1700
+
+
+# Data distribution by pcc_factor_unit and sub-region
+dist_factor_sub_region <-pcc_data%>%
+  group_by(factor_sub_class.x,pcc_factor_unit,m_sub_region )%>%
+  dplyr::summarise(n_articles = n_distinct(article_id),
+                   n_ES = n_distinct(ES_ID))%>%
+  mutate(n_articles_es = paste("(", n_articles," | ",n_ES,")", sep = "" ),
+         more_10= if_else(n_articles>9,"more_equal10",
+                          "less10"))%>%
+  arrange(pcc_factor_unit,pcc_factor_unit)
+
+unique_levels <- unique(dist_factor_sub_region$pcc_factor_unit)
+dist_factor_sub_region$pcc_factor_unit <- factor(dist_factor_sub_region$pcc_factor_unit, levels = rev(sort(unique_levels)))
+
+sort(unique(dist_factor_sub_region$m_sub_region))
+fills <- c( "Central America"= "#f1ba41",
+            "Eastern Africa"="#843272",
+            "Eastern Asia"="#b5562f",
+            "Eastern Europe"="#743341",
+            "Middle Africa" ="#843272",    
+            "Northern Africa"="#843272",
+            "Northern America"="#5b6454",
+            "South-eastern Asia"="#b5562f",
+            "South America"="#f1ba41",
+            "Southern Africa" ="#843272",  
+            "Southern Asia" ="#b5562f",
+            "Southern Europe"="#743341",
+            "Western Africa"="#843272",
+            "Western Europe"="#743341")
+  
+overall_strips <- strip_themed(
+  # Vertical strips
+  background_y = elem_list_rect(fill = factors),
+  background_x = elem_list_rect(fill = fills),
+  
+  text_y = elem_list_text(size= 1,colour= factors,angle = 90),
+  text_x = elem_list_text(size= 7,colour= fills,angle = 90,
+                          face="bold"),
+  by_layer_y = FALSE)
+
+ggplot(dist_factor_sub_region, 
+       aes(y=pcc_factor_unit,
+           x=m_sub_region, fill= more_10))+ 
+  facet_grid2(vars(factor_sub_class.x), vars(m_sub_region),
+              scales= "free", space='free_y', switch = "y",
+              strip = overall_strips)+
+  geom_tile()+
+  scale_fill_manual(values= c("grey","#8bac37","white"), guide = "legend")+
+  geom_text(aes(label = n_articles_es),  size = 4, colour="black")+
+  distr_theme+
+  theme(legend.position = "none")+
+  geom_hline(yintercept = seq(0.5, nrow(dist_factor_system) - 0.5),
+             color = "black", linetype = "solid", size = 0.5)
+
+#1400 x 1800
+
+
+
+
 
 print(plot_pcc_factor_unit)  
 #https://github.com/tidyverse/ggplot2/issues/2096
