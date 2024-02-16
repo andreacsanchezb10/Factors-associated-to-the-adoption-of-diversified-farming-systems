@@ -94,8 +94,7 @@ for (moderator in moderators) {
               QMdf1 = extension$QMdf[1],
               QMdf2 =extension$QMdf[2],
               QMp= extension$QMp,
-              stringsAsFactors = FALSE
-            )
+              stringsAsFactors = FALSE)
             
             return(summary_data)
           }, error = function(e) {
