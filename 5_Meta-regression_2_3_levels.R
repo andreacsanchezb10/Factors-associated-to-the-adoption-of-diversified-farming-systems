@@ -18,7 +18,7 @@ pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 #### THREE-LEVEL META-ANALYSIS
 #Data
-pcc_data_3level<- read.csv("pcc_data_3levels.csv",header = TRUE, sep = ",")%>%
+pcc_data_3level<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")%>%
   mutate_at(vars(m_mean_farm_size_ha,n_samples_num,n_predictors_num,m_education_years ), as.numeric)%>%
   group_by( pcc_factor_unit)%>%
   dplyr::mutate(n_articles = n_distinct(article_id))%>%
@@ -27,7 +27,7 @@ sort(unique(pcc_data_3level$pcc_factor_unit))
 sort(unique(pcc_data_3level$m_model_method))
 
 #Heterogeneity
-heterogeneity_3level<- read.csv("heterogeneity_3levels.csv",header = TRUE, sep = ",")
+heterogeneity_3level<- read.csv("results/heterogeneity_3levels.csv",header = TRUE, sep = ",")
 
 sort(unique(heterogeneity_3level$pcc_factor_unit))
 
@@ -131,7 +131,7 @@ meta_regression_3levels_df <- bind_rows(results_list)%>%
   mutate(moderator_class= str_replace(.$moderator_class, paste0(".*", .$moderator), ""))%>%
   mutate_at(c("beta","se","tval","pval" ,"ci.lb","ci.ub",
               "QM", "QMp"),  ~round(.,4))%>%
-  mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p =",QMp, sep = ""))%>%
+  mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p = ",QMp, sep = ""))%>%
   select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
          "beta","ci.lb","ci.ub","tval","df","pval" ,
          "f_test","significance2")
@@ -141,12 +141,13 @@ names(meta_regression_3levels_df)
 sort(unique(meta_regression_3levels_df$moderator))
 sort(unique(meta_regression_3levels_df$pcc_factor_unit))
 
-write.csv(meta_regression_3levels_df,"meta_regression_3levels.csv", row.names=FALSE)
+write.csv(meta_regression_3levels_df,"results/meta_regression_3levels.csv", row.names=FALSE)
 
 ##########################################################################################
 ########### TWO-LEVEL META-ANALYSIS ############################################
 #Data
-pcc_data_2level<- read.csv("pcc_data_2levels.csv",header = TRUE, sep = ",")%>%
+
+pcc_data_2level<- read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ",")%>%
   mutate(m_mean_farm_size_ha= as.numeric(m_mean_farm_size_ha))%>%
   group_by( pcc_factor_unit)%>%
   dplyr::mutate(n_articles = n_distinct(article_id))%>%
@@ -154,7 +155,7 @@ pcc_data_2level<- read.csv("pcc_data_2levels.csv",header = TRUE, sep = ",")%>%
 sort(unique(pcc_data_2level$pcc_factor_unit))    
           
 #Heterogeneity
-heterogeneity_2level<- read.csv("heterogeneity_2levels.csv",header = TRUE, sep = ",")%>%
+heterogeneity_2level<- read.csv("results/heterogeneity_2levels.csv",header = TRUE, sep = ",")%>%
   filter(I2>=75)
 
 sort(unique(heterogeneity_2level$pcc_factor_unit))
@@ -185,40 +186,57 @@ for (moderator in moderators) {
   results <- pcc_factor_units %>% 
     map_df(~ {
       # Create subset for the current pcc_factor_unit
-      subset_data <- subset(m_pcc_data_2level, pcc_factor_unit == .x)
+      subset_data <- subset(pcc_data_2level, pcc_factor_unit == .x)
       
       # Check if the current pcc_factor_unit has more than one level for the moderator
-      if (length(unique(subset_data[[moderator]])) > 1) {
+      if (length(unique(subset_data[[moderator]])) > 1 && !all(is.na(subset_data[[moderator]]))) {
         # Determine whether to include "-1" in the formula
         formula_suffix <- ifelse(grepl(
           "m_region|m_sub_region|m_intervention_recla2|m_model_method",
           moderator), "-1", "")
         
-        # Run the analysis
-        extension <- rma.uni(yi, vi,
-                             mods = as.formula(paste("~", moderator, formula_suffix)),
-                             data = subset_data,
-                             method = "REML", 
-                             test = "knha")
-        
-        # Extract relevant information from the summary
-        summary_data <- data.frame(
-          pcc_factor_unit = as.character(.x),
-          moderator = as.character(moderator),
-          rownames_to_column(coef(summary(extension)), var = "moderator_class"),
-          stringsAsFactors = FALSE
-        )
-        
-        return(summary_data)
+        # Check if there are more than one level for the moderator in this subset
+        if (length(unique(subset_data[[moderator]])) > 1) {
+          tryCatch({
+            # Run the analysis
+            extension <- rma.uni(yi, vi,
+                                 mods = as.formula(paste("~", moderator, formula_suffix)),
+                                 data = subset_data,
+                                 method = "REML", 
+                                 test = "knha")
+            
+            # Extract relevant information from the summary
+            summary_data <- data.frame(
+              pcc_factor_unit = as.character(.x),
+              moderator = as.character(moderator),
+              rownames_to_column(coef(summary(extension)), var = "moderator_class"),
+              QM = extension$QM,
+              QMdf1 = extension$QMdf[1],
+              QMdf2 =extension$QMdf[2],
+              QMp= extension$QMp,
+              stringsAsFactors = FALSE
+            )
+            
+            return(summary_data)
+          }, error = function(e) {
+            # Print information when an error occurs
+            cat("Error occurred for pcc_factor_unit:", .x, "and moderator:", moderator, "\n")
+            print(e)
+            return(NULL)
+          })
+        } else {
+          # If less than 2 levels, return NULL
+          return(NULL)
+        }
       } else {
-        # If less than 2 levels, return NULL
+        # If less than 2 levels or all NAs, return NULL
         return(NULL)
       }
     })
   
-  # Filter out NULL results and store the non-empty results in the list
   results_list2[[moderator]] <- results[!sapply(results, is.null)]
 }
+
 
 # Combine results from the list into a single data frame
 meta_regression_2levels_df <- bind_rows(results_list2)%>%
@@ -233,7 +251,7 @@ meta_regression_2levels_df <- bind_rows(results_list2)%>%
   mutate(moderator_class= str_replace(.$moderator_class, paste0(".*", .$moderator), ""))%>%
     mutate_at(c("beta","se","tval","pval" ,"ci.lb","ci.ub",
                 "QM", "QMp"),  ~round(.,4))%>%
-    mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p =",QMp, sep = ""))%>%
+    mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p = ",QMp, sep = ""))%>%
     select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
            "beta","ci.lb","ci.ub","tval","df","pval" ,
            "f_test","significance2")
@@ -241,14 +259,14 @@ meta_regression_2levels_df <- bind_rows(results_list2)%>%
 sort(unique(meta_regression_2levels_df$moderator))
 sort(unique(meta_regression_2levels_df$pcc_factor_unit))
 
-write.csv(meta_regression_2levels_df,"meta_regression_2levels.csv", row.names=FALSE)
+write.csv(meta_regression_2levels_df,"results/meta_regression_2levels.csv", row.names=FALSE)
 
 meta_regression_df<- rbind(meta_regression_3levels_df,meta_regression_2levels_df)%>%
   mutate(significance = if_else(pval <=0.001,paste(pval,"***",sep=""),
                                 if_else(pval>0.001&pval<0.01,paste(pval,"**",sep=""),
                                         if_else(pval>0.01&pval<=0.05,paste(pval,"*",sep=""),
                                                 paste(pval)))))
-write.csv(meta_regression_df,"meta_regression.csv", row.names=FALSE)
+write.csv(meta_regression_df,"results/meta_regression.csv", row.names=FALSE)
 
 
 extension <- rma.uni(yi, vi,
