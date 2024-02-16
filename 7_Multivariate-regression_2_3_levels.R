@@ -88,7 +88,6 @@ for (unit in unique_units) {
 }
 
 
-
 # Convert the list to a data.frame
 importance_df_2levels <- do.call(rbind, lapply(importance_list, as.data.frame))%>%
   rownames_to_column(., var = "pcc_factor_unit.moderator")%>%
@@ -114,7 +113,7 @@ subset(res, delta <= 2, recalc.weights=FALSE)
 
 
 
-
+########################################################################################
 
 
 
