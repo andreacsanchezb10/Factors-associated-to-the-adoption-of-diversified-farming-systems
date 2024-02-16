@@ -27,6 +27,8 @@ eval(metafor:::.MuMIn)
 
 ##########################################################################################################################################################
 #################### TWO-LEVEL META-ANALYSIS ##########################################################################################
+##########################################################################################################################################################
+#Data
 pcc_data_2level<- read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ",")%>%
   mutate(m_mean_farm_size_ha= as.numeric(m_mean_farm_size_ha))%>%
   group_by( pcc_factor_unit)%>%
@@ -100,9 +102,76 @@ importance_df_2levels <- do.call(rbind, lapply(importance_list, as.data.frame))%
 sort(unique(importance_df_2levels$pcc_factor_unit))
 subset(res, delta <= 2, recalc.weights=FALSE)
 
+##########################################################################################################################################################
+########################  THREE-LEVEL META-ANALYSIS ##########################################################################################################################################################
+##########################################################################################################################################################
+#Data
+pcc_data_3level<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")%>%
+  mutate_at(vars(m_mean_farm_size_ha,n_samples_num,n_predictors_num,m_education_years ), as.numeric)%>%
+  group_by( pcc_factor_unit)%>%
+  dplyr::mutate(n_articles = n_distinct(article_id))%>%
+  filter(n_articles>9)
+sort(unique(pcc_data_3level$pcc_factor_unit))
+sort(unique(pcc_data_3level$m_model_method))
 
 
+sort(unique(pcc_data_3level$pcc_factor_unit))
 
+unique_units <- unique(pcc_data_3level$pcc_factor_unit)
+importance_list <- list()
+
+
+for (unit in unique_units) {
+  subset_data <- pcc_data_3level %>%
+    filter(pcc_factor_unit == unit)
+  
+  subset_data <- as.data.frame(subset_data)
+  
+  # Check if any of the specified variables has 0 articles for the current unit
+  if (any(sapply(variables_to_exclude, function(var) sum(subset_data[[var]] == 1) > 0))) {
+    # Check if any of the specified variables has <2 levels
+    if (any(sapply(variables_to_exclude, function(var) length(unique(subset_data[[var]])) < 2))) {
+      print("Excluding variables due to <2 levels:")
+      print(variables_to_exclude[sapply(variables_to_exclude, function(var) length(unique(subset_data[[var]])) < 2)])
+      # If there are articles for at least one variable and <2 levels for all variables, include all variables in the moderators.formula
+      current_formula <- moderators.formula
+    } else {
+      # If there are 0 articles for all variables or >=2 levels for any variable, exclude them from the moderators.formula
+      print("Excluding variables due to 0 articles or >=2 levels:")
+      print(variables_to_exclude)
+      current_formula <- as.formula(gsub(paste(variables_to_exclude, collapse = "+"), "", as.character(moderators.formula)))
+    }
+  } else {
+    # If there are 0 articles for all variables, exclude them from the moderators.formula
+    print("Excluding variables due to 0 articles:")
+    print(variables_to_exclude)
+    current_formula <- as.formula(gsub(paste(variables_to_exclude, collapse = "+"), "", as.character(moderators.formula)))
+  }
+  
+  # Perform analysis
+  full <- rma.mv(yi, vi, 
+                 mods = current_formula,
+                 random = list(~ 1 | ES_ID, ~ 1 | article_id),
+                 data=subset_data, 
+                 method="ML")
+  
+  # Store weightable results in the list
+  res <- dredge(full, trace = 2)
+  importance_list[[unit]] <- sw(res)
+}
+
+
+# Convert the list to a data.frame
+importance_df_3levels <- do.call(rbind, lapply(importance_list, as.data.frame))%>%
+  rownames_to_column(., var = "pcc_factor_unit.moderator")%>%
+  mutate(moderator= str_extract(pcc_factor_unit.moderator, '\\b\\w+$'))%>%
+  mutate(pcc_factor_unit= str_extract(pcc_factor_unit.moderator, '^[^.]+'))%>%
+  rename("Importance"="X[[i]]")%>%
+  #filter(Importance>=0.8)%>%
+  select(pcc_factor_unit,moderator,Importance)
+
+sort(unique(importance_df_3levels$pcc_factor_unit))
+subset(res, delta <= 2, recalc.weights=FALSE)
 
 
 
