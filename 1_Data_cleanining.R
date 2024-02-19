@@ -3,7 +3,7 @@ library(readxl)
 library(dplyr)
 
 # Set the file path and name of the .xlsx file -------
-data_path <- "C:/Users/AndreaSanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/Meta_data_2024.01.25.xlsx"
+data_path <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx"
 
 # Use the read_excel() function to read the data into a data frame
 data <- read_excel(data_path, sheet = "meta_PCC")
@@ -29,8 +29,8 @@ length(sort(unique(adoption$article_id))) # Number of articles 174
 table(adoption$y_metric_recla) #Number of rows 4678
 sort(unique(adoption$country)) #Countries 47
 length(sort(unique(adoption$x_metric_recla))) # Unique factors 164
-sort(unique(adoption$Factor_and_metric)) #Unique factors and metric 483
 
+names(adoption)
 ### Select only necessary columns ----
 adoption_clean<- adoption%>%
   #Convert to numeric the necessary columns
@@ -50,14 +50,14 @@ adoption_clean<- adoption%>%
   dplyr::select(article_id,model_id,main_crop, country, 
                 year_assessment_start, year_assessment_end,
                 intervention_recla,intervention_recla_detail_1,
-                intervention_recla_detail_2,intervention_recla_detail_3,intervention_recla_detail_4,
+                intervention_recla_detail_2,intervention_recla_detail_3,
+                intervention_recla_detail_4,intervention_recla_detail_5,
                 y_metric_recla,x_metric_raw,x_metric_recla, x_metric_unit_raw,
                 x_metric_unit_recla,x_data_type,
                 transformation_coefficient,	transformation_coefficient_num,
                 transformation_variance,
                 transformation_variance_num,
                 x_mean_value,x_mean_value_num,
-                
                 model_analysis_raw,model_method,coefficient_type, 
                 coefficient, coefficient_num,
                 variance_metric,variance_value,variance_value_num,
@@ -67,8 +67,8 @@ adoption_clean<- adoption%>%
                 variance_ci_u_num,
                 z_t_value,z_t_value_num, p_value, p_value_num, df_original, n_predictors,n_predictors_num,
                 n_samples,n_samples_num, 
-                limitation_of_use_obs,m_exact_variance_value,m_random_sample, m_mean_farm_size_ha, sampling_unit,
-                type_data)%>%
+                limitation_of_use_obs,m_exact_variance_value,m_random_sample, m_mean_farm_size_ha, 
+                sampling_unit,type_data, m_endogeneity_correction, m_exposure_correction)%>%
   mutate(factor_metric= paste(x_metric_recla, " (", x_metric_unit_recla, ")", sep=""))
 
 
@@ -103,61 +103,13 @@ sort(unique(adoption_clean$intervention_recla_detail_1)) #10 systems
 table(adoption_clean$m_intervention_recla2)
 
 ##m_intervention_recla3: by system components
-adoption_clean$m_intervention_recla3<- stringr::str_to_sentence(adoption_clean$intervention_recla)
-sort(unique(adoption_clean$intervention_recla))
+adoption_clean$m_intervention_recla3<- stringr::str_to_sentence(adoption_clean$intervention_recla_detail_5)
 sort(unique(adoption_clean$m_intervention_recla3))
 
-sort(unique(adoption_clean$intervention_recla_detail_1))
-table(adoption_clean$intervention_recla_detail_1,adoption_clean$intervention_recla )
-names(adoption_clean)
-                       
-[7] "Embedded seminatural infrastructures"                            
- 
-"buffer strips"
+table(adoption_clean$intervention_recla, adoption_clean$m_intervention_recla3)
 
-#Only crops
-adoption_clean$m_intervention_recla3[adoption_clean$m_intervention_recla3 %in% c("Cover crops",
-                                                                                 "Crop rotation",
-                                                                                 "Crop rotation and cover crops",
-                                                                                 "Crop rotation and intercropping",
-                                                                                 "Intercropping",
-                                                                                 "Land with temporary fallow and cover crops",
-                                                                                 "Land with temporary fallow")]<-"Only crops"
+sort(unique(prueba$article_id))
 
-#Only animals
-adoption_clean$m_intervention_recla3[adoption_clean$m_intervention_recla3 %in% c("Rotational grazing")]<-"Only animals"
-
-#Crops and trees 
-adoption_clean$m_intervention_recla3[adoption_clean$m_intervention_recla3 %in% c("Agroforestry",
-                                                                                 "Agroforestry and fallow")]<-"Crops and trees"
-
-adoption_clean$m_intervention_recla3[adoption_clean$m_intervention_recla3 %in% c("Embedded seminatural infrastructures")&
-                                       adoption_clean$intervention_recla_detail_3 %in% c("grass or woody buffer strips",
-                                                                                         "grass,legumes, trees, or shrubs",
-                                                                                         "shrubs, trees and native wildﬂower and/or native grass",
-                                                                                         "trees",
-                                                                                         "trees or shrubs",
-                                                                                         "trees, shrubs, vines, grasses, or legumes")]<-"Crops and trees"
-
-adoption_clean$m_intervention_recla3[adoption_clean$m_intervention_recla3 %in% c("Embedded seminatural infrastructures")&
-                                       adoption_clean$intervention_recla_detail_3 %in% c("flower strips",
-                                                                                         "grass",
-                                                                                         "perennial grass",
-                                                                                         "shrubs and grasses")]<-"Crops and grass/flowers"
-
-#Crops and animals
-adoption_clean$m_intervention_recla3[adoption_clean$m_intervention_recla3 %in% c("Integrated crop-livestock",
-                                                                                 "Integrated aquaculture-agriculture")]<-"Crops and animals"
-#Animals and trees
-adoption_clean$m_intervention_recla3[adoption_clean$m_intervention_recla3 %in% c("Silvopasture",
-                                                                                 "Grazing cut and carry")]<-"Trees and animals"
-
-sort(unique(adoption_clean$m_intervention_recla3))
-
-sort(unique(adoption_clean$intervention_recla_detail_1[adoption_clean$m_intervention_recla3 %in% c("Embedded seminatural infrastructures")]))
-sort(unique(adoption_clean$intervention_recla_detail_3[adoption_clean$m_intervention_recla3 %in% c("Embedded seminatural infrastructures")]))
-
-                         
 
 ####### Prepare data for the analysis -------
 
@@ -533,7 +485,7 @@ check<-adoption_binary%>%
   filter(is.na(se_logOR))
 
 sort(unique(check$model_coefficient_variance_type))
-length(sort(unique(check$article_id))) # Number of articles 17
+length(sort(unique(check$article_id))) # Number of articles 16
 sort(unique(check$country)) #Countries 12
 sort(unique(check$article_id))
 
@@ -566,9 +518,7 @@ factors_articles_count <- adoption_binary %>%
 
 names(adoption_binary)
 
-write.csv(factors_articles_count, 
-          "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/binary_adoption_factors_articles.csv", 
-          row.names=FALSE)
+write.csv(factors_articles_count, "data/binary_adoption_factors_articles1.csv", row.names=FALSE)
 
 
 #### Filter only the factors I'm going to study ------
@@ -690,11 +640,10 @@ table(data_adoption_binary$country,data_adoption_binary$m_sub_region)
 
 ####### Factors classification -------
 
-factors_assessed <- read_excel("C:/Users/AndreaSanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/Meta_data_2024.01.25.xlsx",
-                               sheet = "FACTORS_metric_assessed")
+factors_assessed <- read_excel(data_path, sheet = "FACTORS_metric_assessed")
+
 
 ####### CHECK NO LIMITATION DATA -------
-
 factors<-data_adoption_binary%>%
   mutate(factor_metric=paste(x_metric_recla," (",x_metric_unit_recla,")",sep=""))%>%
   left_join(factors_assessed, by="factor_metric")%>%
@@ -712,6 +661,7 @@ m_education_years<- data_adoption_binary%>%
   select(article_id, model_id, x_mean_value)%>%
   rename("m_education_years"="x_mean_value")
 
+sort(unique(data_adoption_binary$m_exposure_correction))
 pcc_data_adoption_binary<- data_adoption_binary%>%
   filter(!is.na(t_value_pcc))%>%
   filter(limitation_of_use_obs== "no limitation")%>%
@@ -732,10 +682,21 @@ pcc_data_adoption_binary<- data_adoption_binary%>%
   mutate(m_av_year_assessment= if_else(is.na(year_assessment_end),
                                        year_assessment_start,
                                        ((year_assessment_start+year_assessment_end)/2)))%>%
-  mutate(m_av_year_assessment= round(m_av_year_assessment,0))
+  mutate(m_av_year_assessment= round(m_av_year_assessment,0))%>%
+  #Endogeneity analysis by primary articles yes/no
+  mutate(m_endogeneity_correction= if_else(m_endogeneity_correction=="no endogeneity correction",0,1))%>%
+  #Exposure correction analysis by primary articles yes/no
+  mutate(m_exposure_correction= if_else(m_exposure_correction=="no exposure correction",0,1))
+  
+
+
+
+
 
 names(pcc_data_adoption_binary)
-sort(unique(pcc_data_adoption_binary$m_av_year_assessment)) #
+sort(unique(pcc_data_adoption_binary$m_av_year_assessment)) # 1988 - 2023
+sort(unique(pcc_data_adoption_binary$m_sampling_unit)) # 
+
 length(unique(pcc_data_adoption_binary$article_id)) #153 articles for PCC analysis
 sort(unique(pcc_data_adoption_binary$article_id)) #113 articles 
 length(unique(pcc_data_adoption_binary$m_intervention_recla2)) #10 systems
@@ -748,5 +709,5 @@ names(pcc_data_adoption_binary)
 
 #verificar cuantos articulos para log-odds ratio y cuantos para pcc
 
-write.csv(pcc_data_adoption_binary,"binary_adoption_clean_data.csv", row.names=FALSE)
+write.csv(pcc_data_adoption_binary,"data/binary_adoption_clean_data.csv", row.names=FALSE)
 
