@@ -5,15 +5,13 @@ library(dplyr)
 library(tidyr)
 library(metafor)
 
-factors_metric_assessed <- read_excel("C:/Users/AndreaSanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/Meta_data_2024.01.25.xlsx",
+factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
                                       sheet = "FACTORS_metric_assessed")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
                                                  " (",factors_metric_assessed$pcc_unit,")", sep="")
 
-pcc_data<-read.csv(
-  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/pcc_data.csv",
-                   header = TRUE, sep = ",")%>%
+pcc_data<-read.csv( "data/pcc_data.csv", header = TRUE, sep = ",")%>%
   mutate(pcc_factor_unit= as.factor(pcc_factor_unit))
 
 levels(pcc_data$pcc_factor_unit) #70
