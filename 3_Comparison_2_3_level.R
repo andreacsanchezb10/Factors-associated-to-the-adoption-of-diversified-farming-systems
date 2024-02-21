@@ -177,5 +177,5 @@ length((comparison$best_model[comparison$best_model %in% "Three-level"])) #14
 length((comparison$best_model[comparison$best_model %in% "Two-level"])) #56
 
 
-write.csv(comparison, "comparison_best_model.csv", row.names=FALSE)
+write.csv(comparison, "results/comparison_best_model.csv", row.names=FALSE)
 
