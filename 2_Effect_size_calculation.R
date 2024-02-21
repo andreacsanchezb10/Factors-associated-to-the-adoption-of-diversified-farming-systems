@@ -3,13 +3,13 @@ library(readxl)
 
 
 ####### FACTORS -------
-factors_metric_assessed <- read_excel("C:/Users/AndreaSanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/Meta_data_2024.01.25.xlsx",
+factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
                                       sheet = "FACTORS_metric_assessed")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
                                                  " (",factors_metric_assessed$pcc_unit,")", sep="")
 
-data<-read.csv("binary_adoption_clean_data.csv",header = TRUE, sep = ",")%>%
+data<-read.csv("data/binary_adoption_clean_data.csv",header = TRUE, sep = ",")%>%
   select( "article_id","model_id", "main_crop" ,"country",                        
           "intervention_recla","intervention_recla_detail_1" ,   
           "intervention_recla_detail_2", "intervention_recla_detail_3",    "intervention_recla_detail_4",     "y_metric_recla" ,                
@@ -25,7 +25,7 @@ data<-read.csv("binary_adoption_clean_data.csv",header = TRUE, sep = ",")%>%
           "b_logOR"        ,                 "se_logOR"    ,"m_region"    ,"m_sub_region",                 
           "Developed_Developing" ,         
          "m_intervention_recla2" ,"m_exact_variance_value","m_random_sample", "m_mean_farm_size_ha",
-        "m_sampling_unit", "m_type_data", "m_av_year_assessment", "m_education_years")%>%
+        "m_sampling_unit", "m_type_data", "m_av_year_assessment", "m_education_years", "m_intervention_system_components")%>%
   left_join(factors_metric_assessed, by= c("factor_metric"))
 
 sort(unique(data$factor_metric))
@@ -59,7 +59,7 @@ factors_metric_unit<-data%>%
 
 sort(unique(factors_metric_unit$pcc_factor_unit)) # 135 factor_metric
 
-write.csv(factors_metric_unit, "pcc_factors_metric_unit_articles.csv", row.names=FALSE)
+write.csv(factors_metric_unit, "data/pcc_factors_metric_unit_articles.csv", row.names=FALSE)
 
 ####################### EFFECT SIZE calculation---------------------------------
 library(metafor)
@@ -81,5 +81,5 @@ check_meta<- pcc_data%>%
 
 sort(unique(pcc_data$pcc_unit))
 
-write.csv(pcc_data, "pcc_data.csv", row.names=FALSE)
+write.csv(pcc_data, "data/pcc_data.csv", row.names=FALSE)
 
