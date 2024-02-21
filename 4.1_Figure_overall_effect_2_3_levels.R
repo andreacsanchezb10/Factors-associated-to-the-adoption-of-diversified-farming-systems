@@ -8,7 +8,7 @@ library(gridExtra)
 library(plyr)
 library(forcats)
 
-factors_metric_assessed <- read_excel("C:/Users/AndreaSanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/Meta_data_2024.01.25.xlsx",
+factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
                                       sheet = "FACTORS_metric_assessed")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
@@ -19,23 +19,23 @@ pcc_factor_class_unit<-factors_metric_assessed%>%
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 #### PCC data 
-pcc_data<- read.csv("pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
-  rbind(read.csv("pcc_data_2levels.csv",header = TRUE, sep = ","))
+pcc_data<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
+  rbind(read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ","))
 
 #### Overall results
 #Two-level
-pcc_2level<-read.csv("pcc_data_2levels.csv",
+pcc_2level<-read.csv("data/pcc_data_2levels.csv",
                      header = TRUE, sep = ",")  %>%
   dplyr::group_by(factor_sub_class.x,pcc_factor_unit) %>%
   dplyr::summarise(n_articles = n_distinct(article_id))
 
-overall_2level_results<-read.csv("overall_results_2levels.csv",
+overall_2level_results<-read.csv("results/overall_results_2levels.csv",
                                           header = TRUE, sep = ",")%>%
   left_join(pcc_2level,by="pcc_factor_unit")%>%
   select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","n_ES","n_articles")
   
 #Three-level
-overall_3level_results<-read.csv("overall_results_3levels.csv",header = TRUE, sep = ",")%>%
+overall_3level_results<-read.csv("results/overall_results_3levels.csv",header = TRUE, sep = ",")%>%
   select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","n_ES","n_articles")
 
 sort(unique(overall_3level_results$pcc_factor_unit))
@@ -132,12 +132,12 @@ overall_distribution<-
   geom_bar(stat="identity",show.legend = F)+
   geom_errorbar(aes(xmin=0, xmax=n_ES), 
                 width=0, position = position_dodge(width = 0.9),size = 0.7,
-                show.legend = F) +
+                show.legend = T) +
     geom_point(aes(x=n_ES, y=reorder(pcc_factor_unit, beta),
                    fill = factor(factor_sub_class)),
                shape=18,size=2, position = (position_dodge(width = -0.2)),
                show.legend = F)+
-  scale_fill_manual(values = fills_more10)+
+  scale_fill_manual(values = fills)+
   facet_grid2(vars(factor_sub_class),
               scales= "free", space='free_y', switch = "x", strip=overall_distribution_strips)+
   xlab("Number")+
@@ -157,3 +157,39 @@ overall.plot<-ggarrange(overall_effect,overall_distribution,ncol = 2,widths = c(
 
 overall.plot
 
+#1200 1700
+
+
+
+overall_distribution_legend<- ggplot(
+  subset(overal_results, factor_sub_class %in% c("Accessibility")),
+                                       aes(x=n_articles, y=reorder(pcc_factor_unit, beta),
+                                         fill = factor(factor_sub_class))) +
+  geom_bar(stat="identity",show.legend = F)+
+  geom_errorbar(aes(xmin=0, xmax=n_ES), 
+                width=0, position = position_dodge(width = 0.9),size = 0.7,
+                show.legend = T) +
+  geom_point(aes(x=n_ES, y=reorder(pcc_factor_unit, beta),
+                 fill = factor(factor_sub_class)),
+             shape=18,size=2, position = (position_dodge(width = -0.2)),
+             show.legend = T)+
+  scale_fill_manual(values = fills)+
+  facet_grid2(vars(factor_sub_class),
+              scales= "free", space='free_y', switch = "x", strip=overall_distribution_strips)+
+  xlab("Number")+
+  theme_overall+
+  theme(strip.placement.y = "outside",
+        axis.text.y =element_blank(),
+        axis.line.y = element_line(colour = "black"),
+        axis.ticks.y=element_line(colour = "grey"),
+        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=0), "cm"),
+        legend.text = element_text(size = 8))+
+  scale_x_continuous(
+    limit = c(0,140),expand = c(0,0),
+    breaks = c(0,25,50,75,100,125),
+    labels= c("0","25","50","75","100","125"))
+
+overall_distribution_legend
+overall_distribution_legend <- get_legend(overall_distribution_legend)
+grid.newpage()
+grid.draw(overall_distribution_legend)
