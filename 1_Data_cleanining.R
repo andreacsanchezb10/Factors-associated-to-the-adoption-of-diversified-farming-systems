@@ -51,7 +51,7 @@ adoption_clean<- adoption%>%
                 year_assessment_start, year_assessment_end,
                 intervention_recla,intervention_recla_detail_1,
                 intervention_recla_detail_2,intervention_recla_detail_3,
-                intervention_recla_detail_4,intervention_recla_detail_5,
+                intervention_recla_detail_4,
                 y_metric_recla,x_metric_raw,x_metric_recla, x_metric_unit_raw,
                 x_metric_unit_recla,x_data_type,
                 transformation_coefficient,	transformation_coefficient_num,
@@ -68,7 +68,8 @@ adoption_clean<- adoption%>%
                 z_t_value,z_t_value_num, p_value, p_value_num, df_original, n_predictors,n_predictors_num,
                 n_samples,n_samples_num, 
                 limitation_of_use_obs,m_exact_variance_value,m_random_sample, m_mean_farm_size_ha, 
-                sampling_unit,type_data, m_endogeneity_correction, m_exposure_correction)%>%
+                sampling_unit,type_data, m_endogeneity_correction, m_exposure_correction,
+                m_intervention_system_components)%>%
   mutate(factor_metric= paste(x_metric_recla, " (", x_metric_unit_recla, ")", sep=""))
 
 
@@ -102,11 +103,10 @@ sort(unique(adoption_clean$intervention_recla_detail_1)) #10 systems
 
 table(adoption_clean$m_intervention_recla2)
 
-##m_intervention_recla3: by system components
-adoption_clean$m_intervention_recla3<- stringr::str_to_sentence(adoption_clean$intervention_recla_detail_5)
-sort(unique(adoption_clean$m_intervention_recla3))
+##m_intervention_system_components
+sort(unique(adoption_clean$m_intervention_system_components))
 
-table(adoption_clean$intervention_recla, adoption_clean$m_intervention_recla3)
+table(adoption_clean$intervention_recla, adoption_clean$m_intervention_system_components)
 
 sort(unique(prueba$article_id))
 
@@ -513,7 +513,7 @@ sort(unique(adoption_binary$article_id))
 
 
 factors_articles_count <- adoption_binary %>%
-  group_by(x_metric_recla) %>%
+  group_by(x_metric_recla,x_metric_unit_recla) %>%
   summarise(n_articles = n_distinct(article_id))
 
 names(adoption_binary)
@@ -524,7 +524,6 @@ write.csv(factors_articles_count, "data/binary_adoption_factors_articles1.csv", 
 #### Filter only the factors I'm going to study ------
 data_adoption_binary<-adoption_binary%>%
   filter(
-    
 #  Accessibility 
   x_metric_recla=="distance farm-house" |           
   x_metric_recla=="distance to market"| 
