@@ -25,7 +25,7 @@ pcc_data_3level<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")
   filter(n_articles>9)
 sort(unique(pcc_data_3level$pcc_factor_unit))
 sort(unique(pcc_data_3level$m_model_method))
-
+names(pcc_data_3level)
 #Heterogeneity
 heterogeneity_3level<- read.csv("results/heterogeneity_3levels.csv",header = TRUE, sep = ",")
 
@@ -50,7 +50,7 @@ moderators <- c("m_region", "m_sub_region","m_intervention_recla2",
                 "m_type_data","m_sampling_unit",
                 "m_mean_farm_size_ha","n_samples_num","n_predictors_num",
                 "m_av_year_assessment",
-                "m_education_years")
+                "m_education_years","m_intervention_system_components")
 
 ### FALTA: type of crop?, diversfied farming systems components,
 ### in person survey, exposure correction.
@@ -71,7 +71,7 @@ for (moderator in moderators) {
       if (length(unique(subset_data[[moderator]])) > 1 && !all(is.na(subset_data[[moderator]]))) {
         # Determine whether to include "-1" in the formula
         formula_suffix <- ifelse(grepl(
-          "m_region|m_sub_region|m_intervention_recla2|m_model_method",
+          "m_region|m_sub_region|m_intervention_recla2|m_model_method|m_intervention_system_components",
           moderator), "-1", "")
         
         # Check if there are more than one level for the moderator in this subset
@@ -119,20 +119,20 @@ for (moderator in moderators) {
 
 # Combine results from the list into a single data frame
 meta_regression_3levels_df <- bind_rows(results_list)%>%
-  rename("beta"="estimate")%>%
+  #rename("beta"="estimate")%>%
   left_join(pcc_factor_class_unit, by= "pcc_factor_unit")%>%
-  mutate(significance2 = if_else(beta >0 & pval <=0.05, "significant_positive",
-                                 if_else(beta <0 & pval <=0.05, "significant_negative",
-                                         if_else(beta>0&pval>0.05,"no_significant_positive",
+  mutate(significance2 = if_else(estimate >0 & pval <=0.05, "significant_positive",
+                                 if_else(estimate <0 & pval <=0.05, "significant_negative",
+                                         if_else(estimate>0&pval>0.05,"no_significant_positive",
                                                  "no_significant_negative"))))%>%
   mutate(moderator=str_replace_all(moderator, "~", ""))%>%
   mutate(moderator=str_replace_all(moderator, "-1", ""))%>%
   mutate(moderator_class= str_replace(.$moderator_class, paste0(".*", .$moderator), ""))%>%
-  mutate_at(c("beta","se","tval","pval" ,"ci.lb","ci.ub",
+  mutate_at(c("estimate","se","tval","pval" ,"ci.lb","ci.ub",
               "QM", "QMp"),  ~round(.,4))%>%
   mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p = ",QMp, sep = ""))%>%
   select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
-         "beta","ci.lb","ci.ub","tval","df","pval" ,
+         "estimate","ci.lb","ci.ub","tval","df","pval" ,
          "f_test","significance2")
 
                      
@@ -167,13 +167,6 @@ m_pcc_data_2level<- pcc_data_2level%>%
 
 sort(unique(m_pcc_data_2level$pcc_factor_unit))
 
-# List of moderators
-moderators <- c("m_region", "m_sub_region","m_intervention_recla2",
-                "m_model_method","m_random_sample","m_exact_variance_value",
-                "m_type_data","m_sampling_unit",
-                "m_mean_farm_size_ha","n_samples_num","n_predictors_num",
-                "m_av_year_assessment",
-                "m_education_years")
 
 # List of pcc_factor_unit
 pcc_factor_units <- unique(m_pcc_data_2level$pcc_factor_unit)
@@ -191,7 +184,7 @@ for (moderator in moderators) {
       if (length(unique(subset_data[[moderator]])) > 1 && !all(is.na(subset_data[[moderator]]))) {
         # Determine whether to include "-1" in the formula
         formula_suffix <- ifelse(grepl(
-          "m_region|m_sub_region|m_intervention_recla2|m_model_method",
+          "m_region|m_sub_region|m_intervention_recla2|m_model_method|m_intervention_system_components",
           moderator), "-1", "")
         
         # Check if there are more than one level for the moderator in this subset
@@ -239,20 +232,20 @@ for (moderator in moderators) {
 
 # Combine results from the list into a single data frame
 meta_regression_2levels_df <- bind_rows(results_list2)%>%
-  rename("beta"="estimate")%>%
+  #rename("beta"="estimate")%>%
   left_join(pcc_factor_class_unit, by= "pcc_factor_unit")%>%
-  mutate(significance2 = if_else(beta >0 & pval <=0.05, "significant_positive",
-                                 if_else(beta <0 & pval <=0.05, "significant_negative",
-                                         if_else(beta>0&pval>0.05,"no_significant_positive",
+  mutate(significance2 = if_else(estimate >0 & pval <=0.05, "significant_positive",
+                                 if_else(estimate <0 & pval <=0.05, "significant_negative",
+                                         if_else(estimate>0&pval>0.05,"no_significant_positive",
                                                  "no_significant_negative"))))%>%
   mutate(moderator=str_replace_all(moderator, "~", ""))%>%
   mutate(moderator=str_replace_all(moderator, "-1", ""))%>%
   mutate(moderator_class= str_replace(.$moderator_class, paste0(".*", .$moderator), ""))%>%
-    mutate_at(c("beta","se","tval","pval" ,"ci.lb","ci.ub",
+    mutate_at(c("estimate","se","tval","pval" ,"ci.lb","ci.ub",
                 "QM", "QMp"),  ~round(.,4))%>%
     mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p = ",QMp, sep = ""))%>%
     select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
-           "beta","ci.lb","ci.ub","tval","df","pval" ,
+           "estimate","ci.lb","ci.ub","tval","df","pval" ,
            "f_test","significance2")
 
 sort(unique(meta_regression_2levels_df$moderator))
