@@ -1,0 +1,71 @@
+"factor_sub_class","pcc_factor_unit","n_articles","n_ES"
+"Accessibility","Distance farm-house (continuous)",19,33
+"Accessibility","Distance input market (continuous)",7,9
+"Accessibility","Distance market (continuous)",22,35
+"Accessibility","Distance output market (continuous)",3,4
+"Accessibility","Distance road (continuous)",7,10
+"Biophysical","Precipitation (mm/year)",9,15
+"Biophysical","Soil depth (1 = moderate)",6,15
+"Biophysical","Soil depth (1 = shallow)",3,8
+"Biophysical","Soil depth (1= deep)",5,9
+"Biophysical","Soil fertility (1= high)",12,20
+"Biophysical","Soil fertility (1= moderate)",10,21
+"Biophysical","Soil fertility (1= poor)",5,11
+"Biophysical","Soil slope (1= flat)",11,21
+"Biophysical","Soil slope (1= moderate)",8,20
+"Biophysical","Soil slope (1= steep)",9,21
+"Biophysical","Temperature (Celsius)",7,12
+"Financial capital","Access to credit (1= yes)",45,70
+"Financial capital","Access to credit is a constraint (1= yes)",6,14
+"Financial capital","Access to non-farm income (1= yes)",39,61
+"Financial capital","Non-farm income (continuous)",17,21
+"Financial capital","On-farm income (continuous)",19,33
+"Financial capital","Receive support for conservation (1= yes)",11,22
+"Financial capital","Total income (continuous)",11,19
+"Personal behaviour","Attitude toward practice (1= negative)",2,2
+"Personal behaviour","Attitude toward practice (1= positive)",5,6
+"Personal behaviour","Attitude toward practice (positive continuous)",4,4
+"Personal behaviour","Perceived benefit (1= environmental)",2,3
+"Personal behaviour","Perceived benefit (1= erosion reduction)",2,2
+"Personal behaviour","Perceived benefit (1= financial)",4,5
+"Personal behaviour","Perceived benefit (1= soil fertility)",3,4
+"Personal behaviour","Perceived constraint (1= financial)",4,4
+"Personal behaviour","Perception of extension (1= confident)",7,15
+"Personal behaviour","Production constraint (1= drought)",4,7
+"Personal behaviour","Production constraint (1= pest)",6,15
+"Personal behaviour","Production constraint (1= soil fertility)",4,5
+"Personal behaviour","Risk attitude (1= risk-averse)",5,15
+"Personal behaviour","Risk attitude (1= risk-willing)",2,4
+"Physical capital","Access to irrigation (1= yes)",14,17
+"Physical capital","Farm size (continuous)",89,138
+"Physical capital","Land tenure (1= owned)",39,63
+"Physical capital","Land tenure (continuous)",11,21
+"Physical capital","Livestock owned (1= yes)",16,27
+"Physical capital","Livestock units (continuous)",28,54
+"Physical capital","Number of plots (number)",11,19
+"Physical capital","Plot size (continuous)",13,21
+"Social capital","Adults in household (continuous)",16,24
+"Social capital","Association member (1= yes)",57,99
+"Social capital","Communicate with other farmers (1= yes)",12,16
+"Social capital","Hired labour (1= yes)",6,8
+"Social capital","Hired labour (continuous)",6,10
+"Social capital","Non-hired labour (continuous)",11,17
+"Social capital","Relatives and friends (number)",10,21
+"Socio-demographic","Age (continuous)",102,164
+"Socio-demographic","Education (1= formal)",3,6
+"Socio-demographic","Education (1= high school)",8,9
+"Socio-demographic","Education (1= literate)",12,15
+"Socio-demographic","Education (1= post-secondary)",18,34
+"Socio-demographic","Education (1= primary)",6,6
+"Socio-demographic","Education (continuous)",80,132
+"Socio-demographic","Gender (1= male)",83,137
+"Socio-demographic","Household is native (1= yes)",10,15
+"Socio-demographic","Household size (continuous)",68,108
+"Socio-demographic","Marital status (1= married)",10,18
+"Technical information","Access to extension (1= yes)",52,80
+"Technical information","Access to information (1= yes)",20,30
+"Technical information","Access to training (1= yes)",21,34
+"Technical information","Awareness of practice (1= yes)",11,16
+"Technical information","Extension frequency (number of contacts)",15,23
+"Technical information","Farming experience (continuous)",40,67
+"Technical information","Use of DFS (1= yes)",11,22

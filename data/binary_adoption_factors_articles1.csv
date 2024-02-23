@@ -1,0 +1,599 @@
+"x_metric_recla","x_metric_unit_recla","n_articles"
+"Irrigated land","percentage of irrigated land",3
+"Likelihood that farmland will leave to family","1= farmland will leave to family",2
+"Reasons for joining the organization",NA,1
+"access to agricultural extension","1= yes, 0= no",54
+"access to agricultural information","1= poor access, 0= otherwise",1
+"access to agricultural information","1= yes, 0= no",21
+"access to agricultural information","index for access to information on agriculture, climate and/or market",1
+"access to agricultural information","index for access to information on agriculture, climate and/or market (1,2,3)",1
+"access to agricultural inputs","1= access to seeds, 0= no",2
+"access to agricultural inputs","1= yes, 0= no",3
+"access to agricultural training","1= yes, 0= no",21
+"access to agricultural training","number of people trained",1
+"access to credit","1= yes, 0= no",49
+"access to credit is a constraint","1= yes, 0= no",6
+"access to electricity","1= yes, 0= no",1
+"access to irrigation","1= yes, 0= no",14
+"access to machinery","1= yes, 0= no",6
+"access to machinery",NA,1
+"access to off-farm income","1= yes, 0= no",40
+"access to output markets","1= yes, 0= no",1
+"access to output markets",NA,4
+"access to road networks",NA,2
+"access to support","1= yes, 0= no",2
+"access to water","1= have a stream running next to the farm, 0= otherwise",2
+"access to water","1= have a stream running through the farm, 0= otherwise",3
+"access to water","1= lack of water, 0= otherwise",1
+"access to water","1= standpipe water point, 0= otherwise",1
+"access to water","1= yes, 0= no",1
+"access to water",NA,2
+"administrative region assessed",NA,31
+"agricultural extension frequency","(number of contacts)^2",1
+"agricultural extension frequency","0= none, 1= occasional, 2= frequent",1
+"agricultural extension frequency","1= ocassional contact, 0= otherwise",1
+"agricultural extension frequency","1= regular contact, 0= otherwise",1
+"agricultural extension frequency","Always = 5, Sometimes = 4, Rarely = 3 Once = 2, and Never = 1",1
+"agricultural extension frequency","Index for participation in trainings, visits of extension services and/or private consultants (1,2,3)",1
+"agricultural extension frequency","Standard Enumeration Area (SEA) that received extension",1
+"agricultural extension frequency","log(number of contacts)",1
+"agricultural extension frequency","number of contacts",16
+"agricultural extension frequency","scale 0-4 (0= no contact, 4= regular contact)",1
+"agricultural extension frequency","scale 1-7 (7 = advice received a week ago; 6 = a month ago, 5 = three months ago, 4 = six months ago; 3 = a year ago, 2 = longer than a year ago; 1 = no contact)",1
+"agricultural input cost (seed, fertilizer)","ZMK/kg (Zambia money)",1
+"agricultural input cost (seed, fertilizer)","million VND (Vietnam money)",1
+"agricultural input cost (seed, fertilizer)","price/kg",1
+"agricultural input cost (seed, fertilizer)",NA,1
+"agricultural training frequency","0= none, 1= occasional, 2= frequent",1
+"agricultural training frequency","number of trainings",1
+"agriculture as main source of income","1= yes, 0= no",5
+"agroecological zone assessed","1= downslope, 0= upslope",1
+"agroecological zone assessed","1= middle slope, upslope",1
+"agroecological zone assessed",NA,21
+"amount of credit received","USD",1
+"amount of rented land","ha",2
+"amount of rented land","percentage of land is rented",5
+"area of main crop grown","1= 0–0.11 ha, 2= 0.11–0.125 ha, 3= 0.125–0.25 ha, 4= 0.25–1 ha",1
+"area of main crop grown","ha",5
+"area of main crop grown","ha per capita",1
+"area of main crop grown","ln(ha)",1
+"area of main crop grown","percentage",1
+"area of main crop grown",NA,1
+"area under SFP or DFS","ha",3
+"area under SFP or DFS","proportion land",2
+"area under SFP or DFS","ratio of land",1
+"awareness of SFP or DFS","1= yes, 0= no",11
+"awareness of SFP or DFS","knowledge efficacy scale 1-5 (1 = strongly disagree,5 = strongly agree)",1
+"awareness of SFP or DFS","sacale 1-5",1
+"awareness of SFP or DFS","scale 0-18 (0= lower knowledge, 18= higher knowledge)",1
+"chemical fertilizer use","1= yes, 0= no",3
+"chemical fertilizer use","kg per ha",1
+"chemical fertilizer use","kg/ha",1
+"chemical fertilizer use","tons",1
+"chemical herbicide/pesticide use","1= yes, 0= no",2
+"chemical herbicide/pesticide use","1=cultural; 2=chemical; 3=none",1
+"chemical herbicide/pesticide use","1=mechanical; 2=herbicide; 3=both",1
+"cost of implementing sustainble farming practices","USD",1
+"cost of implementing sustainble farming practices",NA,3
+"crop insurance","1= yes, 0= no",2
+"crop insurance","ha",1
+"crop insurance","log(ha)",1
+"crop insurance","percentage of total expenses",1
+"cropland area","(ha)^2",1
+"cropland area","ha",5
+"cropland area","log(acres)",1
+"cropland area","log(ha)",1
+"distance farm-house","1= < 1 km, 0= otherwise",1
+"distance farm-house","1= away, 0= same place",1
+"distance farm-house","2= 1 to 3 km, 0= otherwise",1
+"distance farm-house","km",9
+"distance farm-house","log(km)",1
+"distance farm-house","log(minutes)",1
+"distance farm-house","minutes",9
+"distance farm-house","nd",1
+"distance to extension service","km",3
+"distance to extension service","log(km)",1
+"distance to extension service","minutes",2
+"distance to forest","1= located away from the forests, 0= located near forests",1
+"distance to forest","km",1
+"distance to industry",NA,2
+"distance to input market","km",3
+"distance to input market","ln(minutes)",1
+"distance to input market","minutes",3
+"distance to market","1= 1 to 3 km, 0= less than 1 km",1
+"distance to market","1= Farmers’ house holds that could reach market center within 13 km (about 8 miles), 0=otherwise",1
+"distance to market","km",13
+"distance to market","log(km)",1
+"distance to market","log(minutes)",2
+"distance to market","minutes",7
+"distance to output market","km",1
+"distance to output market","ln(minutes)",1
+"distance to output market","minutes",1
+"distance to public transport","km",1
+"distance to road","1= if access to motor road is > 1 kilometer distance, 0= otherwise",1
+"distance to road","km",5
+"distance to road","minutes",2
+"distance to town","km",6
+"distance to town","minutes",2
+"distance to town","nd",1
+"distance to water course","km",2
+"distance to water course",NA,1
+"drought","1= experienced drought conditions, 0= otherwise",3
+"drought",NA,3
+"energy sources (other than fuel-wood)",NA,1
+"family members and friends living in and out the community","number of relatives",10
+"farm altitude","1 = up, 2 = mid, 3 = low",1
+"farm altitude","1= upper altitude, 0= otherwise",1
+"farm altitude","2 = 200–300 m above sea level; 0= 1 = 0–200 m above sea level",1
+"farm altitude","3= ≥ 300–700 m above sea level; 0= 1 = 0–200 m above sea level",1
+"farm altitude","m.a.s.l.",4
+"farm enterprises",NA,1
+"farm has a certification","1= yes, 0= no",1
+"farm has a certification",NA,2
+"farm labour force (hired)","1= 1 to 3 persons, 0= otherwise",1
+"farm labour force (hired)","1= yes, 0= no",6
+"farm labour force (hired)","man days per ha",2
+"farm labour force (hired)","number of people",4
+"farm labour force (non-hired)","1 = Number of family members working as farm labor is more than one; 0 = Number of family members working as farm labor is one",1
+"farm labour force (non-hired)","1= yes, 0= no",1
+"farm labour force (non-hired)","number of people",9
+"farm labour force (non-hired)","number of people days per day per ha",1
+"farm labour force (non-hired)","number of people per day",1
+"farm labour force (non-hired)","number of people per ha",1
+"farm labour force (non-hired)","percentage",1
+"farm management (organic, conventional)","1= conventional, 0= organic",1
+"farm management (organic, conventional)","1= organic, 0= conventional",5
+"farm size","1 = size <10 ha, 2 = 10–50 ha, 3 = 50–100 ha, 4 = size >100 ha",1
+"farm size","1= 100-399 fa, 0= <100 fa (1fa=0.42 ha)",1
+"farm size","1= 1000 acres, 0=otherwise",1
+"farm size","1= 400-1000 fa; 0= <100 fa (1fa=0.42 ha)",1
+"farm size","1= <2 ha; 2= 2–3.5 ha; 3= 3.5–5 ha; 4= more than 5 ha",1
+"farm size","1= >0.50 ha; 0= < 0.50 ha",1
+"farm size","1= Farm with <20 acres, 0= otherwise",1
+"farm size","1= Farm with >177.5 acres, 0= otherwise",1
+"farm size","1= Farmers who owned land below 10 ac (4.05 ha); 0=otherwise",1
+"farm size","1= household farm size exceeds the sample average of 0.7ha; 0= otherwise.",1
+"farm size","1= more than 1000 fa; 0= <100 fa (1fa=0.42 ha), 0= otherwise",1
+"farm size","1= squared(1000 acres), 0=otherwise",1
+"farm size","ha",83
+"farm size","ha per capita",1
+"farm size","ln(acres)",1
+"farm size","ln(decimal)",1
+"farm size","ln(ha)",2
+"farm size","log(acres)",1
+"farm size","log(ha)",1
+"farming system age","years",5
+"farmland is a rented land","1= yes, 0= no",7
+"farmland is a rented land",NA,1
+"fertilizer use","1=manure; 2=fertilizers; 3=compost; 4=none; 5=manure and fertilizers; 6=fertilizers and compost; 7=manure and compost",1
+"firewood needed and consumed",NA,2
+"flood","flood duration",1
+"flood","flood level",1
+"flood","number of times food ocurred",1
+"fodder scarcity",NA,2
+"fuel scarcity",NA,1
+"grassland or pasture","1= yes, 0= no",1
+"grassland or pasture",NA,2
+"h adult members","ln(number of people)",1
+"h adult members","number of men",1
+"h adult members","number of people",15
+"h adult members","number of women",1
+"h asset","1= if farmer is in asset quintile 2 (); 0 otherwise",1
+"h asset","1= if farmer is in asset quintile 3 (); 0 otherwise",1
+"h asset","1= if farmer is in asset quintile 4 (); 0 otherwise",1
+"h asset","1= if farmer is in asset quintile 5 (richest); 0 otherwise",1
+"h asset","Asset score per household",1
+"h asset","USD",7
+"h asset","USD per capita",1
+"h asset","asset index",4
+"h asset","ln(KES (Kenian money))",1
+"h asset","ln(Tsh (Tanzania money))",1
+"h asset","log(VND (Vietnam money))",1
+"h asset","number of tools",1
+"h asset","scale 1-23",1
+"h asset","sqrt(number of tools)",1
+"h asset","thousand Yuan (China money) per capita",1
+"h asset","total assets",1
+"h cosmopolitness","1 = household has friends or relatives living in urban areas, 0 = otherwise",1
+"h cosmopolitness",NA,1
+"h debt","USD",1
+"h debt",NA,4
+"h dependency ratio","ratio",6
+"h ill members","1= if any family member suffers from health problem, 0= otherwise",1
+"h ill members","percentage of cronically ill adults",1
+"h income","1= 30,000; 2= 30,000-60,000; 3= 60,000-90,000; 4= 90,000-120,000; 5= 120,000-150,000 USD",1
+"h income","1= if farm income (in naira) exceeds sample mean of N17,000; 0= otherwise",1
+"h income","USD",6
+"h income","USD per capita",2
+"h income","ln(Tsh (Tanzania money) (1395.625 TSh = 1USD))",1
+"h income","log(ETB (Ethiopia money) (34.9271654040404 Birr = 1 USD))",1
+"h income","p.a.",1
+"h member migration","1= h member abroad, 0= otherwise",5
+"h member migration","number of migrating members",1
+"h member migration","ratio of migrating members",1
+"h off-farm income","ETB (Ethiopia money)",2
+"h off-farm income","Percentage of household income from off-farm employment",4
+"h off-farm income","Percentage of household income from off-farm employment (1 = <20%, 2 = 20–40%, 3 = 41–60%, 4 = 61–80%, 5 = >80%)",1
+"h off-farm income","USD",12
+"h old members","number of people",2
+"h on-farm income","1 = 501.000–1000.000 IDR ~ 36.04 – 71.9 US$; 2 = 1001.000–2.000.000IDR ~ 72.01–143.88 US$; 3 =>2.000.000 IDR ~ > 143.88 US$",1
+"h on-farm income","10-category measure from zero (0) to to 1 million+ (10)",1
+"h on-farm income","Annual gross sales (1 = < $50,000, 2 = $50,000–99,999, 3 = $100,000–249,999, 4 = $250,000–499,999, 5 = $500,000–999,999, 6 = > $1 million)",1
+"h on-farm income","ETB (Ethiopia money)",2
+"h on-farm income","USD",10
+"h on-farm income","coded 1,2,3,4,5 for increments of 20 percent USD",1
+"h on-farm income","log(USD)",2
+"h on-farm income","nd",1
+"h on-farm income","percentage of on-farm income",5
+"h on-farm income","total farm value production",1
+"h rely on government support","1= yes, 0= no",7
+"h savings","1= yes, 0= otherwise",3
+"h savings","USD",1
+"h size","1= 8-15 members, 0= <8 members",1
+"h size","1= < 3 persons, 0= otherwise",1
+"h size","1= <4 members, 2= 5–8 member, 3= 9–12 member, 4= above 12 member",1
+"h size","1= > 9 persons; 0= otherwise.",1
+"h size","1= more than 15 members, 0= <8 members",1
+"h size","2= 3 to 5 persons, 0= otherwise",1
+"h size","ln(number of people)",2
+"h size","log(number of people)",1
+"h size","number of people",63
+"h size","number of people/ha",2
+"h young members","number of boys",1
+"h young members","number of girls",1
+"h young members","number of people",7
+"hh age","(years)^2",7
+"hh age","1 = less than 35, 0 = 36 or more",1
+"hh age","1= 18–30 years, 0= otherwise",1
+"hh age","1= 20–30 yrs, 2= 30–40 yrs, 3= 40–50 yrs, 4= above 50 yrs",1
+"hh age","1= 25-35, 0= >55",1
+"hh age","1= 40 years or younger, 0= otherwise",1
+"hh age","1= <31 yrs, 2= 31-40 yrs, 3= 41-50 yrs, 4= 51-60 yrs, 5= more than 60 yrs",1
+"hh age","1= >44 years, 0= otherwise",1
+"hh age","2= 31–40 years, 0= otherwise",1
+"hh age","2= 36-45, 0= >55",1
+"hh age","3= 41–50 years, 0= otherwise",1
+"hh age","3= 46-55, 0= >55",1
+"hh age","4= 51–60 years, 0= otherwise",1
+"hh age","Young, Adult, Old",1
+"hh age","ln(years)",3
+"hh age","log(years)",2
+"hh age","sqrt(years)",1
+"hh age","years",102
+"hh association member","1= yes, 0= no",59
+"hh association member","No membership (a), member of professional associations or unions (b), both (c)",1
+"hh association member","number of organizations the hh is member",1
+"hh association member","number of years",1
+"hh association member","scale 0-4 (0= No membership, 4= Executive member)",1
+"hh attitude toward the environment","1= environmental concern, 0= otherwise",1
+"hh attitude toward the environment","1= yes, 0= no",1
+"hh attitude toward the environment","environmental concern scale (strongly disagree, disagree, uncertain, agree, strongly agree)",1
+"hh attitude toward the environment","environmental concern scale 1-4 (1 = not Concerned, 4 = very Concerned)",1
+"hh attitude toward the environment","environmental concern scale 1-5 (1 = strongly disagree,5 = strongly agree)",1
+"hh attitude toward the environment","environmental concern scale 1-5 (1= strongly disagree, 5= strongly agree)",1
+"hh attitude toward the environment",NA,1
+"hh comunicate with other farmers","0= none, 1= occasional, 2= frequent",1
+"hh comunicate with other farmers","1= average information sharing",1
+"hh comunicate with other farmers","1= low information sharing",1
+"hh comunicate with other farmers","1= yes, 0= no",12
+"hh comunicate with other farmers","range (0–4)",1
+"hh comunicate with other farmers","ratio",1
+"hh comunicate with other farmers","scale 1-5 (1 = no contact with local farmers, 5 = extremely close contact with local farmers)",1
+"hh education","(years)^2",2
+"hh education","1= Uneducated, 0= primary school",1
+"hh education","1= formal education, 0= no formal education",3
+"hh education","1= high school education, 0= otherwise",9
+"hh education","1= literate, 0= otherwise",12
+"hh education","1= post-secondary education, 0= otherwise",19
+"hh education","1= primary and above, 0= none",1
+"hh education","1= primary education, 0= otherwise",8
+"hh education","1= secondary school or more, 0= primary school",1
+"hh education","1= some college, 0= High School or Less",1
+"hh education","1= some grad school or higher, 0= High School or Less",1
+"hh education","1= starting higher education, 0= otherwise",1
+"hh education","1= three plus years, 0= 1-2 years",1
+"hh education","level",3
+"hh education","level (1-6)",1
+"hh education","level 0-3 (0= Not read and write, 1= Read and write, 2= Primary, and 3= Secondary)",1
+"hh education","level 0-3 (0=None, 1= primary, 2= Secondary, 3= Tertiary)",1
+"hh education","level 0-4",1
+"hh education","level 0-4 (0 = illiterate, 1 = primary, 2 = 8th standard, 3 = 10th standard, 4 = intermediate)",1
+"hh education","level 0-4 (0= no formal education, 1= non-formal vocational training, 2= primary school,  3= secondary school, 4= post-secondary)",1
+"hh education","level 0-4 (0= none, 1= primary, 2= secondary, 3= tertiary)",2
+"hh education","level 1 to 20 (12= high school degree)",1
+"hh education","level 1-3 (1= No degree, 2= High school degree, 3= University degree)",1
+"hh education","level 1-3 (1= primary education, 2= secondary education, 3= tertiary education)",1
+"hh education","level 1-4",1
+"hh education","level 1-4 (1= Basic, 2= High School, 3= Graduate, 4= Post-graduate)",1
+"hh education","level 1-4 (1= none, 2= primary, 3= secondary, and 4= above)",3
+"hh education","level 1-5 (1 = Less than a high school degree, 2 = High school graduate/GED, 3 = Associate degree, 4 = 4-year college degree, 5 = Graduate or professional degree)",1
+"hh education","level 1-5 (1= Less than high school; 2= High school; 3= Some college, 4= College degree; 5= Post-graduate degree)",1
+"hh education","level 1-5 (1= none, 2= primary, 3= ordinary level, 4= secondary, 5= tertiary)",1
+"hh education","level 1-5 (illiterate, read and write, 1-4 years of education, 5-8 years of education, 9-10 years of education)",1
+"hh education","level 1-6 (1 = Less than high-school, 6 = Graduate degree)",1
+"hh education","level 1-6 (1 = some formal ed., 6 = grad. school)",1
+"hh education","level 1-6 (1= Never attended school; 2= Elementary school; 3= Junior high-school; 4= Senior high-school;  5= Bachelor degree;  6= Other higher education)",1
+"hh education","level 1-6 (Less than high school grade; High school grade; Vocational or technical school; Some college; 4-year degree; Post-graduate education)",1
+"hh education","level 1-8 (1= illiterate; 2= can read and write; 3= primary school (primary 1–5); 4= primary school (primary 6–7); 5= junior high school; 6= high school; 7= vocational education; 8= higher education)",1
+"hh education","level 1–3 (1 representing one to six years of formal education; 2 representing 7–12 years of formal education; and 3 representing more than 12 years of formal education)",1
+"hh education","years",53
+"hh ethnicity","nd",1
+"hh ethnicity",NA,11
+"hh expenditure",NA,3
+"hh farming experience","(years)^2",1
+"hh farming experience","1= <15 years of farming experience, 0= otherwise",1
+"hh farming experience","1= none, 0= otherwise",1
+"hh farming experience","2= < 5 years, 0= otherwise",1
+"hh farming experience","3= 5 to 10 years, 0= otherwise",1
+"hh farming experience","< 30, 30–39, 40–49, > 50",1
+"hh farming experience","log(years)",1
+"hh farming experience","years",42
+"hh farming objectives","1= environmental goal, 0= otherwise",1
+"hh farming objectives","1= profitability goal, 0= otherwise",1
+"hh farming objectives","1= social goal, 0= otherwise",1
+"hh farming objectives","environmental goal scale 1-5 (1 = strongly disagree,5 = strongly agree)",1
+"hh farming objectives","profitability goal scale 1-5 (1 = strongly disagree,5 = strongly agree)",1
+"hh farming objectives","scale 1-5 (1 = strongly disagree,5 = strongly agree)",1
+"hh farming objectives","social goal scale 1-5 (1 = strongly disagree,5 = strongly agree)",1
+"hh full rights over trees",NA,2
+"hh full-time farmer","1= yes, 0= no",6
+"hh gender","1= male, 0= female",84
+"hh gender","nd",3
+"hh has a mobile phone","1= yes, 0= no",3
+"hh has conexion with people in leadership position","1= yes, 0= no",5
+"hh has mean of transport",NA,5
+"hh has radio or tv","1= yes, 0= no",4
+"hh health",NA,1
+"hh identity",NA,3
+"hh is native","1= yes, 0= no",10
+"hh marital status","1 = single; 2 = common-law; 3 = married monogamous; 4 = married polygamous; 5 = widowed; 6 = Divorced/Separated",1
+"hh marital status","1= Polygamous head, 0= otherwise",1
+"hh marital status","1= married, 0= otherwise",10
+"hh marital status","1= separated, 0= otherwise",1
+"hh marital status","1= single, 0= otherwise",2
+"hh marital status","1= widower, 0= otherwise",3
+"hh participate in conservation program","1= yes, 0= no",5
+"hh perceive benefits of SFP or DFS","1= environmental benefits, 0= otherwise",2
+"hh perceive benefits of SFP or DFS","1= financial benefits, 0= otherwise",4
+"hh perceive benefits of SFP or DFS","1= pest reduction benefits, 0= otherwise",1
+"hh perceive benefits of SFP or DFS","1= positive attitude, 0= otherwise",5
+"hh perceive benefits of SFP or DFS","1= production benefits, 0= otherwise",2
+"hh perceive benefits of SFP or DFS","1= soil erosion reduction benefits, 0= otherwise",2
+"hh perceive benefits of SFP or DFS","1= soil fertility benefits, 0= otherwise",3
+"hh perceive benefits of SFP or DFS","environmental benefits scale 1-5 (1 = strongly disagree,5 = strongly agree)",1
+"hh perceive benefits of SFP or DFS","financial benefits scale 1-7 (1–7 agreement levels)",1
+"hh perceive benefits of SFP or DFS","pest reduction benefits scale 1-4 (1 = Strongly disagree; 2 = Disagree; 3 = Agree; 4 = Strongly agree)",1
+"hh perceive benefits of SFP or DFS","positive attitude index ( -10 to + 10)",1
+"hh perceive benefits of SFP or DFS","positive attitude index -90 to 90",1
+"hh perceive benefits of SFP or DFS","positive attitude scale 1-4 (0= never used, 4= most useful)",1
+"hh perceive benefits of SFP or DFS","positive attitude scale 1-5 (1= strongly disagree, 5= strongly agree)",1
+"hh perceive benefits of SFP or DFS","production benefits index (strongly disagree, disagree, uncertain, agree, strongly agree)",1
+"hh perceive benefits of SFP or DFS","production benefits scale 1-4",1
+"hh perceive benefits of SFP or DFS","production benefits scale 1-4 (1 = Strongly disagree; 2 = Disagree; 3 = Agree; 4 = Strongly agree)",1
+"hh perceive benefits of SFP or DFS","soil fertility benefits scale 1-4 (1 = Strongly disagree; 2 = Disagree; 3 = Agree; 4 = Strongly agree)",1
+"hh perceive benefits of SFP or DFS",NA,2
+"hh perceived behavioural control","index -60 to 60= more positive",1
+"hh perceived behavioural control",NA,2
+"hh perception of climate change","1= awareness of climate change, 0= otherwise",5
+"hh perception of climate change",NA,4
+"hh perception of drought","1= drought increased, 0= otherwise",1
+"hh perception of extension services","1= confident, 0= otherwise",7
+"hh perception of extension services","Number of crop management info areas in which private sector trusted most",1
+"hh perception of extension services","scale (0 to 14) 14= more positive attitude",1
+"hh perception of flood","1= experienced flood, 0= otherwise",1
+"hh perception of flood","1= flood increased, 0= otherwise",1
+"hh perception of hail ocurrance","1= hailstorm increased, 0= otherwise",1
+"hh perception of land tenure security",NA,2
+"hh perception of precipitation","1= adequate precipitation, 0= otherwise",4
+"hh perception of precipitation","1= perceived rainfall variability, 0= otherwise",2
+"hh perception of precipitation","1= precipitation has decreased, 0= otherwise",4
+"hh perception of precipitation","Rainfall satisfaction index(1=best)",2
+"hh perception of soil degradation",NA,1
+"hh perception of temperature","1= temperature increased, 0= otherwise",5
+"hh risk attitude","1= risk ambiguity, 0= otherwise",1
+"hh risk attitude","1= risk-averse, 0= otherwise",6
+"hh risk attitude","1= risk-neutral, 0= otherwise",1
+"hh risk attitude","1= willing to take risk, 0= otherwise",2
+"hh risk attitude","scale 0-10 (0 =unwilling to take risk, 10= fully prepared to take risk)",1
+"hh spouse education","1= literate, 0= otherwise",2
+"hh spouse education","years",3
+"hh time in village","1= 11-15 years, 0= >20years",1
+"hh time in village","1= 16-20 years, 0= >20years",1
+"hh time in village","1= 5-10 years, 0= >20years",1
+"hh time in village","1= <5years, 0= >20years",1
+"hh time in village","years",4
+"hh wealth","1= corrugated roof, 0= otherwise",1
+"hh wealth","1= three stones stove, 0= otherwise",1
+"hh wealth","index",1
+"hh wealth","nd",1
+"hh wealth",NA,10
+"hired labour cost","USD",1
+"hired labour cost","days",1
+"how plot is obtained","1= borrowed, 0= purchased",1
+"how plot is obtained","1= received as a gift or inheritance, 0= purchased",1
+"how plot is obtained",NA,1
+"input (fertilizer, seed, pesticides) subsidy received","1= yes, 0= no",1
+"input (fertilizer, seed, pesticides) subsidy received","kg of fertilizer",1
+"intention to adopt or continue using DFS",NA,3
+"interactions between factors (+)","1= yes, 0= no",1
+"interactions between factors (:)",NA,1
+"interactions between factors (x)",NA,5
+"land problems",NA,5
+"land scarcity","1= sufficient, 0= otherwise",3
+"land tenure security","1 = family farm, 0 = own farm",1
+"land tenure security","1 = family, 2 = owned land, 3 = leased land",1
+"land tenure security","1 = own, 2 = family, 3 = shared, 4 = rent",1
+"land tenure security","1 = share croppers, 0 = own farm",1
+"land tenure security","1= Freehold, 0= Mailo",1
+"land tenure security","1= Leasehold, 0= Mailo",1
+"land tenure security","1= Private ownership through clearance, 0= otherwise",1
+"land tenure security","1= Public, 0= Mailo",1
+"land tenure security","1= customary, 0= freehold",1
+"land tenure security","1= mailo, 0= freehold",1
+"land tenure security","1= owned, 0= otherwise",39
+"land tenure security","1= purchase, 0= otherwise",1
+"land tenure security","1= single family, 0= otherwise",1
+"land tenure security","1= single ownership with full or part-time farming, 0= other type of ownerships with full or part-time farming",1
+"land tenure security","ha",1
+"land tenure security","percentage of owned land",10
+"level of crop diversification",NA,2
+"limitations to implement SFT or DFS","1= equipment/technology constraint, 0= otherwise",2
+"limitations to implement SFT or DFS","1= financial constraint, 0= otherwise",4
+"limitations to implement SFT or DFS","1= lack of knowledge constraint, 0= otherwise",1
+"limitations to implement SFT or DFS","1= lack of resources constraint, 0= otherwise",2
+"limitations to implement SFT or DFS","1= negative perception constraint, 0= otherwise",2
+"limitations to implement SFT or DFS","1= profitability constraint, 0= otherwise",2
+"limitations to implement SFT or DFS","lack of resources constraint scale 1-5 (1 = strongly disagree,5 = strongly agree)",1
+"limitations to implement SFT or DFS","management complexity constraint scale 1-5 (1 = strongly disagree,5 = strongly agree)",1
+"limitations to implement SFT or DFS","management complexity constraint scale 1-7",1
+"limitations to implement SFT or DFS","negative attitude scale 1-4 (0= never used, 4= most useful)",1
+"limitations to implement SFT or DFS","profitability constraint scale 1-5 (1 = strongly disagree,5 = strongly agree)",1
+"limitations to implement SFT or DFS","risk perception constraint scale 1-4 (strongly disagree, disagree, uncertain, agree, strongly agree)",1
+"limitations to implement SFT or DFS",NA,4
+"livestock owned","1= yes, 0= no",16
+"marginal land",NA,3
+"number of agricultural plots","1= more than two plots, 0= otherwise",1
+"number of agricultural plots","1= two plots, 0= otherwise",1
+"number of agricultural plots","number of plots",11
+"number of crops grown",NA,6
+"organic fertilizer use","1= yes, 0= no",8
+"organic fertilizer use","kg per ha",1
+"plot size","ha",10
+"plot size","ln(acres)",1
+"plot size","ln(ha)",1
+"plot size","log(ha)",1
+"population density","ln(population/km2)",1
+"population density","population",1
+"population density","population/km2",2
+"population density",NA,1
+"precipitation","mm/year",10
+"precipitation","number of days with precipitation exceading the 99th percentile of daily precipitation",1
+"precipitation","scale 0-1",1
+"precipitation",NA,1
+"precipitation CV","1= CoV 5 yrs before season > Long Run CoV, 0= no",1
+"precipitation CV","CV",2
+"precipitation CV","CV (%)",1
+"precipitation CV","Rain onset delay (avg. dekads) (i.e. 10 days)",1
+"precipitation CV","log(CV)",1
+"price of output","USD/kg",1
+"price of output",NA,3
+"production constraints","1= climate change constraint, 0= otherwise",1
+"production constraints","1= drought constraint, 0= no",4
+"production constraints","1= environmental constraint, 0= no",1
+"production constraints","1= hail constraint, 0= no",1
+"production constraints","1= lack of resources constraint, 0= no",1
+"production constraints","1= pest infestation constraint, 0= no",6
+"production constraints","1= soil fertility constraint, 0= no",4
+"production constraints","1= soil fertility moderate constraint, 0= no",1
+"production constraints","1= soil fertility severe constraint, 0= no",1
+"production constraints","drought constraint scale 1-4",1
+"production constraints","drought constraint scale 1-5 (0= no effect and 5= very high effect)",1
+"production constraints","financial constraint scale 1-5 (0= no effect and 5= very high effect)",1
+"production constraints","flood constraint scale 1-4",1
+"production constraints","hail constraint scale 1-5 (0= no effect and 5= very high effect)",1
+"production constraints","infraestructure constraint scale 1-4 (1 = Not important; 2 = Slightly important; 3 = Moderately important; 4 = Very important)",1
+"production constraints","infraestructure constraint scale 1-5 (0= no effect and 5= very high effect)",1
+"production constraints","lack of transportation constraint scale 1-5 (0= no effect and 5= very high effect)",1
+"production constraints","market instability constraint scale 1-5 (0= no effect and 5= very high effect)",1
+"production constraints","number of constraints",1
+"production constraints","pest infestation constraint scale 1-5 (0= no effect and 5= very high effect)",1
+"production constraints","rainfall constraint scale 1-4",1
+"production constraints","soil erosion constraint scale 0-3 (0 = no, 1 = minimal, 2 = moderate and 3 = high)",1
+"production constraints","soil erosion constraint scale 1-3 (1= major problem, 2= minor problem, 3= not a problem)",3
+"production constraints","soil erosion constraint scale 1-4",1
+"production constraints","soil erosion constraint scale 1-5 (0= no effect and 5= very high effect)",1
+"production constraints","soil fertility constraint scale 1-5 (0= no effect and 5= very high effect)",2
+"productivity of main crop",NA,3
+"receive incentive for conservation","1= yes, 0= no",12
+"receive incentive for conservation","USD",1
+"risk management strategy","1= yes, 0= no",1
+"risk management strategy","USD",1
+"risk management strategy",NA,3
+"saturate soil with water","1= experienced flood, 0= otherwise",1
+"saturate soil with water",NA,1
+"seeding method",NA,2
+"social norm","index -50 to 50= more positive",1
+"social norm",NA,3
+"soil depth","1 = moderate depth, 0 = otherwise",7
+"soil depth","1 = shallow, 0 = otherwise",4
+"soil depth","1= deep, 0= otherwise",5
+"soil depth","millimeter",2
+"soil erosion","1= high erodible, 0= otherwise",4
+"soil erosion","Scale 0-100",1
+"soil erosion","log(ha of erodible land)",1
+"soil erosion","percentage of erodible land",1
+"soil fertility","1 = low, 2 = moderate, 3 = high",2
+"soil fertility","1 = very fertile, 2 = moderately fertile, 3 = not fertile",2
+"soil fertility","1= high fertility, 0= otherwise",13
+"soil fertility","1= moderate fertility, 0= otherwise",10
+"soil fertility","1= poor fertility, 0= otherwise",5
+"soil fertility","class (1-8)",1
+"soil fertility","percentage of land with good soil fertility",1
+"soil fertility","percentage of land with moderate soil fertility",1
+"soil fertility","percentage of land with poor soil fertility",1
+"soil fertility","scale 0-5 (0= lowest or worst to 5= highest or best)",1
+"soil organic matter","percentage of organic matter",2
+"soil slope","1= flat slope, 0= otherwise",12
+"soil slope","1= moderate slope, 0= otherwise",9
+"soil slope","1= steep slope, 0= otherwise",9
+"soil slope","Ordinal (1 = ﬂat, 2 = rolling, 3 = hilly)",1
+"soil slope","degrees",2
+"soil slope","grade",1
+"soil slope","land with flat slope (%)",1
+"soil slope","land with moderate slope (acres)",1
+"soil slope","land with steep slope (acres)",1
+"soil slope","nd",1
+"soil slope","percentage of soil slope",3
+"soil slope","scale 1-4 (1= very flat to 4= very steep)",1
+"soil type","1= clay soil, 0= otherwise",1
+"soil type","1= sandy soil, 0= otherwise",2
+"soil type",NA,3
+"soil water availability",NA,3
+"temperature","1= TMAX : -1 > 28, 0= no",1
+"temperature","Celsius",7
+"temperature","log(CV)",1
+"temperature",NA,1
+"temperature change","log(CV)",1
+"time/labor required","percentage of total labour used in agriculture",1
+"time/labor required",NA,4
+"traders (that buy agri outputs) in the community",NA,7
+"type of farm",NA,2
+"type of farmer",NA,2
+"type of main crop","1= legume, 0= otherwise",1
+"type of main crop",NA,1
+"units of livestock","1 = More than 2 Animal units; 0 = 2 or fewer Animal units",1
+"units of livestock","1= Farm with <4.5 AEU, 0=  otherwise",1
+"units of livestock","1= Farm with >61 AEU3, 0=  otherwise",1
+"units of livestock","1= Own at least 200 cattle, 0= otherwise",1
+"units of livestock","LSU",1
+"units of livestock","TLU",17
+"units of livestock","TLU/ha",1
+"units of livestock","log(TLU)",1
+"units of livestock","log(number of animals)",1
+"units of livestock","number of animals",9
+"units of livestock","number of animals per hectare",1
+"use of DFS","1= yes, 0= no",11
+"use of soil conservation practice","1= yes, 0= no",6
+"use of soil conservation practice",NA,1
+"value of livestock","1 = livestock income is not important; 2 = livestock income is important; 3 = livestock income is very important.",3
+"value of livestock","LDV (0 = no, 1 = minimal, 2 = moderate and 3 = high)",1
+"value of livestock","USD",3
+"value of livestock","log(Tsh (Tanzania money))",1
+"value of livestock","value of cattle",1
+"value of livestock","value of hogs",1
+"value of livestock","value of poultry",1
+"variation in the main crop price","CV(%)",1
+"who made farm decisions",NA,3
+"year assessed","1= 2002, 0= otherwise",1
+"year assessed","1= 2005, 0= otherwise",1
+"year assessed",NA,4
+NA,"1 = low or non-irrigated land, 2 = medium, 3 = high",1
+NA,"1= grant; 2= selling farm produce; 3= employed; 4= family remittance; 5= business",1
+NA,"1= if 90% or more of the production is for cash sales, 0= otherwise",1
+NA,"1= no, 0= yes",1
+NA,"1= yes, 0= no",7
+NA,"log(CV)",1
+NA,"nd",1
+NA,"number of off-farm activities",1
+NA,"scale (0-1)",1
+NA,NA,70
