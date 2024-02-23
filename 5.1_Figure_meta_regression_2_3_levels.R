@@ -7,12 +7,13 @@ library(grid)
 library(gridExtra)
 library(plyr)
 library(forcats)
+library("xlsx")
 
 
 ####################################################################################################################################
 ################ META-REGRESSION FIGURES ############################################################################################
 ##############################################################################################################################
-factors_metric_assessed <- read_excel("C:/Users/AndreaSanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/Meta_data_2024.01.25.xlsx",
+factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
                                       sheet = "FACTORS_metric_assessed")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
@@ -23,87 +24,47 @@ pcc_factor_class_unit<-factors_metric_assessed%>%
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 #### PCC data 
-pcc_data<- read.csv("pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
-  rbind(read.csv("pcc_data_2levels.csv",header = TRUE, sep = ","))
+pcc_data<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
+  rbind(read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ","))
 
-#### Overall results
-#Two-levels
-pcc_2level<-read.csv("pcc_data_2levels.csv",header = TRUE, sep = ",")  %>%
-  dplyr::group_by(factor_sub_class.x,pcc_factor_unit) %>%
-  dplyr::summarise(n_articles = n_distinct(article_id))
-
-overall_2level_results<-read.csv("overall_results_2levels.csv",header = TRUE, sep = ",")%>%
-  left_join(pcc_2level,by="pcc_factor_unit")%>%
-  select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","n_ES","n_articles")
-  
-#Three-level
-overall_3level_results<-read.csv("overall_results_3levels.csv",header = TRUE, sep = ",")%>%
-  select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","n_ES","n_articles")
-
-#### OVERALL RESULTS
-overall_results<- overall_3level_results%>%
-  rbind(overall_2level_results)%>%
-  left_join(pcc_factor_class_unit, by="pcc_factor_unit")%>%
-  arrange(factor_sub_class,desc(beta))%>%
-  mutate_at(vars("n_ES","n_articles"),as.numeric)%>%
-  mutate(significance2 = if_else(beta >0 & pval <=0.05, "significant_positive",
-                                if_else(beta <0 & pval <=0.05, "significant_negative",
-                                        if_else(beta>0&pval>0.05,"no_significant_positive",
-                                                "no_significant_negative"))))%>%
-  mutate(icon_n_articles= if_else(n_articles>10,
-                                  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/more10.png",
-                                  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/less10.png" ))
-
-
-overall_results_more10<- overall_results%>%
-  filter(n_articles>9)
-
-overall_results_more10$ID <- as.numeric(seq(39, 1, by = -1)) #add a new column with the effect size ID number
 
 #### Meta-regression results
-#Two-level
-meta_regression_2levels<-read.csv("meta_regression_2levels.csv",header = TRUE, sep = ",")%>%
-  select(pcc_factor_unit, factor_sub_class,moderator, moderator_class,beta, significance2,pval)
-
-sort(unique(meta_regression_2levels$pcc_factor_unit))
-#Three-level
-meta_regression_3levels<-read.csv("meta_regression_3levels.csv",header = TRUE, sep = ",")%>%
-  select(pcc_factor_unit, factor_sub_class,moderator, moderator_class,beta, significance2,pval)
-sort(unique(meta_regression_3levels$pcc_factor_unit))
-
-meta_regression<- meta_regression_3levels%>%
-  rbind(meta_regression_2levels)%>%
+meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",")%>%
+  select(factor_sub_class,pcc_factor_unit, moderator, moderator_class,estimate,ci.lb, ci.ub,tval, pval, f_test, significance,significance2)%>%
   arrange(factor_sub_class, moderator, 
-          moderator_class, desc(beta))
+          moderator_class, desc(estimate))
 
 sort(unique(meta_regression$pcc_factor_unit))
 
 #Moderator: farm size------
-m_farm_size_distribution<-pcc_data%>%
-  mutate(m_mean_farm_size_ha= as.numeric(m_mean_farm_size_ha))%>%
-  filter(!is.na(m_mean_farm_size_ha))%>%
-  group_by( pcc_factor_unit)%>%
-  dplyr::summarise(n_articles = n_distinct(article_id),
-                   n_ES = n_distinct(ES_ID))
-
-names(m_farm_size_distribution)
-
 m_farm_size<- meta_regression%>%
   filter(moderator== "m_mean_farm_size_ha")%>%
-  filter(moderator_class != "intrcpt")%>%
-  #dplyr::left_join(select(overall_results_more10, c(ID,pcc_factor_unit)), 
-   #                by="pcc_factor_unit")%>%
-  dplyr::left_join(m_farm_size_distribution, 
-                   by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
-  mutate(icon_n_articles= if_else(n_articles>=10,
-                                  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/more10.png",
-                                  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/less10.png" ))
+  mutate(moderator_class= if_else(moderator_class=="","Farm size (ha)","Intercept"))%>%
+  mutate(f_test= if_else(moderator_class=="Farm size (ha)", "", f_test))%>%
+  select("factor_sub_class", "pcc_factor_unit","moderator_class",  "estimate" ,
+         "ci.lb", "ci.ub","tval", "significance","f_test")
 
+write.xlsx(m_farm_size, "results/meta_regression_farm_size.xlsx", 
+           sheetName = "farm_size", col.names = TRUE, row.names = TRUE, append = FALSE)
+m_farm_size<-m_farm_size%>%
+  filter(moderator_class=="Farm size (ha)")
 m_farm_size$ID <- as.numeric(seq(32, 1, by = -1))
 
+#Moderator: education------
+m_education<- meta_regression%>%
+  filter(moderator== "m_education_years")%>%
+  mutate(moderator_class= if_else(moderator_class=="","Education (years)","Intercept"))%>%
+  mutate(f_test= if_else(moderator_class=="Education (years)", "", f_test))%>%
+  select("factor_sub_class", "pcc_factor_unit","moderator_class",  "estimate" ,
+         "ci.lb", "ci.ub","tval", "significance","f_test")
+
+write.xlsx(m_education, "results/meta_regression_education.xlsx", 
+           sheetName = "education", col.names = TRUE, row.names = TRUE, append = FALSE)
+
+  
 #Moderator: diversified farming systems------
 m_dfs_distribution<-pcc_data%>%
-  group_by( pcc_factor_unit, m_intervention_recla2)%>%
+  group_by(pcc_factor_unit, m_intervention_recla2)%>%
   dplyr::summarise(n_articles = n_distinct(article_id),
                    n_ES = n_distinct(ES_ID))%>%
   dplyr::rename("moderator_class"="m_intervention_recla2")
@@ -115,28 +76,23 @@ m_dfs<- meta_regression%>%
             by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
   mutate(
     y = case_when(
-      moderator_class == "Agro-aquaculture" ~ 1 + (0.3 *1),
-      moderator_class == "Agro-silvopasture" ~ 1 + (0.3 *3),
-      moderator_class == "Agroforestry" ~ 1 + (0.3 *5),
-      moderator_class == "Combined systems" ~ 1 + (0.3 * 7),
-      moderator_class == "Cover crops" ~ 1 + (0.3 * 9),
-      moderator_class == "Crop rotation" ~ 1 + (0.3 * 11),
-      moderator_class == "Embedded seminatural habitats" ~ 1 + (0.3 * 13),
-      moderator_class == "Fallow" ~ 1 + (0.3 * 15),
-      moderator_class == "Intercropping" ~ 1 + (0.3 * 17),
-      moderator_class == "Rotational grazing" ~ 1 + (0.3 * 19),
+      moderator_class == "Agro-aquaculture" ~ 0 + (0.5 *1),
+      moderator_class == "Agro-silvopasture" ~ 0 + (0.5 *3),
+      moderator_class == "Agroforestry" ~ 0 + (0.5 *5),
+      moderator_class == "Combined systems" ~ 0 + (0.5 * 7),
+      moderator_class == "Cover crops" ~ 0 + (0.5 * 9),
+      moderator_class == "Crop rotation" ~ 0 + (0.5 * 11),
+      moderator_class == "Embedded seminatural habitats" ~ 0 + (0.5 * 13),
+      moderator_class == "Fallow" ~ 0 + (0.5 * 15),
+      moderator_class == "Intercropping" ~ 0 + (0.5 * 17),
+      moderator_class == "Rotational grazing" ~ 0 + (0.5 * 19),
       TRUE ~ NA_real_))%>%
+  #tidyr::complete(., pcc_factor_unit, moderator_class, fill = list(estimate = NA))%>%
   left_join(m_dfs_distribution, by=c("pcc_factor_unit"="pcc_factor_unit",
                                      "moderator_class"="moderator_class"))%>%
-  filter(!is.na(ID))%>%
   mutate(icon_n_articles= if_else(n_articles>=10,
                                   "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/more10.png",
                                   "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/less10.png" ))
-
-m_dfs <- tidyr::complete(m_dfs, pcc_factor_unit, moderator_class, fill = list(beta = NA))
-
-
-sort(unique(m_dfs$moderator_class))
 
 #Moderator: Region------
 m_region_distribution<-pcc_data%>%
@@ -147,17 +103,21 @@ m_region_distribution<-pcc_data%>%
 
 m_region<- meta_regression%>%
   filter(moderator== "m_region")%>%
-  left_join(select(overall_results_more10, c(ID,pcc_factor_unit)), by="pcc_factor_unit")%>%
+  left_join(select(m_farm_size, c(ID,pcc_factor_unit)), 
+            by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
   mutate(
     y = case_when(
-      moderator_class == "Africa" ~ 6 + (0.25 *1),
-      moderator_class == "Asia" ~ 6 + (0.25 * 3),
-      moderator_class == "Europe" ~ 6 + (0.25 * 5),
-      moderator_class == "Latin America and the Caribbean" ~ 6 + (0.25 * 7),
-      moderator_class == "Northern America" ~ 6 + (0.25 * 9),
+      moderator_class == "Africa" ~ 10 + (0.5 *1),
+      moderator_class == "Asia" ~ 10 + (0.5 * 3),
+      moderator_class == "Europe" ~ 10 + (0.5 * 5),
+      moderator_class == "Latin America and the Caribbean" ~ 10 + (0.5 * 7),
+      moderator_class == "Northern America" ~ 10 + (0.5 * 9),
       TRUE ~ NA_real_))%>%
-  left_join(m_region_distribution, by=c("moderator_class","pcc_factor_unit"))%>%
-  filter(!is.na(ID))
+  left_join(m_region_distribution, by=c("pcc_factor_unit"="pcc_factor_unit",
+                                     "moderator_class"="moderator_class"))%>%
+  mutate(icon_n_articles= if_else(n_articles>=10,
+                                  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/more10.png",
+                                  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/less10.png" ))
 
 sort(unique(m_region$moderator_class))
   
@@ -166,13 +126,13 @@ sort(unique(m_region$moderator_class))
 ## SYNTHESIZE SOME PLOT DATA 
 ## OVERALL RESULTS
 overall<-m_farm_size%>%
-  select(ID,beta, pcc_factor_unit)
+  select(ID, estimate, pcc_factor_unit)
 
 overall<-rbind(overall,data.frame(ID=c(max(m_farm_size$ID)+1,
-                                       max(m_farm_size$ID)+2),
-                                       #max(overal_results$ID)+3),
+                                       max(m_farm_size$ID)+2,
+                                       max(m_farm_size$ID)+3),
                                        #max(overal_results$ID)+4),
-                                  beta=NA,
+                                  estimate=NA,
                                   pcc_factor_unit=NA))
 #overall<-overall%>%
  # left_join(overall_results_more10, by= c("ID","beta", "ci.lb","ci.ub" ))
@@ -231,16 +191,16 @@ RtLabels <- data.frame(systems_path = systems_icons)%>%
       moderator_class == "rotational_grazing"~"Rotational grazing" ))%>%
   mutate(
     y = case_when(
-      moderator_class == "Agro-aquaculture" ~ 1 + (0.3 *1),
-      moderator_class == "Agro-silvopasture" ~ 1 + (0.3 *3),
-      moderator_class == "Agroforestry" ~ 1 + (0.3 *5),
-      moderator_class == "Combined systems" ~ 1 + (0.3 * 7),
-      moderator_class == "Cover crops" ~ 1 + (0.3 * 9),
-      moderator_class == "Crop rotation" ~ 1 + (0.3 * 11),
-      moderator_class == "Embedded seminatural habitats" ~ 1 + (0.3 * 13),
-      moderator_class == "Fallow" ~ 1 + (0.3 * 15),
-      moderator_class == "Intercropping" ~ 1 + (0.3 * 17),
-      moderator_class == "Rotational grazing" ~ 1 + (0.3 * 19),
+      moderator_class == "Agro-aquaculture" ~ 0 + (0.5 *1),
+      moderator_class == "Agro-silvopasture" ~ 0 + (0.5 *3),
+      moderator_class == "Agroforestry" ~ 0 + (0.5 *5),
+      moderator_class == "Combined systems" ~ 0 + (0.5 * 7),
+      moderator_class == "Cover crops" ~ 0 + (0.5 * 9),
+      moderator_class == "Crop rotation" ~ 0 + (0.5 * 11),
+      moderator_class == "Embedded seminatural habitats" ~ 0 + (0.5 * 13),
+      moderator_class == "Fallow" ~ 0 + (0.5 * 15),
+      moderator_class == "Intercropping" ~ 0 + (0.5 * 17),
+      moderator_class == "Rotational grazing" ~ 0 + (0.5 * 19),
       TRUE ~ NA_real_))
 
 
@@ -251,7 +211,7 @@ significance <- c("#F7ADA4","#BAF2C4","#FF4933","#256C32")
 
 #####  
 ## LEFT PANEL
-plot1<-ggplot(overall,aes(x=factor(ID),y=beta))+ labs(x=NULL, y=NULL)
+plot1<-ggplot(overall,aes(x=factor(ID),y=estimate))+ labs(x=NULL, y=NULL)
 
   
 plot1
@@ -263,54 +223,49 @@ plot1 +
           as.numeric(x["ID"]) + 0.5, -20, 20
         )) +
   geom_hline(aes(yintercept=0),linetype=1, size=0.5)+
-  geom_hline(aes(yintercept=1),linetype=1, size=0.5)+
-  geom_hline(aes(yintercept=1.6),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=2.2),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=2.8),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=3.4),linetype=2, size=0.5, colour="grey50")+
+  geom_hline(aes(yintercept=1),linetype=2, size=0.5, colour="grey50")+
+  geom_hline(aes(yintercept=2),linetype=2, size=0.5, colour="grey50")+
+  geom_hline(aes(yintercept=3),linetype=2, size=0.5, colour="grey50")+
   geom_hline(aes(yintercept=4),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=4.6),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=5.2),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=5.8),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=6.4),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=7),linetype=1, size=0.5)+
-  geom_hline(aes(yintercept=8),linetype=1)+
-  geom_hline(aes(yintercept=8.8),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=9.4),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=10),linetype=1)+
-  geom_hline(aes(yintercept=10.6),linetype=1, size=0.5)+
+  geom_hline(aes(yintercept=5),linetype=2, size=0.5, colour="grey50")+
+  geom_hline(aes(yintercept=6),linetype=2, size=0.5, colour="grey50")+
+  geom_hline(aes(yintercept=7),linetype=2, size=0.5, colour="grey50")+
+  geom_hline(aes(yintercept=8),linetype=2, size=0.5, colour="grey50")+
+  geom_hline(aes(yintercept=9),linetype=2, size=0.5, colour="grey50")+
+  geom_hline(aes(yintercept=10),linetype=1, size=0.5)+
+  geom_hline(aes(yintercept=11),linetype=2, size=0.5, colour="grey50")+
+  geom_hline(aes(yintercept=12),linetype=2, size=0.5, colour="grey50")+
+  geom_hline(aes(yintercept=13),linetype=2, size=0.5, colour="grey50")+
+  geom_hline(aes(yintercept=14),linetype=2, size=0.5, colour="grey50")+
+  geom_hline(aes(yintercept=15),linetype=1, size=0.5)+
+  
   #Determinant factors
   geom_text(data=overall,aes(x=factor(ID),y=-0.05,label=pcc_factor_unit),
             vjust=0.4, hjust=1, size=5)+
   coord_flip()+
-  
   #Sub-titles
-  geom_image(data=RtLabels, aes(x=33.5, y=y,image=systems_path), size=.05)+
-  #Moderator: Farm size
-  geom_point(data=m_farm_size,aes(x=factor(ID),y=0.5,fill=factor(significance2),
-                                  colour= factor(significance2)),
-             size=9,shape=21,show.legend = F)+
-  geom_image(data=m_farm_size, aes(x=factor(ID),y=0.5,image=icon_n_articles), 
-             colour="black",size=.02)+
+  geom_image(data=RtLabels, aes(x=34.5, y=y,image=systems_path), size=.05)+
   #Moderator: Diversified farming systems
   geom_point(data=m_dfs,aes(x=factor(ID),y=y,fill=factor(significance2),
                             colour= factor(significance2)),
-             size=9,shape=21,show.legend = F)+
+             size=11,shape=21,show.legend = F)+
   geom_image(data=m_dfs, aes(x=factor(ID),y=y,image=icon_n_articles), 
              colour="black",size=.02)+
   scale_colour_manual(values = significance)+
   scale_fill_manual(values = significance)+
-  
+  #Moderator: region
+  geom_point(data=m_region,aes(x=factor(ID),y=y,fill=factor(significance2),
+                            colour= factor(significance2)),
+             size=11,shape=21,show.legend = F)+
+  geom_image(data=m_region, aes(x=factor(ID),y=y,image=icon_n_articles), 
+             colour="black",size=.02)+
   #scale_size_binned_area(breaks = c(2,5,10,25, 50,75,100),max_size = 10)+
-  scale_y_continuous(position = "right",limit = c(-3.75,7),expand = c(0, 0),
-                     breaks=c(-2,0.5,3.5,7.25,9,10,10.5),
+  scale_y_continuous(position = "right",limit = c(-3.75,15),expand = c(0, 0),
+                     breaks=c(-2,3.6,7.25),
                      labels=c("Determinant factors",
-                             "Farm size\n(ha)",
                              "Diversified farming system",
-                             "Regions",
-                             "Farm size\n(ha)",
-                             "Education\n(years)",
-                             "")) +
+                             "Regions")) +
+  geom_vline(xintercept = 37.5, linetype = 1, size = 0.5)+
   theme(
     panel.grid.major = element_blank(), 
     panel.grid.minor = element_blank(),
@@ -327,20 +282,20 @@ plot1 +
     axis.ticks.length = unit(0.0001, "mm"),
     panel.background = element_rect(fill = "transparent"), 
     panel.border = element_blank()) +
-  geom_vline(xintercept = 37.5, linetype = 1, size = 0.5)+
-geom_vline(xintercept = 34.5, linetype = 1, size = 0.5)+
+  geom_vline(xintercept = 30.5, linetype = 1, size = 0.5)+
   geom_vline(xintercept = 28.5, linetype = 1, size = 0.5)+
-  geom_vline(xintercept = 6.5, linetype = 1, size = 0.5)
+  geom_vline(xintercept = 23.5, linetype = 1, size = 0.5)+
+  geom_vline(xintercept = 17.5, linetype = 1, size = 0.5)+
+  geom_vline(xintercept = 13.5, linetype = 1, size = 0.5)+
+  geom_vline(xintercept = 7.5, linetype = 1, size = 0.5)
+ 
+  
+#18x23
+  
 
   
-  
-  
 
-  
-
-  #Moderator: region
-  geom_point(data=m_region,aes(x=factor(ID),y=y,fill=factor(significance2),size=n_articles),
-             shape=21,show.legend = F)+
+ 
   #Moderator: Farm size
   geom_point(data=m_farm_size,aes(x=factor(ID),y=9,fill=factor(significance2),size=n_articles),
              shape=21,show.legend = F) +
