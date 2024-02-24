@@ -45,11 +45,29 @@ pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 pcc_data<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
   rbind(read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ","))
 
+pcc_data$factor_sub_class.x <- toupper(pcc_data$factor_sub_class.x)
+pcc_data$m_region <- toupper(pcc_data$m_region)
+
+pcc_data<-pcc_data%>%
+  mutate(factor_sub_class.x=as.factor(factor_sub_class.x))%>%
+  mutate(factor_sub_class.x=if_else(factor_sub_class.x=="ACCESSIBILITY","ACCES-\nSIBILITY",
+         if_else(factor_sub_class.x=="FINANCIAL CAPITAL","FINANCIAL\nCAPITAL",
+                                    if_else(factor_sub_class.x=="TECHNICAL INFORMATION","TECHNICAL\nINFORMATION",
+                                            if_else(factor_sub_class.x=="PHYSICAL CAPITAL","PHYSICAL\nCAPITAL",
+                                                    if_else(factor_sub_class.x=="SOCIAL CAPITAL","SOCIAL\nCAPITAL",
+                                                            factor_sub_class.x))))))%>%
+  mutate(m_region= if_else(m_region=="LATIN AMERICA AND THE CARIBBEAN","LATIN\nAMERICA",
+                           if_else(m_region=="NORTHERN AMERICA","NORTH\nAMERICA",m_region)))%>%
+  mutate(m_sub_region= if_else(is.na(m_sub_region),"Multi sub-regions",m_sub_region))%>%
+  mutate(m_sub_region = str_replace_all(m_sub_region, " ", "\n"))
+  
+  
 length(unique(pcc_data$article_id)) #153
 sort(unique(pcc_data$x_metric_recla2))
-sort(unique(pcc_data$x_metric_recla))
+sort(unique(pcc_data$m_intervention_system_components))
+sort(unique(pcc_data$factor_sub_class.x))
 
-sort(unique(pcc_data$pcc_factor_unit))
+sort(unique(pcc_data$m_sub_region))
 
 ### Figure: Represented countries ---------
 pcc_data$country[pcc_data$country %in% "Vietnam"] <- "Viet Nam"
@@ -331,10 +349,10 @@ dist_factor_region <-pcc_data%>%
 unique_levels <- unique(dist_factor_region$pcc_factor_unit)
 dist_factor_region$pcc_factor_unit <- factor(dist_factor_region$pcc_factor_unit, levels = rev(sort(unique_levels)))
 
-fills <- c("Africa"="#843272","Asia"="#b5562f",
-           "Northern America"="#5b6454",
-           "Latin America and the Caribbean"= "#f1ba41",
-           "Europe"="#743341")
+fills <- c("AFRICA"="#843272","ASIA"="#b5562f",
+           "NORTH\nAMERICA"="#5b6454",
+           "LATIN\nAMERICA"= "#f1ba41",
+           "EUROPE"="#743341")
            
            
 overall_strips <- strip_themed(
@@ -342,25 +360,29 @@ overall_strips <- strip_themed(
   background_y = elem_list_rect(fill = factors),
   background_x = elem_list_rect(fill = fills),
   
-  text_y = elem_list_text(size= 1,colour= factors,angle = 90),
-  text_x = elem_list_text(size= 12,colour= fills,angle = 0),
+  text_y = elem_list_text(size= 10,colour= "white",angle = 90, face="bold"),
+  text_x = elem_list_text(size= 11,colour= "white",angle = 0, face="bold"),
   by_layer_y = FALSE)
+str(dist_factor_region$factor_sub_class.x)
 
-ggplot(dist_factor_region, 
+factor_region<- ggplot(dist_factor_region, 
        aes(y=pcc_factor_unit,
            x=m_region, fill= more_10))+ 
   facet_grid2(vars(factor_sub_class.x), vars(m_region),
               scales= "free", space='free_y', switch = "y",
-              strip = overall_strips)+
+              strip = overall_strips
+              )+
   geom_tile()+
   scale_fill_manual(values= c("grey","#8bac37","white"), guide = "legend")+
   geom_text(aes(label = n_articles_es),  size = 4, colour="black")+
   distr_theme+
   theme(legend.position = "none")+
-  geom_hline(yintercept = seq(0.5, nrow(dist_factor_system) - 0.5),
+  geom_hline(yintercept = seq(0.5, nrow(dist_factor_region) - 0.5),
              color = "black", linetype = "solid", size = 0.5)
 
-#1200 x 1700
+factor_region
+
+ggsave("figures/distribution_factor_region.png", width = 23, height = 33, units = "cm")
 
 
 # Data distribution by pcc_factor_unit and sub-region
@@ -397,12 +419,12 @@ overall_strips <- strip_themed(
   background_y = elem_list_rect(fill = factors),
   background_x = elem_list_rect(fill = fills),
   
-  text_y = elem_list_text(size= 1,colour= factors,angle = 90),
-  text_x = elem_list_text(size= 7,colour= fills,angle = 90,
+  text_y = elem_list_text(size= 10,colour= "white",angle = 90,face="bold"),
+  text_x = elem_list_text(size= 11,colour= "white",angle = 90,
                           face="bold"),
   by_layer_y = FALSE)
 
-ggplot(dist_factor_sub_region, 
+factor_sub_region<-ggplot(dist_factor_sub_region, 
        aes(y=pcc_factor_unit,
            x=m_sub_region, fill= more_10))+ 
   facet_grid2(vars(factor_sub_class.x), vars(m_sub_region),
@@ -416,6 +438,9 @@ ggplot(dist_factor_sub_region,
   geom_hline(yintercept = seq(0.5, nrow(dist_factor_system) - 0.5),
              color = "black", linetype = "solid", size = 0.5)
 
+ggsave("figures/distribution_factor_sub_region.png", width = 35, height = 40, units = "cm")
+
+factor_sub_region
 #1400 x 1800
 
 
@@ -423,8 +448,8 @@ ggplot(dist_factor_sub_region,
 "n_samples_num"
 "n_predictors_num"
 "m_av_year_assessment"
-"m_sampling_unit"
 
+"m_sampling_unit"
 "m_random_sample"
 "m_exact_variance_value"
 "m_type_data"
@@ -433,6 +458,16 @@ ggplot(dist_factor_sub_region,
 "m_exposure_correction"
 names(pcc_data)
 
+dist_factor_sampling_unit <-pcc_data%>%
+  group_by(factor_sub_class.x,pcc_factor_unit,m_sampling_unit )%>%
+  dplyr::summarise(n_articles = n_distinct(article_id),
+                   n_ES = n_distinct(ES_ID))%>%
+  mutate(n_articles_es = paste("(", n_articles," | ",n_ES,")", sep = "" ),
+         more_10= if_else(n_articles>9,"more_equal10",
+                          "less10"))%>%
+  mutate(moderator= "Household\n sampling unit")%>%
+  dplyr::rename("binary"="m_sampling_unit")
+
 dist_factor_random_sample <-pcc_data%>%
   group_by(factor_sub_class.x,pcc_factor_unit,m_random_sample )%>%
   dplyr::summarise(n_articles = n_distinct(article_id),
@@ -440,7 +475,7 @@ dist_factor_random_sample <-pcc_data%>%
   mutate(n_articles_es = paste("(", n_articles," | ",n_ES,")", sep = "" ),
          more_10= if_else(n_articles>9,"more_equal10",
                           "less10"))%>%
-  mutate(moderator= "m_random_sample")%>%
+  mutate(moderator= "Random\n sampling")%>%
   dplyr::rename("binary"="m_random_sample")
 
 dist_factor_exact_variance_value <-pcc_data%>%
@@ -450,7 +485,7 @@ dist_factor_exact_variance_value <-pcc_data%>%
   mutate(n_articles_es = paste("(", n_articles," | ",n_ES,")", sep = "" ),
          more_10= if_else(n_articles>9,"more_equal10",
                           "less10"))%>%
-  mutate(moderator= "m_exact_variance_value")%>%
+  mutate(moderator= "Exact variance\nvalue")%>%
   dplyr::rename("binary"="m_exact_variance_value")
 
 dist_factor_type_data <-pcc_data%>%
@@ -460,7 +495,7 @@ dist_factor_type_data <-pcc_data%>%
   mutate(n_articles_es = paste("(", n_articles," | ",n_ES,")", sep = "" ),
          more_10= if_else(n_articles>9,"more_equal10",
                           "less10"))%>%
-  mutate(moderator= "m_type_data")%>%
+  mutate(moderator= "Primary data")%>%
   dplyr::rename("binary"="m_type_data")
 
 dist_factor_model_method <-pcc_data%>%
@@ -470,61 +505,89 @@ dist_factor_model_method <-pcc_data%>%
   mutate(n_articles_es = paste("(", n_articles," | ",n_ES,")", sep = "" ),
          more_10= if_else(n_articles>9,"more_equal10",
                           "less10"))%>%
-  mutate(moderator= "m_model_method")%>%
+  mutate(moderator= "Model type")%>%
   dplyr::rename("binary"="m_model_method")
 
+dist_factor_endogeneity_correction <-pcc_data%>%
+  group_by(factor_sub_class.x,pcc_factor_unit,m_endogeneity_correction )%>%
+  dplyr::summarise(n_articles = n_distinct(article_id),
+                   n_ES = n_distinct(ES_ID))%>%
+  mutate(n_articles_es = paste("(", n_articles," | ",n_ES,")", sep = "" ),
+         more_10= if_else(n_articles>9,"more_equal10",
+                          "less10"))%>%
+  mutate(moderator= "Endogeneity\nanalysis")%>%
+  dplyr::rename("binary"="m_endogeneity_correction")
+
+dist_factor_exposure_correction <-pcc_data%>%
+  group_by(factor_sub_class.x,pcc_factor_unit,m_exposure_correction )%>%
+  dplyr::summarise(n_articles = n_distinct(article_id),
+                   n_ES = n_distinct(ES_ID))%>%
+  mutate(n_articles_es = paste("(", n_articles," | ",n_ES,")", sep = "" ),
+         more_10= if_else(n_articles>9,"more_equal10",
+                          "less10"))%>%
+  mutate(moderator= "Exposure\nanalysis")%>%
+  dplyr::rename("binary"="m_exposure_correction")
 
 
-unique_levels <- unique(dist_factor_sub_region$pcc_factor_unit)
-dist_factor_sub_region$pcc_factor_unit <- factor(dist_factor_sub_region$pcc_factor_unit, levels = rev(sort(unique_levels)))
+dist_factor_methods <-rbind(dist_factor_sampling_unit,
+                            dist_factor_random_sample,
+                            dist_factor_exact_variance_value,
+                            dist_factor_type_data,
+                            dist_factor_endogeneity_correction,
+                            dist_factor_exposure_correction)%>%
+  mutate(binary=as.character(binary))%>%
+  rbind(dist_factor_model_method)%>%
+  mutate(binary = str_to_title(binary))
 
-sort(unique(dist_factor_sub_region$m_sub_region))
-fills <- c( "Central America"= "#f1ba41",
-            "Eastern Africa"="#843272",
-            "Eastern Asia"="#b5562f",
-            "Eastern Europe"="#743341",
-            "Middle Africa" ="#843272",    
-            "Northern Africa"="#843272",
-            "Northern America"="#5b6454",
-            "South-eastern Asia"="#b5562f",
-            "South America"="#f1ba41",
-            "Southern Africa" ="#843272",  
-            "Southern Asia" ="#b5562f",
-            "Southern Europe"="#743341",
-            "Western Africa"="#843272",
-            "Western Europe"="#743341")
+
+unique_levels <- unique(dist_factor_methods$pcc_factor_unit)
+dist_factor_methods$pcc_factor_unit <- factor(dist_factor_methods$pcc_factor_unit, levels = rev(sort(unique_levels)))
+
 
 overall_strips <- strip_themed(
   # Vertical strips
   background_y = elem_list_rect(fill = factors),
-  background_x = elem_list_rect(fill = fills),
+  background_x = elem_list_rect(fill = "#545454"),
   
-  text_y = elem_list_text(size= 1,colour= factors,angle = 90),
-  text_x = elem_list_text(size= 7,colour= fills,angle = 90,
+  text_y = elem_list_text(size= 10,colour= "white",angle = 90,face="bold"),
+  text_x = elem_list_text(size= 11,colour= "white",angle = 0,face="bold",
                           face="bold"),
   by_layer_y = FALSE)
 
-ggplot(dist_factor_sub_region, 
+factor_methods<- ggplot(dist_factor_methods, 
        aes(y=pcc_factor_unit,
-           x=m_sub_region, fill= more_10))+ 
-  facet_grid2(vars(factor_sub_class.x), vars(m_sub_region),
-              scales= "free", space='free_y', switch = "y",
+           x=binary, fill= more_10))+ 
+  facet_grid2(vars(factor_sub_class.x), vars(moderator),
+              scales= "free", space='free', switch = "y",
               strip = overall_strips)+
   geom_tile()+
   scale_fill_manual(values= c("grey","#8bac37","white"), guide = "legend")+
   geom_text(aes(label = n_articles_es),  size = 4, colour="black")+
-  distr_theme+
+  scale_x_discrete(position = "top") +
+
+  theme(strip.placement = "outside",
+                      axis.title = element_blank(),
+                      axis.text.y =element_text(color="black",size=12, family = "sans"),
+                      axis.text.x = element_text(color="black",size=12, family = "sans"),
+                      panel.border = element_rect(colour = "black", fill=NA, size=0.5),
+                      panel.background = element_blank(),
+                      plot.background = element_blank(),
+                      panel.grid  = element_blank(),
+                      axis.ticks.x = element_blank(),
+                      axis.line.x = element_line(colour = "black"),
+                      plot.margin = unit(c(t=0.5,r=0.5,b=0.5,l=0.5), "cm"))+ # Adjust margin to create a frame+
   theme(legend.position = "none")+
-  geom_hline(yintercept = seq(0.5, nrow(dist_factor_system) - 0.5),
+  geom_hline(yintercept = seq(0.5, nrow(dist_factor_methods) - 0.5),
              color = "black", linetype = "solid", size = 0.5)
 
+factor_methods
+
+ggsave("figures/distribution_factor_methods_binary.png", width = 37, height = 42, units = "cm")
 
 
 
 
-
-
-
+#################################################################################################################################
 
 # Data distribution by pcc_factor_metric
 
