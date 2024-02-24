@@ -30,6 +30,7 @@ library(geosphere)
 library(cowplot)
 library(grid)
 library(gridExtra) 
+library(stringr)
 
 factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
                                       sheet = "FACTORS_metric_assessed")
@@ -334,7 +335,55 @@ distr_legend <- get_legend(distr_legend)
 grid.newpage()
 grid.draw(distr_legend)
 
+# Data distribution by pcc_factor_unit and m_intervention_system_components
 
+dist_factor_intervention_components <-pcc_data%>%
+  group_by(factor_sub_class.x,pcc_factor_unit,m_intervention_system_components )%>%
+  dplyr::summarise(n_articles = n_distinct(article_id),
+                   n_ES = n_distinct(ES_ID))%>%
+  mutate(n_articles_es = paste("(", n_articles," | ",n_ES,")", sep = "" ),
+         more_10= if_else(n_articles>9,"more_equal10",
+                          "less10"))%>%
+  arrange(pcc_factor_unit,pcc_factor_unit)%>%
+  mutate(m_intervention_system_components = paste0(toupper(substr(m_intervention_system_components, 1, 1)), substr(m_intervention_system_components, 2, nchar(m_intervention_system_components))))%>%
+  mutate(m_intervention_system_components=if_else(m_intervention_system_components=="Animals and embedded natural","Animals and\nembedded natural",
+                                                  if_else(m_intervention_system_components=="Animals and trees","Animals\nand trees",
+                                                          if_else(m_intervention_system_components=="Crops and embedded natural","Crops and\nembedded natural",
+                                                                  if_else(m_intervention_system_components=="Crops and trees","Crops and\ntrees",
+                                                                          if_else(m_intervention_system_components=="Crops and animals","Crops and\nanimals",
+                                                                                  
+                                                                          m_intervention_system_components))))))
+
+unique_levels <- unique(dist_factor_intervention_components$pcc_factor_unit)
+dist_factor_intervention_components$pcc_factor_unit <- factor(dist_factor_intervention_components$pcc_factor_unit, levels = rev(sort(unique_levels)))
+
+overall_strips <- strip_themed(
+  # Vertical strips
+  background_y = elem_list_rect(fill = factors),
+  background_x = elem_list_rect(fill = "#545454"),
+  
+  text_y = elem_list_text(size= 10,colour= "white",angle = 90, face="bold"),
+  text_x = elem_list_text(size= 10,colour= "white",angle = 0, face="bold"),
+  by_layer_y = FALSE)
+
+factor_intervention_components<- ggplot(dist_factor_intervention_components, 
+                       aes(y=pcc_factor_unit,
+                           x=m_intervention_system_components, fill= more_10))+ 
+  facet_grid2(vars(factor_sub_class.x), vars(m_intervention_system_components),
+              scales= "free", space='free_y', switch = "y",
+              strip = overall_strips
+  )+
+  geom_tile()+
+  scale_fill_manual(values= c("grey","#8bac37","white"), guide = "legend")+
+  geom_text(aes(label = n_articles_es),  size = 4, colour="black")+
+  distr_theme+
+  theme(legend.position = "none")+
+  geom_hline(yintercept = seq(0.5, nrow(dist_factor_intervention_components) - 0.5),
+             color = "black", linetype = "solid", size = 0.5)
+
+factor_intervention_components
+
+ggsave("figures/factor_intervention_components.png", width = 35, height = 40, units = "cm")
 
 # Data distribution by pcc_factor_unit and region
 dist_factor_region <-pcc_data%>%
@@ -448,6 +497,8 @@ factor_sub_region
 "n_samples_num"
 "n_predictors_num"
 "m_av_year_assessment"
+sort(unique(pcc_data$n_samples))
+sort(unique(pcc_data$n_samples))
 
 "m_sampling_unit"
 "m_random_sample"
@@ -456,7 +507,6 @@ factor_sub_region
 "m_model_method"
 "m_endogeneity_correction"
 "m_exposure_correction"
-names(pcc_data)
 
 dist_factor_sampling_unit <-pcc_data%>%
   group_by(factor_sub_class.x,pcc_factor_unit,m_sampling_unit )%>%

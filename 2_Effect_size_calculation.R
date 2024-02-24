@@ -8,7 +8,6 @@ factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
                                                  " (",factors_metric_assessed$pcc_unit,")", sep="")
-names(data)
 data<-read.csv("data/binary_adoption_clean_data.csv",header = TRUE, sep = ",")%>%
   select( "article_id","model_id", "main_crop" ,"country",                        
           "intervention_recla","intervention_recla_detail_1" ,   
