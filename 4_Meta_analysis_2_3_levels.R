@@ -6,7 +6,8 @@ library(metafor)
 library(tibble)
 
 
-factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
+factors_metric_assessed <- read_excel(
+  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
                                       sheet = "FACTORS_metric_assessed")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
@@ -31,6 +32,7 @@ pcc_data_3level<- pcc_data%>%
 sort(unique(pcc_data_3level$pcc_factor_unit))
 
 write.csv(pcc_data_3level,"data/pcc_data_3levels.csv", row.names=FALSE)
+
 
 #### Estimate the overall effect by fitting an intercept-only model ----
 overall_3level <- function(data, metric_unit) {
