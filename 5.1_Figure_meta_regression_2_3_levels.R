@@ -9,11 +9,11 @@ library(plyr)
 library(forcats)
 library("xlsx")
 
-
 ####################################################################################################################################
 ################ META-REGRESSION FIGURES ############################################################################################
 ##############################################################################################################################
-factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
+factors_metric_assessed <- read_excel(
+  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
                                       sheet = "FACTORS_metric_assessed")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
@@ -34,7 +34,19 @@ meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",
   arrange(factor_sub_class, moderator, 
           moderator_class, desc(estimate))
 
-sort(unique(meta_regression$pcc_factor_unit))
+sort(unique(meta_regression$moderator))
+
+#Moderator: diversification practices components ------
+m_intervention_system_components<- meta_regression%>%
+  filter(moderator== "m_intervention_system_components")%>%
+  select("factor_sub_class", "pcc_factor_unit","moderator_class",  "estimate" ,
+         "ci.lb", "ci.ub","tval", "significance","f_test")%>%
+  mutate(moderator_class = paste0(toupper(substr(moderator_class, 1, 1)), substr(moderator_class, 2, nchar(moderator_class))))
+
+
+write.xlsx(m_intervention_system_components, "results/meta_regression_intervention_components.xlsx", 
+           sheetName = "farm_size", col.names = TRUE, row.names = TRUE, append = FALSE)
+
 
 #Moderator: farm size------
 m_farm_size<- meta_regression%>%
@@ -62,6 +74,26 @@ write.xlsx(m_education, "results/meta_regression_education.xlsx",
            sheetName = "education", col.names = TRUE, row.names = TRUE, append = FALSE)
 
   
+#Moderator: methodological characteristics------
+sort(unique(meta_regression$moderator))
+m_methods<- meta_regression%>%
+  filter(moderator== "m_endogeneity_correction"|
+           moderator== "m_exact_variance_value"|
+           moderator== "m_exposure_correction"|
+           moderator== "m_model_method"|
+           moderator== "m_random_sample"|
+           moderator== "m_sampling_unit"|
+           moderator== "m_type_data"|
+           moderator== "n_predictors_num"|
+           moderator== "n_samples_num"|
+           moderator=="m_av_year_assessment")%>%
+  select("factor_sub_class", "pcc_factor_unit","moderator","f_test")%>%
+  distinct(., .keep_all = TRUE)%>%
+  pivot_wider(., names_from = moderator, values_from = f_test)
+
+write.xlsx(m_methods, "results/meta_regression_methods.xlsx", 
+           sheetName = "m_methods", col.names = TRUE, row.names = TRUE, append = FALSE)
+
 #Moderator: diversified farming systems------
 m_dfs_distribution<-pcc_data%>%
   group_by(pcc_factor_unit, m_intervention_recla2)%>%
@@ -140,14 +172,7 @@ overall<-rbind(overall,data.frame(ID=c(max(m_farm_size$ID)+1,
 
 ## identify the rows to be highlighted, and 
 ## build a function to add the layers
-
 # Create a data frame with alternating colors
-#hl_rows<-data.frame(ID=(1:floor(length(unique(overall$ID[which(overall$ID>0)]))/2))*2,
-#                    col="lightgrey")
-#hl_rows$ID<-hl_rows$ID+blankRows+1
-#hl_rows<-rbind(hl_rows,c("71","black"))
-#hl_rows$col[hl_rows$ID %in% "69"]<- "white"
-
 hl_rows <- data.frame(ID = (1:floor(length(unique(overall$ID[which(overall$ID > 0)])) / 2)) * 2,
                       col = "lightgrey", width = 1,height=1)
 
