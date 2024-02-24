@@ -609,14 +609,15 @@ UN_region <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/m
                                                                                if_else(Country_Name == "Iran (Islamic Republic of)", "Iran",
                                                                                        if_else(Country_Name == "Niger (The)","Niger",
                                                                                Country_Name)))))))))))%>%
-  select(Country_Name, UN_Regions, UN_sub_region,Developed_Developing)%>%
-  rename("m_region"="UN_Regions",
-         "m_sub_region"="UN_sub_region")
+  dplyr::select(Country_Name, UN_Regions, UN_sub_region,Developed_Developing)%>%
+  dplyr::rename("m_region"="UN_Regions",
+                "m_sub_region"="UN_sub_region")
 
 sort(unique(UN_region$Country_Name))
 
 data_adoption_binary<- data_adoption_binary%>%
   left_join(UN_region, by=c("country" ="Country_Name"))
+names(data_adoption_binary)
 
 data_adoption_binary$m_region[data_adoption_binary$country %in% "Vietnam, Thailand"] <-"Asia"
 data_adoption_binary$m_sub_region[data_adoption_binary$country %in% "Vietnam, Thailand"] <-"South-eastern Asia"
@@ -658,14 +659,14 @@ sort(unique(factors$factor_sub_class))
 m_education_years<- data_adoption_binary%>%
   filter(factor_metric == "hh education (years)")%>%
   select(article_id, model_id, x_mean_value)%>%
-  rename("m_education_years"="x_mean_value")
+  dplyr::rename("m_education_years"="x_mean_value")
 
 sort(unique(data_adoption_binary$m_exposure_correction))
 pcc_data_adoption_binary<- data_adoption_binary%>%
   filter(!is.na(t_value_pcc))%>%
   filter(limitation_of_use_obs== "no limitation")%>%
   # MODERATORS
-  rename("m_model_method"= "model_method")%>%
+  dplyr::rename("m_model_method"= "model_method")%>%
   left_join(m_education_years, by=c("article_id"="article_id",
                                     "model_id"="model_id"))%>%
   
