@@ -8,7 +8,7 @@ factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
                                                  " (",factors_metric_assessed$pcc_unit,")", sep="")
-
+names(data)
 data<-read.csv("data/binary_adoption_clean_data.csv",header = TRUE, sep = ",")%>%
   select( "article_id","model_id", "main_crop" ,"country",                        
           "intervention_recla","intervention_recla_detail_1" ,   
@@ -25,7 +25,8 @@ data<-read.csv("data/binary_adoption_clean_data.csv",header = TRUE, sep = ",")%>
           "b_logOR"        ,                 "se_logOR"    ,"m_region"    ,"m_sub_region",                 
           "Developed_Developing" ,         
          "m_intervention_recla2" ,"m_exact_variance_value","m_random_sample", "m_mean_farm_size_ha",
-        "m_sampling_unit", "m_type_data", "m_av_year_assessment", "m_education_years", "m_intervention_system_components")%>%
+        "m_sampling_unit", "m_type_data", "m_av_year_assessment", "m_education_years", "m_intervention_system_components",
+        "m_endogeneity_correction","m_exposure_correction")%>%
   left_join(factors_metric_assessed, by= c("factor_metric"))
 
 sort(unique(data$factor_metric))
