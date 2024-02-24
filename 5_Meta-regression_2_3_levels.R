@@ -6,7 +6,8 @@ library(readxl)
 library(stringr)
 
 ################# META-REGRESSION ----------------
-factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
+factors_metric_assessed <- read_excel(
+  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
                                       sheet = "FACTORS_metric_assessed")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
@@ -26,6 +27,7 @@ pcc_data_3level<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")
 sort(unique(pcc_data_3level$pcc_factor_unit))
 sort(unique(pcc_data_3level$m_model_method))
 names(pcc_data_3level)
+
 #Heterogeneity
 heterogeneity_3level<- read.csv("results/heterogeneity_3levels.csv",header = TRUE, sep = ",")
 
@@ -45,15 +47,14 @@ str(x)
 x$QMdf
 
 # List of moderators
-moderators <- c("m_region", "m_sub_region","m_intervention_recla2",
-                "m_model_method","m_random_sample","m_exact_variance_value",
-                "m_type_data","m_sampling_unit",
-                "m_mean_farm_size_ha","n_samples_num","n_predictors_num",
-                "m_av_year_assessment",
-                "m_education_years","m_intervention_system_components")
-
-### FALTA: type of crop?, diversfied farming systems components,
-### in person survey, exposure correction.
+moderators <- c("m_intervention_recla2","m_intervention_system_components",
+                "m_region", "m_sub_region",
+                "m_mean_farm_size_ha","m_education_years",
+                "n_samples_num","n_predictors_num","m_av_year_assessment",
+                "m_sampling_unit","m_random_sample","m_exact_variance_value",
+                "m_type_data","m_model_method",
+                "m_endogeneity_correction",
+                "m_exposure_correction")
 
 # List of pcc_factor_unit
 pcc_factor_units <- unique(pcc_data_3level$pcc_factor_unit)
@@ -259,12 +260,3 @@ meta_regression_df<- rbind(meta_regression_3levels_df,meta_regression_2levels_df
                                         if_else(pval>0.01&pval<=0.05,paste(pval,"*",sep=""),
                                                 paste(pval)))))
 write.csv(meta_regression_df,"results/meta_regression.csv", row.names=FALSE)
-
-
-extension <- rma.uni(yi, vi,
-                     mods = ~ m_random_sample,
-                     data = m_pcc_data_2level,
-                     subset = pcc_factor_unit=="Land tenure (1= owned)",
-                     method = "REML", 
-                     test = "knha")
-summary(extension)
