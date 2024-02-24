@@ -18,10 +18,9 @@ library(RColorBrewer)
 library(egg)
 library(hrbrthemes)
 library(plotly)
+
 library(ggh4x)
-
 library(gtable)
-
 library(dplyr)
 library(forcats)
 library(ggplot2)
@@ -32,7 +31,7 @@ library(cowplot)
 library(grid)
 library(gridExtra) 
 
-factors_metric_assessed <- read_excel("C:/Users/AndreaSanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/Meta_data_2024.01.25.xlsx",
+factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
                                       sheet = "FACTORS_metric_assessed")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
@@ -43,8 +42,8 @@ pcc_factor_class_unit<-factors_metric_assessed%>%
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 #### PCC data 
-pcc_data<- read.csv("pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
-  rbind(read.csv("pcc_data_2levels.csv",header = TRUE, sep = ","))
+pcc_data<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
+  rbind(read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ","))
 
 length(unique(pcc_data$article_id)) #153
 sort(unique(pcc_data$x_metric_recla2))
@@ -59,7 +58,6 @@ sort(unique(pcc_data$pcc_factor_unit))
 sort(unique(pcc_data$country)) #44
 table(pcc_data$m_region , pcc_data$pcc_factor_unit)
 sort(unique(pcc_data$country))
-
 
 country<- pcc_data%>%
   group_by(country,m_region)%>%
@@ -242,10 +240,8 @@ ggplot(skey_region_factor_systems,
 
 ######################################################
 ####### Data distribution plots ####################
-library(ggh4x)
 
 # Data distribution by pcc_factor_unit and m_intervention_recla2
-
 dist_factor_system <-pcc_data%>%
   group_by(factor_sub_class.x,pcc_factor_unit,m_intervention_recla2 )%>%
   dplyr::summarise(n_articles = n_distinct(article_id),
@@ -280,7 +276,7 @@ distr_theme<- theme(strip.placement.y = "outside",
       panel.grid  = element_blank(),
       axis.ticks.x = element_blank(),
       axis.line.x = element_line(colour = "black"),
-      plot.margin = unit(c(t=0.5,r=0.5,b=0.5,l=2), "cm")) # Adjust margin to create a frame
+      plot.margin = unit(c(t=0.5,r=0.5,b=0.5,l=0.5), "cm")) # Adjust margin to create a frame
   
 
 ggplot(dist_factor_system, 
@@ -423,22 +419,109 @@ ggplot(dist_factor_sub_region,
 #1400 x 1800
 
 
+# Data distribution by pcc_factor_unit and methodological characteristics
+"n_samples_num"
+"n_predictors_num"
+"m_av_year_assessment"
+"m_sampling_unit"
+
+"m_random_sample"
+"m_exact_variance_value"
+"m_type_data"
+"m_model_method"
+"m_endogeneity_correction"
+"m_exposure_correction"
+names(pcc_data)
+
+dist_factor_random_sample <-pcc_data%>%
+  group_by(factor_sub_class.x,pcc_factor_unit,m_random_sample )%>%
+  dplyr::summarise(n_articles = n_distinct(article_id),
+                   n_ES = n_distinct(ES_ID))%>%
+  mutate(n_articles_es = paste("(", n_articles," | ",n_ES,")", sep = "" ),
+         more_10= if_else(n_articles>9,"more_equal10",
+                          "less10"))%>%
+  mutate(moderator= "m_random_sample")%>%
+  dplyr::rename("binary"="m_random_sample")
+
+dist_factor_exact_variance_value <-pcc_data%>%
+  group_by(factor_sub_class.x,pcc_factor_unit,m_exact_variance_value )%>%
+  dplyr::summarise(n_articles = n_distinct(article_id),
+                   n_ES = n_distinct(ES_ID))%>%
+  mutate(n_articles_es = paste("(", n_articles," | ",n_ES,")", sep = "" ),
+         more_10= if_else(n_articles>9,"more_equal10",
+                          "less10"))%>%
+  mutate(moderator= "m_exact_variance_value")%>%
+  dplyr::rename("binary"="m_exact_variance_value")
+
+dist_factor_type_data <-pcc_data%>%
+  group_by(factor_sub_class.x,pcc_factor_unit,m_type_data )%>%
+  dplyr::summarise(n_articles = n_distinct(article_id),
+                   n_ES = n_distinct(ES_ID))%>%
+  mutate(n_articles_es = paste("(", n_articles," | ",n_ES,")", sep = "" ),
+         more_10= if_else(n_articles>9,"more_equal10",
+                          "less10"))%>%
+  mutate(moderator= "m_type_data")%>%
+  dplyr::rename("binary"="m_type_data")
+
+dist_factor_model_method <-pcc_data%>%
+  group_by(factor_sub_class.x,pcc_factor_unit,m_model_method )%>%
+  dplyr::summarise(n_articles = n_distinct(article_id),
+                   n_ES = n_distinct(ES_ID))%>%
+  mutate(n_articles_es = paste("(", n_articles," | ",n_ES,")", sep = "" ),
+         more_10= if_else(n_articles>9,"more_equal10",
+                          "less10"))%>%
+  mutate(moderator= "m_model_method")%>%
+  dplyr::rename("binary"="m_model_method")
 
 
 
-print(plot_pcc_factor_unit)  
-#https://github.com/tidyverse/ggplot2/issues/2096
-plot_pcc_factor_unit <- ggplot_gtable(ggplot_build(plot_pcc_factor_unit))
-print(plot_pcc_factor_unit)
-stripr <- which(grepl( 'strip-l',plot_pcc_factor_unit$layout$name))
-fills <- c("#f0c602", "#ea6044","#d896ff","#6a57b8","#87CEEB",  "#85a5cc", "#496491", "#92c46d", "#297d7d")
-k <- 1
-for (i in stripr) {
-  j <- which(grepl('rect', plot_pcc_factor_unit$grobs[[i]]$grobs[[1]]$childrenOrder))
-  plot_pcc_factor_unit$grobs[[i]]$grobs[[1]]$children[[j]]$gp$fill <- fills[k]
-  k <- k+1
-}
-grid.draw(plot_pcc_factor_unit)
+unique_levels <- unique(dist_factor_sub_region$pcc_factor_unit)
+dist_factor_sub_region$pcc_factor_unit <- factor(dist_factor_sub_region$pcc_factor_unit, levels = rev(sort(unique_levels)))
+
+sort(unique(dist_factor_sub_region$m_sub_region))
+fills <- c( "Central America"= "#f1ba41",
+            "Eastern Africa"="#843272",
+            "Eastern Asia"="#b5562f",
+            "Eastern Europe"="#743341",
+            "Middle Africa" ="#843272",    
+            "Northern Africa"="#843272",
+            "Northern America"="#5b6454",
+            "South-eastern Asia"="#b5562f",
+            "South America"="#f1ba41",
+            "Southern Africa" ="#843272",  
+            "Southern Asia" ="#b5562f",
+            "Southern Europe"="#743341",
+            "Western Africa"="#843272",
+            "Western Europe"="#743341")
+
+overall_strips <- strip_themed(
+  # Vertical strips
+  background_y = elem_list_rect(fill = factors),
+  background_x = elem_list_rect(fill = fills),
+  
+  text_y = elem_list_text(size= 1,colour= factors,angle = 90),
+  text_x = elem_list_text(size= 7,colour= fills,angle = 90,
+                          face="bold"),
+  by_layer_y = FALSE)
+
+ggplot(dist_factor_sub_region, 
+       aes(y=pcc_factor_unit,
+           x=m_sub_region, fill= more_10))+ 
+  facet_grid2(vars(factor_sub_class.x), vars(m_sub_region),
+              scales= "free", space='free_y', switch = "y",
+              strip = overall_strips)+
+  geom_tile()+
+  scale_fill_manual(values= c("grey","#8bac37","white"), guide = "legend")+
+  geom_text(aes(label = n_articles_es),  size = 4, colour="black")+
+  distr_theme+
+  theme(legend.position = "none")+
+  geom_hline(yintercept = seq(0.5, nrow(dist_factor_system) - 0.5),
+             color = "black", linetype = "solid", size = 0.5)
+
+
+
+
+
 
 
 
