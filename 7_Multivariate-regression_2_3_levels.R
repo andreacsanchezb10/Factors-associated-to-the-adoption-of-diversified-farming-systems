@@ -9,18 +9,16 @@ library(purrr)
 library(glmulti)
 
 
-moderators.formula <- as.formula("~m_intervention_recla2+m_intervention_system_components+
-                                 m_region+m_sub_region+
+moderators.formula <- as.formula("~m_intervention_recla2+m_intervention_system_components+m_region+
                                  m_mean_farm_size_ha+m_education_years+
                                  n_samples_num+n_predictors_num+
                                  m_av_year_assessment+m_sampling_unit+
                                  m_random_sample+m_exact_variance_value+
                                  m_type_data+m_model_method+
-                                 m_endogeneity_correction+
-                                 m_exposure_correction")
-
+                                 m_endogeneity_correction+m_exposure_correction")
+                                 
 variables_to_exclude <- c("m_intervention_recla2","m_intervention_system_components",
-                                 "m_region","m_sub_region",
+                                 "m_region",
                                  "m_mean_farm_size_ha","m_education_years",
                                  "n_samples_num","n_predictors_num","m_av_year_assessment",
                                  "m_sampling_unit","m_random_sample","m_exact_variance_value",
@@ -115,9 +113,12 @@ pcc_data_3level<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")
   mutate_at(vars(m_mean_farm_size_ha,n_samples_num,n_predictors_num,m_education_years ), as.numeric)%>%
   group_by( pcc_factor_unit)%>%
   dplyr::mutate(n_articles = n_distinct(article_id))%>%
-  filter(n_articles>9)
+  filter(n_articles>9)%>%
+  filter(pcc_factor_unit=="Association member (1= yes)" )
+
 sort(unique(pcc_data_3level$pcc_factor_unit))
 sort(unique(pcc_data_3level$m_model_method))
+sort(unique(pcc_data_3level$m_sub_region))
 
 
 sort(unique(pcc_data_3level$pcc_factor_unit))
@@ -164,7 +165,6 @@ for (unit in unique_units) {
   res <- dredge(full, trace = 2)
   importance_list[[unit]] <- sw(res)
 }
-
 
 # Convert the list to a data.frame
 importance_df_3levels <- do.call(rbind, lapply(importance_list, as.data.frame))%>%
