@@ -9,19 +9,24 @@ library(purrr)
 library(glmulti)
 
 
-moderators.formula <- as.formula("~m_region+ m_sub_region+
-                         m_intervention_recla2+m_model_method+
-                         n_samples_num+n_predictors_num+
-                         m_random_sample+m_exact_variance_value+
-                         m_type_data+m_sampling_unit+
-                         m_av_year_assessment+m_mean_farm_size_ha")
+moderators.formula <- as.formula("~m_intervention_recla2+m_intervention_system_components+
+                                 m_region+m_sub_region+
+                                 m_mean_farm_size_ha+m_education_years+
+                                 n_samples_num+n_predictors_num+
+                                 m_av_year_assessment+m_sampling_unit+
+                                 m_random_sample+m_exact_variance_value+
+                                 m_type_data+m_model_method+
+                                 m_endogeneity_correction+
+                                 m_exposure_correction")
 
-variables_to_exclude <- c("m_region", "m_sub_region",
-                          "m_intervention_recla2","m_model_method",
-                          "n_samples_num","n_predictors_num",
-                          "m_random_sample","m_exact_variance_value",
-                          "m_type_data","m_sampling_unit",
-                            "m_av_year_assessment","m_mean_farm_size_ha")
+variables_to_exclude <- c("m_intervention_recla2","m_intervention_system_components",
+                                 "m_region","m_sub_region",
+                                 "m_mean_farm_size_ha","m_education_years",
+                                 "n_samples_num","n_predictors_num","m_av_year_assessment",
+                                 "m_sampling_unit","m_random_sample","m_exact_variance_value",
+                                 "m_type_data","m_model_method",
+                                 "m_endogeneity_correction","m_exposure_correction")
+
 
 eval(metafor:::.MuMIn)
 
