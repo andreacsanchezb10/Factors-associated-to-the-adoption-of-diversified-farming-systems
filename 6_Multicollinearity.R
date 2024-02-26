@@ -46,14 +46,14 @@ m_pcc_data_2level<- pcc_data_2level%>%
                 m_model_method,
                 #binary moderators
                 m_random_sample,
-                m_exact_variance_value,
+                #m_exact_variance_value,
                 m_sampling_unit,
                 m_type_data,
-                m_endogeneity_correction,
-                m_exposure_correction,
+                #m_endogeneity_correction,
+                #m_exposure_correction,
                 #continuous moderators
                 m_mean_farm_size_ha,
-                n_samples_num,
+                #n_samples_num,
                 n_predictors_num,
                 m_av_year_assessment,
                 m_education_years)
@@ -72,14 +72,14 @@ pcc_data_3level<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")
                 m_model_method,
                 #binary moderators
                 m_random_sample,
-                m_exact_variance_value,
+                #m_exact_variance_value,
                 m_sampling_unit,
                 m_type_data,
-                m_endogeneity_correction,
-                m_exposure_correction,
+                #m_endogeneity_correction,
+                #m_exposure_correction,
                 #continuous moderators
                 m_mean_farm_size_ha,
-                n_samples_num,
+                #n_samples_num,
                 n_predictors_num,
                 m_av_year_assessment,
                 m_education_years)
@@ -95,25 +95,23 @@ pcc_data_meta_regression<-rbind(pcc_data_3level,m_pcc_data_2level)%>%
     m_model_method,
     #binary moderators
     m_random_sample,
-    m_exact_variance_value,
+    #m_exact_variance_value,
     m_sampling_unit,
-    m_type_data,
-    m_endogeneity_correction,
-    m_exposure_correction), as.factor)%>%
+    m_type_data), as.factor)%>%
+    #m_endogeneity_correction,
+    #m_exposure_correction), as.factor)%>%
   #continuous moderators
   mutate_at(vars(m_mean_farm_size_ha,
-                 n_samples_num,
+                 #n_samples_num,
                  n_predictors_num,
                  m_av_year_assessment,
                  m_education_years),as.numeric)
  
-pcc_data_meta_regression <- na.omit(pcc_data_meta_regression)
 
 sort(unique(pcc_data_meta_regression$pcc_factor_unit))
   
 str(pcc_data_meta_regression$m_mean_farm_size_ha)
 sort(unique(pcc_data_meta_regression$pcc_factor_unit))
-table(pcc_data_meta_regression$pcc_factor_unit,pcc_data_meta_regression$n_articles)
 #categorical
 sort(unique(pcc_data_meta_regression$m_region))
 sort(unique(pcc_data_meta_regression$m_sub_region))
@@ -121,10 +119,8 @@ sort(unique(pcc_data_meta_regression$m_intervention_recla2))
 sort(unique(pcc_data_meta_regression$m_model_method))
 #Binary
 sort(unique(pcc_data_meta_regression$m_random_sample))
-sort(unique(pcc_data_meta_regression$m_exact_variance_value))
 #Continuous
 sort(unique(pcc_data_meta_regression$m_mean_farm_size_ha))
-sort(unique(pcc_data_meta_regression$n_samples_num))
 sort(unique(pcc_data_meta_regression$n_predictors_num))
 
 sort(unique(pcc_data_meta_regression$m_type_data))
@@ -135,7 +131,7 @@ sort(unique(pcc_data_meta_regression$m_type_data))
 #http://www.sthda.com/english/wiki/correlation-test-between-two-variables-in-r
 ########################################################################################################################################
 #### Correlation between categorical variables
-old_column<-c("V1",  "V2",  "V3",  "V4",  "V5",  "V6",  "V7",  "V8","V9","V10","V11")
+old_column<-c("V1",  "V2",  "V3",  "V4",  "V5",  "V6",  "V7",  "V8")
 new_column<- c(
   #categorical moderators
   "Region",
@@ -145,11 +141,12 @@ new_column<- c(
   "Model type",
   #binary moderators
   "Random sampling",
-  "Exact variance value",
+  #"Exact variance value",
   "Household sampling unit",
-  "Primary data",
-  "Endogeneity analysis",
-  "Exposure correction")
+  "Primary data")
+  #"Endogeneity analysis",
+  #"Exposure correction"
+  
 
 # Function to calculate Cramer's V correlations for a specific factor unit
 calculate_cramer_for_unit <- function(data, factor_unit) {
@@ -162,11 +159,8 @@ calculate_cramer_for_unit <- function(data, factor_unit) {
                   m_model_method,
                   #binary moderators
                   m_random_sample,
-                  m_exact_variance_value,
                   m_sampling_unit,
-                  m_type_data,
-                  m_endogeneity_correction,
-                  m_exposure_correction)
+                  m_type_data)
 
   unit_data <- cramer_data %>%
     filter(pcc_factor_unit == factor_unit) %>%
@@ -201,7 +195,7 @@ cramer_results_df <- do.call(rbind, cramer_results_list)%>%
   tibble::rownames_to_column(., var = "pcc_factor_unit.moderator")%>%
   mutate(moderator1= str_extract(pcc_factor_unit.moderator, '\\b\\w+$'))%>%
   mutate(pcc_factor_unit= str_extract(pcc_factor_unit.moderator, '^[^.]+'))%>%
-  select(pcc_factor_unit,moderator1,V1,V2,V3,V4,V5,V6,V7,V8,V9,V10,V11)%>%
+  select(pcc_factor_unit,moderator1,V1,V2,V3,V4,V5,V6,V7,V8)%>%
   setnames(., old_column, new_column)%>%
   tidyr::gather(key = "moderator2", value = "correlation", new_column, -pcc_factor_unit)%>%
   mutate(significance= if_else(correlation>=0.7,"*",""))%>%
@@ -224,23 +218,15 @@ ggplot(cramer_results_df, aes(moderator1, moderator2, fill= correlation)) +
 ##### Correlation between continuous and categorical variables
 ########################################################################################################################################
 # Function to perform Kruskal-Wallis tests for a specific factor unit
-kruskal_data<-pcc_data_meta_regression 
-  select(pcc_factor_unit,
-    m_region, m_sub_region, m_intervention_recla2, m_model_method,
-    m_random_sample, m_exact_variance_value,
-    #continuous
-    m_mean_farm_size_ha, n_samples_num, n_predictors_num)
-
-
 kruskal_function <- function(data, factor_unit) {
   kruskal_data <- data %>%
     dplyr::select(pcc_factor_unit,
                   m_region, m_sub_region, m_intervention_recla2, m_model_method,
                   m_intervention_system_components,
-                  m_random_sample, m_exact_variance_value,m_sampling_unit,
-                  m_type_data,m_endogeneity_correction,m_exposure_correction,
+                  m_random_sample, m_sampling_unit,
+                  m_type_data,
                   #continuous
-                  m_mean_farm_size_ha,n_samples_num,n_predictors_num,
+                  m_mean_farm_size_ha,n_predictors_num,
                   m_av_year_assessment,m_education_years)%>%
     filter(pcc_factor_unit == factor_unit) %>%
     dplyr::select(-pcc_factor_unit)
@@ -300,20 +286,17 @@ kruskal_results_df <- as.data.frame(do.call(rbind, kruskal_results_list))%>%
   mutate(moderator2= if_else(moderator2=="m_av_year_assessment","Years of assessment",
                              if_else(moderator2=="m_education_years","Years of formal education",
                                      if_else(moderator2=="m_mean_farm_size_ha","Land size (ha)",
-                                             if_else(moderator2=="n_predictors_num","Years of formal education",
-                                                     if_else(moderator2=="n_samples_num","Number of samples",moderator2))))))%>%
-  mutate(moderator1= if_else(moderator1=="m_endogeneity_correction","Endogeneity analysis",
-                             if_else(moderator1=="m_exact_variance_value","Exact variance value",
-                                     if_else(moderator1=="m_exposure_correction","Exposure correction",
-                                             if_else(moderator1=="m_intervention_recla2","Diversification practice",
-                                                     if_else(moderator1=="m_intervention_system_components","Diversification practice components",
-                                                             if_else(moderator1=="m_model_method","Model type",
-                                                                     if_else(moderator1=="m_random_sample","Random sampling",
-                                                                             if_else(moderator1=="m_region","Region",
-                                                                                     if_else(moderator1=="m_sampling_unit","Household sampling unit",
-                                                                                             if_else(moderator1=="m_sub_region","Sub-region",
-                                                                                                     if_else(moderator1=="m_type_data","Primary data",
-                                                                                                             moderator1))))))))))))
+                                             if_else(moderator2=="n_predictors_num","Number of predictors",
+                                                     moderator2)))))%>%
+  mutate(moderator1= if_else(moderator1=="m_intervention_recla2","Diversification practice",
+                             if_else(moderator1=="m_intervention_system_components","Diversification practice components",
+                                     if_else(moderator1=="m_model_method","Model type",
+                                            if_else(moderator1=="m_random_sample","Random sampling",
+                                                    if_else(moderator1=="m_region","Region",
+                                                            if_else(moderator1=="m_sampling_unit","Household sampling unit",
+                                                                    if_else(moderator1=="m_sub_region","Sub-region",
+                                                                            if_else(moderator1=="m_type_data","Primary data",
+                                                                                    moderator1)))))))))
                                                                                                              
 sort(unique(kruskal_results_df$moderator1))
 
@@ -329,30 +312,47 @@ ggplot(kruskal_results_df, aes(moderator1, moderator2, fill= p.value)) +
         axis.title= element_blank())+
   labs(fill = "Kruskal Wallis\np-value")
 
-
-##### Correlation between continuous and categorical variables
+########################################################################################################################################
+##### Correlation between continuous variables
+########################################################################################################################################
 # Function to perform Pearson correlation for a specific factor unit
-perform_correlation_tests <- function(pcc_factor_unit, data) {
+pcc_data_meta_regression<-pcc_data_meta_regression%>%
+  dplyr::select(pcc_factor_unit,
+                m_mean_farm_size_ha,n_predictors_num,
+                m_av_year_assessment,m_education_years)
+
+pcc_data_meta_regression <- na.omit(pcc_data_meta_regression)
+names(pcc_data_meta_regression)
+
+perform_correlation_tests <- function(data,pcc_factor_unit) {
   subset_data <- data %>%
     filter(pcc_factor_unit == pcc_factor_unit) %>%
-    select(pcc_factor_unit,
-           m_mean_farm_size_ha,
-           n_samples_num,
-           n_predictors_num)
+    dplyr::select(-pcc_factor_unit)
   
   # Perform correlation tests for all pairwise combinations
-  combinations <- combn(c("m_mean_farm_size_ha", "n_samples_num", "n_predictors_num"), 2, simplify = TRUE)
+  combinations <- combn(c("m_mean_farm_size_ha", "n_predictors_num",
+                          "m_av_year_assessment","m_education_years"), 2, simplify = TRUE)
   
   results_list <- lapply(1:ncol(combinations), function(i) {
-    correlation_test <- cor.test(subset_data[, combinations[1, i]], subset_data[, combinations[2, i]], method = "pearson")
+    print(paste("Performing correlation test for combination:", combinations[1, i], "vs", combinations[2, i]))
     
-    return(data.frame(
-      pcc_factor_unit = pcc_factor_unit,
-      variable1 = combinations[1, i],
-      variable2 = combinations[2, i],
-      correlation_coefficient = correlation_test$estimate,
-      p_value = correlation_test$p.value
-    ))
+    print("Structure of subset_data before correlation test:")
+    print(str(subset_data[, c(combinations[1, i], combinations[2, i])]))
+    
+    correlation_test <- try(cor.test(subset_data[, combinations[1, i]], subset_data[, combinations[2, i]], method = "pearson"), silent = TRUE)
+    
+    if (!inherits(correlation_test, "try-error")) {
+      return(data.frame(
+        pcc_factor_unit = pcc_factor_unit,
+        variable1 = combinations[1, i],
+        variable2 = combinations[2, i],
+        correlation_coefficient = correlation_test$estimate,
+        p_value = correlation_test$p.value
+      ))
+    } else {
+      print(paste("Error in correlation test for combination:", combinations[1, i], "vs", combinations[2, i]))
+      return(NULL)
+    }
   })
   
   # Combine the results into a data frame
@@ -362,19 +362,19 @@ perform_correlation_tests <- function(pcc_factor_unit, data) {
 }
 
 # List of pcc_factor_unit values
-pcc_factor_units <- unique(pcc_data_2level$pcc_factor_unit)
+unique_units <- unique(pcc_data_meta_regression$pcc_factor_unit)
 
 # Initialize a list to store results
 correlation_results <- list()
 
 # Perform correlation tests for each pcc_factor_unit
-for (unit in pcc_factor_units) {
-  result <- perform_correlation_tests(unit, pcc_data_2level)
+for (unit in unique_units) {
+  result <- perform_correlation_tests(pcc_data_meta_regression, unit)
   correlation_results[[unit]] <- result
 }
 
 # Combine the results into a single data frame
-pearson_result_df <- do.call(rbind, correlation_results)%>%
+pearson_result_df <- do.call(rbind, correlation_results)
   rownames_to_column(., var = "pcc_factor_unit.moderator")%>%
   rename("moderator1"="variable1")%>%
   rename("moderator2"="variable2")%>%
