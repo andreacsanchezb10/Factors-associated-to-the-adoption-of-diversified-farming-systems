@@ -108,8 +108,6 @@ pcc_data_meta_regression<-rbind(pcc_data_3level,m_pcc_data_2level)%>%
                  m_education_years),as.numeric)
  
 
-sort(unique(pcc_data_meta_regression$pcc_factor_unit))
-  
 str(pcc_data_meta_regression$m_mean_farm_size_ha)
 sort(unique(pcc_data_meta_regression$pcc_factor_unit))
 #categorical
@@ -204,6 +202,7 @@ cramer_results_df <- do.call(rbind, cramer_results_list)%>%
   
 ggplot(cramer_results_df, aes(moderator1, moderator2, fill= correlation)) + 
   geom_tile(color = "black")+
+  geom_text(aes(label = round(correlation, 2)), size=3) + 
   scale_fill_gradient(low="white", high="blue") +
   facet_wrap2(vars(pcc_factor_unit),nrow = 8, ncol = 4 )+
   theme(axis.text.x =element_text(color="black",size=10,
@@ -300,8 +299,10 @@ kruskal_results_df <- as.data.frame(do.call(rbind, kruskal_results_list))%>%
                                                                                                              
 sort(unique(kruskal_results_df$moderator1))
 
-ggplot(kruskal_results_df, aes(moderator1, moderator2, fill= p.value)) + 
+ggplot(kruskal_results_df, aes( moderator2,moderator1, fill= p.value)) + 
   geom_tile(color = "black")+
+  geom_text(aes(label = round(p.value, 2)), size=5) + 
+  
   scale_fill_gradient(high="white", low ="blue") +
   facet_wrap2(vars(pcc_factor_unit),nrow = 8, ncol = 4 )+
   theme(axis.text.x =element_text(color="black",size=10,
@@ -322,77 +323,115 @@ pcc_data_meta_regression<-pcc_data_meta_regression%>%
                 m_av_year_assessment,m_education_years)
 
 pcc_data_meta_regression <- na.omit(pcc_data_meta_regression)
-names(pcc_data_meta_regression)
 
-perform_correlation_tests <- function(data,pcc_factor_unit) {
-  subset_data <- data %>%
-    filter(pcc_factor_unit == pcc_factor_unit) %>%
-    dplyr::select(-pcc_factor_unit)
+
+correlation_function <- function(data) {
+  # Extract numeric variables
+  numeric_vars <- names(data)[sapply(data, is.numeric)]
   
-  # Perform correlation tests for all pairwise combinations
-  combinations <- combn(c("m_mean_farm_size_ha", "n_predictors_num",
-                          "m_av_year_assessment","m_education_years"), 2, simplify = TRUE)
+  # Initialize a list to store results
+  result_list <- list()
   
-  results_list <- lapply(1:ncol(combinations), function(i) {
-    print(paste("Performing correlation test for combination:", combinations[1, i], "vs", combinations[2, i]))
-    
-    print("Structure of subset_data before correlation test:")
-    print(str(subset_data[, c(combinations[1, i], combinations[2, i])]))
-    
-    correlation_test <- try(cor.test(subset_data[, combinations[1, i]], subset_data[, combinations[2, i]], method = "pearson"), silent = TRUE)
-    
-    if (!inherits(correlation_test, "try-error")) {
-      return(data.frame(
-        pcc_factor_unit = pcc_factor_unit,
-        variable1 = combinations[1, i],
-        variable2 = combinations[2, i],
-        correlation_coefficient = correlation_test$estimate,
-        p_value = correlation_test$p.value
-      ))
-    } else {
-      print(paste("Error in correlation test for combination:", combinations[1, i], "vs", combinations[2, i]))
-      return(NULL)
+  # Perform Pearson correlation tests for all combinations
+  for (var1 in numeric_vars) {
+    for (var2 in numeric_vars) {
+      if (var1 != var2) {
+        print(paste("Testing:", var1, "_vs_", var2))
+        tryCatch({
+          cor_result <- cor(data[[var1]], data[[var2]])
+          result_list[[paste(var1, "_vs_", var2)]] <- cor_result
+        }, error = function(e) {
+          print(paste("Error in:", var1, "_vs_", var2))
+          print(e)
+        })
+      }
     }
-  })
+  }
   
   # Combine the results into a data frame
-  result_df <- do.call(rbind, results_list)
+  result_df <- do.call(rbind, result_list)
   
   return(result_df)
 }
 
-# List of pcc_factor_unit values
+# List to store results for each factor unit
 unique_units <- unique(pcc_data_meta_regression$pcc_factor_unit)
 
-# Initialize a list to store results
-correlation_results <- list()
+# List to store results for each factor unit
+correlation_results_list <- list()
 
-# Perform correlation tests for each pcc_factor_unit
 for (unit in unique_units) {
-  result <- perform_correlation_tests(pcc_data_meta_regression, unit)
-  correlation_results[[unit]] <- result
+  unit_data <- pcc_data_meta_regression %>%
+    filter(pcc_factor_unit == unit) %>%
+    select(-pcc_factor_unit)
+  
+  unit_result <- correlation_function(unit_data)
+  
+  # Add a column for the specific pcc_factor_unit
+  unit_result$pcc_factor_unit <- unit
+  
+  correlation_results_list[[unit]] <- unit_result
+}
+
+
+unique_units <- unique(pcc_data_meta_regression$pcc_factor_unit)
+
+# List to store results for each factor unit
+correlation_results_list <- list()
+
+for (unit in unique_units) {
+  unit_data <- pcc_data_meta_regression %>%
+    filter(pcc_factor_unit == unit) %>%
+    select(-pcc_factor_unit)
+  
+  unit_result <- correlation_function(unit_data)
+  
+  # Convert unit_result to a data frame if it's a vector
+  if (!is.data.frame(unit_result)) {
+    unit_result <- as.data.frame(unit_result)
+  }
+  
+  # Add columns for the specific pcc_factor_unit and variable combination
+  unit_result$pcc_factor_unit <- unit
+  variable_combination <- paste(names(unit_data), collapse = "_vs_")
+  
+  # Rename the columns
+  colnames(unit_result) <- c(variable_combination, "pcc_factor_unit")
+  
+  correlation_results_list[[unit]] <- unit_result
 }
 
 # Combine the results into a single data frame
-pearson_result_df <- do.call(rbind, correlation_results)
-  rownames_to_column(., var = "pcc_factor_unit.moderator")%>%
-  rename("moderator1"="variable1")%>%
-  rename("moderator2"="variable2")%>%
-  mutate_at(vars(correlation_coefficient,p_value),~ round(., 3))%>%
-  mutate(correlation = paste("r = ", correlation_coefficient, " , pval = ", p_value, sep=""),
-         significance= if_else(p_value <= 0.05,"*",""))%>%
-  select(pcc_factor_unit,moderator1,moderator2, correlation,significance)
+correlation_results_df <- as.data.frame(do.call(rbind, correlation_results_list))%>%
+  rename("correlation"="m_mean_farm_size_ha_vs_n_predictors_num_vs_m_av_year_assessment_vs_m_education_years")%>%
+  tibble::rownames_to_column(., var = "variables")%>%
+  mutate(moderator1= gsub(".*\\.(.*) _vs_.*", "\\1", variables))%>%
+  mutate(moderator2= gsub(".*_vs_ (.*)", "\\1", variables))%>%
+  mutate(moderator2= if_else(moderator2=="m_av_year_assessment","Years of assessment",
+                             if_else(moderator2=="m_education_years","Years of formal education",
+                                     if_else(moderator2=="m_mean_farm_size_ha","Land size (ha)",
+                                             if_else(moderator2=="n_predictors_num","Number of predictors",
+                                                     moderator2)))))%>%
+  mutate(moderator1= if_else(moderator1=="m_av_year_assessment","Years of assessment",
+                             if_else(moderator1=="m_education_years","Years of formal education",
+                                     if_else(moderator1=="m_mean_farm_size_ha","Land size (ha)",
+                                             if_else(moderator1=="n_predictors_num","Number of predictors",
+                                                     moderator1)))))
 
-multi_collinearity<- rbind(cramer_results_df,
-                           kruskal_results_df,
-                           pearson_result_df)%>%
-  select(pcc_factor_unit,moderator1,moderator2, correlation)%>%
-  pivot_wider(names_from = moderator2, values_from = correlation)%>%
-  group_by(pcc_factor_unit,moderator1)%>%
-  summarize(across(c("UN_Regions", "UN_sub_region", "m_intervention_recla2", "model_method",
-                     "m_random_sample", "m_exact_variance_value",
-                     "m_mean_farm_size_ha","n_samples_num","n_predictors_num"),
-                   ~ paste(na.omit(.), collapse = ", ")))
+sort(unique(correlation_results_df$moderator2))
+ggplot(correlation_results_df, aes(moderator1, moderator2, fill= correlation)) + 
+  geom_tile(color = "black")+
+  geom_text(aes(label = round(correlation, 2)), size=3) + 
+  scale_fill_gradient(high="blue", low = "white") +
+  facet_wrap2(vars(pcc_factor_unit),nrow = 8, ncol = 4 )+
+  theme(axis.text.x =element_text(color="black",size=10,
+                                  family = "sans",angle=90,
+                                  vjust = 0.5, hjust = 1),
+        axis.text.y =element_text(color="black",size=10,
+                                  family = "sans"),
+        axis.title= element_blank())+
+  labs(fill = "Pearson\ncorrelation")
+
 
 write.csv(multi_collinearity, "C:/Users/Andrea/Documents/Bioversity/Cost_benefits_analysis/Meta-analysis/Results_2022.06.21/kruskal_test.csv")
 
