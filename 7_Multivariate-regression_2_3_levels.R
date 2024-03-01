@@ -95,7 +95,7 @@ filter(pcc_factor_unit== "Soil fertility (1= moderate)")
 filter(pcc_factor_unit== "Household is native (1= yes)")
 "Access to non-farm income (1= yes)"
 "Age (continuous)"
-"Education (continuous)" 
+"Education (continuous)"  
 "Gender (1= male)" 
 filter(pcc_factor_unit== "Access to credit (1= yes)")
 filter(pcc_factor_unit== "Access to training (1= yes)")
