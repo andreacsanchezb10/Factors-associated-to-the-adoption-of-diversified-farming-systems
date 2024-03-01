@@ -64,7 +64,7 @@ sort(unique(pcc_data_2level$pcc_factor_unit))
 
 #Heterogeneity
 heterogeneity_2level<- read.csv("results/heterogeneity_2levels.csv",header = TRUE, sep = ",")%>%
-  filter(I2>=75)
+  filter(I2>=75) 
 
 sort(unique(heterogeneity_2level$pcc_factor_unit))
 
