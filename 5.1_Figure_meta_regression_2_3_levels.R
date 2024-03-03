@@ -32,7 +32,7 @@ pcc_data<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
 meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",")%>%
   select(factor_sub_class,pcc_factor_unit, moderator, moderator_class,estimate,ci.lb, ci.ub,tval, pval, f_test, significance,significance2)%>%
   arrange(factor_sub_class, moderator, 
-          moderator_class, desc(estimate))
+          moderator_class)
 
 sort(unique(meta_regression$moderator))
 
@@ -89,7 +89,7 @@ m_methods<- meta_regression%>%
            moderator=="m_av_year_assessment")%>%
   select("factor_sub_class", "pcc_factor_unit","moderator","f_test")%>%
   distinct(., .keep_all = TRUE)%>%
-  pivot_wider(., names_from = moderator, values_from = f_test)
+  tidyr::pivot_wider(., names_from = moderator, values_from = f_test)
 
 write.xlsx(m_methods, "results/meta_regression_methods.xlsx", 
            sheetName = "m_methods", col.names = TRUE, row.names = TRUE, append = FALSE)
@@ -231,7 +231,7 @@ RtLabels <- data.frame(systems_path = systems_icons)%>%
 
 ## BASIC PLOT
 #Themes
-significance <- c("#F7ADA4","#BAF2C4","#FF4933","#256C32")
+significance <- c("#F7ADA4","#FF4933","#D3D3D3","#BAF2C4","#256C32")
         
 
 #####  
@@ -241,13 +241,8 @@ plot1<-ggplot(overall,aes(x=factor(ID),y=estimate))+ labs(x=NULL, y=NULL)
   
 plot1
 plot1 + 
-  apply(hl_rows, 1,
-        function(x) annotation_custom(
-          hl_rect(x["col"], alpha = 0.3, height = x["height"], width = x["width"]),
-          as.numeric(x["ID"]) - 0.5,
-          as.numeric(x["ID"]) + 0.5, -20, 20
-        )) +
-  geom_hline(aes(yintercept=0),linetype=1, size=0.5)+
+  geom_hline(aes(yintercept=-3.75),linetype=1, size=0.5)+
+  geom_hline(aes(yintercept=0),linetype=1, size=1)+
   geom_hline(aes(yintercept=1),linetype=2, size=0.5, colour="grey50")+
   geom_hline(aes(yintercept=2),linetype=2, size=0.5, colour="grey50")+
   geom_hline(aes(yintercept=3),linetype=2, size=0.5, colour="grey50")+
@@ -257,12 +252,12 @@ plot1 +
   geom_hline(aes(yintercept=7),linetype=2, size=0.5, colour="grey50")+
   geom_hline(aes(yintercept=8),linetype=2, size=0.5, colour="grey50")+
   geom_hline(aes(yintercept=9),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=10),linetype=1, size=0.5)+
+  geom_hline(aes(yintercept=10),linetype=1, size=1)+
   geom_hline(aes(yintercept=11),linetype=2, size=0.5, colour="grey50")+
   geom_hline(aes(yintercept=12),linetype=2, size=0.5, colour="grey50")+
   geom_hline(aes(yintercept=13),linetype=2, size=0.5, colour="grey50")+
   geom_hline(aes(yintercept=14),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=15),linetype=1, size=0.5)+
+  geom_hline(aes(yintercept=15),linetype=1, size=1)+
   
   #Determinant factors
   geom_text(data=overall,aes(x=factor(ID),y=-0.05,label=pcc_factor_unit),
@@ -273,7 +268,7 @@ plot1 +
   #Moderator: Diversified farming systems
   geom_point(data=m_dfs,aes(x=factor(ID),y=y,fill=factor(significance2),
                             colour= factor(significance2)),
-             size=11,shape=21,show.legend = F)+
+             size=11.8,shape=21,show.legend = F)+
   geom_image(data=m_dfs, aes(x=factor(ID),y=y,image=icon_n_articles), 
              colour="black",size=.02)+
   scale_colour_manual(values = significance)+
@@ -281,7 +276,7 @@ plot1 +
   #Moderator: region
   geom_point(data=m_region,aes(x=factor(ID),y=y,fill=factor(significance2),
                             colour= factor(significance2)),
-             size=11,shape=21,show.legend = F)+
+             size=11.8,shape=21,show.legend = F)+
   geom_image(data=m_region, aes(x=factor(ID),y=y,image=icon_n_articles), 
              colour="black",size=.02)+
   #scale_size_binned_area(breaks = c(2,5,10,25, 50,75,100),max_size = 10)+
@@ -307,15 +302,42 @@ plot1 +
     axis.ticks.length = unit(0.0001, "mm"),
     panel.background = element_rect(fill = "transparent"), 
     panel.border = element_blank()) +
-  geom_vline(xintercept = 30.5, linetype = 1, size = 0.5)+
-  geom_vline(xintercept = 28.5, linetype = 1, size = 0.5)+
-  geom_vline(xintercept = 23.5, linetype = 1, size = 0.5)+
-  geom_vline(xintercept = 17.5, linetype = 1, size = 0.5)+
-  geom_vline(xintercept = 13.5, linetype = 1, size = 0.5)+
-  geom_vline(xintercept = 7.5, linetype = 1, size = 0.5)
- 
+  geom_vline(xintercept = 31.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 30.5, linetype = 1, size = 1)+
+  geom_vline(xintercept = 29.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 28.5, linetype = 1, size = 1)+
+  geom_vline(xintercept = 27.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 26.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 25.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 24.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 23.5, linetype = 1, size = 1)+
+  geom_vline(xintercept = 22.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 21.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 20.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 19.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 18.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 17.5, linetype = 1, size = 1)+
+  geom_vline(xintercept = 16.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 15.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 14.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 13.5, linetype = 1, size = 1)+
+  geom_vline(xintercept = 12.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 11.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 10.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 9.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 8.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 7.5, linetype = 1, size = 1)+
+  geom_vline(xintercept = 6.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 5.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 4.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 3.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 2.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 1.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 0.5, linetype = 1, size = 1)
   
-#18x23
+  
+  
+#19x23
   
 
   
