@@ -131,7 +131,7 @@ meta_regression_3levels_df <- bind_rows(results_list)%>%
   mutate(significance2 = if_else(estimate >0 & pval<=0.05,"positive5",
                                  if_else(estimate <0 & pval <=0.05, "negative5",
                                          if_else(estimate >0 &pval>0.05&pval<=0.1, "positive1",
-                                                 if_else(estimate >0 &pval>0.05&pval<=0.1, "negative1",
+                                                 if_else(estimate <0 &pval>0.05&pval<=0.1, "negative1",
                                                          "non_significant")))))%>%
   mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p = ",QMp, sep = ""))%>%
   select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
@@ -246,7 +246,7 @@ meta_regression_2levels_df <- bind_rows(results_list2)%>%
   mutate(significance2 = if_else(estimate >0 & pval<=0.05,"positive5",
                                  if_else(estimate <0 & pval <=0.05, "negative5",
                                          if_else(estimate >0 &pval>0.05&pval<=0.1, "positive1",
-                                                 if_else(estimate >0 &pval>0.05&pval<=0.1, "negative1",
+                                                 if_else(estimate <0 &pval>0.05&pval<=0.1, "negative1",
                                                          "non_significant")))))%>%
   mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p = ",QMp, sep = ""))%>%
   select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
