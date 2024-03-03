@@ -122,15 +122,17 @@ for (moderator in moderators) {
 meta_regression_3levels_df <- bind_rows(results_list)%>%
   #rename("beta"="estimate")%>%
   left_join(pcc_factor_class_unit, by= "pcc_factor_unit")%>%
-  mutate(significance2 = if_else(estimate >0 & pval <=0.05, "significant_positive",
-                                 if_else(estimate <0 & pval <=0.05, "significant_negative",
-                                         if_else(estimate>0&pval>0.05,"no_significant_positive",
-                                                 "no_significant_negative"))))%>%
   mutate(moderator=str_replace_all(moderator, "~", ""))%>%
   mutate(moderator=str_replace_all(moderator, "-1", ""))%>%
   mutate(moderator_class= str_replace(.$moderator_class, paste0(".*", .$moderator), ""))%>%
   mutate_at(c("estimate","se","tval","pval" ,"ci.lb","ci.ub",
               "QM", "QMp"),  ~round(.,4))%>%
+  mutate(pval= round(pval,2))%>%
+  mutate(significance2 = if_else(estimate >0 & pval<=0.05,"positive5",
+                                 if_else(estimate <0 & pval <=0.05, "negative5",
+                                         if_else(estimate >0 &pval>0.05&pval<=0.1, "positive1",
+                                                 if_else(estimate >0 &pval>0.05&pval<=0.1, "negative1",
+                                                         "non_significant")))))%>%
   mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p = ",QMp, sep = ""))%>%
   select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
          "estimate","ci.lb","ci.ub","tval","df","pval" ,
@@ -235,19 +237,21 @@ for (moderator in moderators) {
 meta_regression_2levels_df <- bind_rows(results_list2)%>%
   #rename("beta"="estimate")%>%
   left_join(pcc_factor_class_unit, by= "pcc_factor_unit")%>%
-  mutate(significance2 = if_else(estimate >0 & pval <=0.05, "significant_positive",
-                                 if_else(estimate <0 & pval <=0.05, "significant_negative",
-                                         if_else(estimate>0&pval>0.05,"no_significant_positive",
-                                                 "no_significant_negative"))))%>%
   mutate(moderator=str_replace_all(moderator, "~", ""))%>%
   mutate(moderator=str_replace_all(moderator, "-1", ""))%>%
   mutate(moderator_class= str_replace(.$moderator_class, paste0(".*", .$moderator), ""))%>%
-    mutate_at(c("estimate","se","tval","pval" ,"ci.lb","ci.ub",
-                "QM", "QMp"),  ~round(.,4))%>%
-    mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p = ",QMp, sep = ""))%>%
-    select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
-           "estimate","ci.lb","ci.ub","tval","df","pval" ,
-           "f_test","significance2")
+  mutate_at(c("estimate","se","tval","pval" ,"ci.lb","ci.ub",
+              "QM", "QMp"),  ~round(.,4))%>%
+  mutate(pval= round(pval,2))%>%
+  mutate(significance2 = if_else(estimate >0 & pval<=0.05,"positive5",
+                                 if_else(estimate <0 & pval <=0.05, "negative5",
+                                         if_else(estimate >0 &pval>0.05&pval<=0.1, "positive1",
+                                                 if_else(estimate >0 &pval>0.05&pval<=0.1, "negative1",
+                                                         "non_significant")))))%>%
+  mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p = ",QMp, sep = ""))%>%
+  select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
+         "estimate","ci.lb","ci.ub","tval","df","pval" ,
+         "f_test","significance2")
 
 sort(unique(meta_regression_2levels_df$moderator))
 sort(unique(meta_regression_2levels_df$pcc_factor_unit))
@@ -258,5 +262,6 @@ meta_regression_df<- rbind(meta_regression_3levels_df,meta_regression_2levels_df
   mutate(significance = if_else(pval <=0.001,paste(pval,"***",sep=""),
                                 if_else(pval>0.001&pval<0.01,paste(pval,"**",sep=""),
                                         if_else(pval>0.01&pval<=0.05,paste(pval,"*",sep=""),
-                                                paste(pval)))))
+                                                if_else(pval>0.05&pval<=0.1,paste(pval,"\u2020",sep=""),
+                                                paste(pval))))))
 write.csv(meta_regression_df,"results/meta_regression.csv", row.names=FALSE)
