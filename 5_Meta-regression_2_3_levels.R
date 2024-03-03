@@ -35,7 +35,7 @@ sort(unique(heterogeneity_3level$pcc_factor_unit))
 
 x<- rma.mv(yi, vi, 
        random = list(~ 1 | ES_ID, ~ 1 | article_id),
-       mods = ~m_intervention_recla2-1,
+       mods = ~m_region-1,
        data = pcc_data_3level,
        subset=pcc_factor_unit=="Awareness of practice (1= yes)",
        method = "REML", 
