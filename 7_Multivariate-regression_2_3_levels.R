@@ -123,41 +123,39 @@ for (unit in unique(m_pcc_data_2level$pcc_factor_unit)) {
   subset_data <- as.data.frame(subset_data)
   
   # Check if there are enough data points for modeling
-  if (nrow(subset_data) > length(coef(subset_data)) + 2) {
+  #if (nrow(subset_data) > length(coef(subset_data)) + 2) {
     # Include specific variables based on pcc_factor_unit
     if (unit == "Livestock owned (1= yes)") {
       variables_to_include <- c( "m_intervention_recla2","m_intervention_system_components","m_sub_region", "m_mean_farm_size_ha")} 
     else if ( unit =="Non-farm income (continuous)")  {
       variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_mean_farm_size_ha")} 
-    #else if ( unit =="Plot size (continuous)") {
-     #variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_mean_farm_size_ha","m_education_years") }
-     #else if ( unit =="Extension frequency (number of contacts)"||
-      #      unit == "Soil fertility (1= high)"||
-     #        unit ==  "Soil fertility (1= moderate)") {
-    #  variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_education_years", "m_mean_farm_size_ha")
-    #}
-    #else if ( unit =="Relatives and friends (number)" ||
-      #       unit =="Marital status (1= married)" ) {
-     #variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region","m_sub_region","m_education_years", "m_mean_farm_size_ha") }
-     #else if (unit == "Education (continuous)" ||
-      #       unit ==  "Access to credit (1= yes)") {
-     # variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region","m_education_years", "m_mean_farm_size_ha") }
-    #else if (unit =="Access to irrigation (1= yes)")
-             #unit ==  "Access to training (1= yes)")
-             #unit =="Farming experience (continuous)")
-             #unit =="Household is native (1= yes)"||
-             #unit== "Use of DFS (1= yes)") {
-    #{variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region", "m_mean_farm_size_ha")}
+    else if ( unit =="Plot size (continuous)") {
+     variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_mean_farm_size_ha","m_education_years") }
+     else if ( unit =="Extension frequency (number of contacts)"||
+            unit == "Soil fertility (1= high)"||
+             unit ==  "Soil fertility (1= moderate)") {
+      variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_education_years", "m_mean_farm_size_ha")
+    }
+    else if ( unit =="Relatives and friends (number)" ||
+             unit =="Marital status (1= married)" ) {
+     variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region","m_sub_region","m_education_years", "m_mean_farm_size_ha") }
+     else if (unit == "Education (continuous)" ||
+             unit ==  "Access to credit (1= yes)") {
+      variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region","m_education_years", "m_mean_farm_size_ha") }
+    else if (unit =="Access to irrigation (1= yes)"||
+             unit ==  "Access to training (1= yes)"||
+             unit =="Farming experience (continuous)"||
+             unit =="Household is native (1= yes)"||
+             unit== "Use of DFS (1= yes)") {
+    variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region", "m_mean_farm_size_ha")}
     
-    # else if (unit =="Access to non-farm income (1= yes)"|
-    #        unit =="Age (continuous)"||
-    #        unit =="Communicate with other farmers (1= yes)"||
-    #        unit == "Gender (1= male)"||
-    #        unit == "Land tenure (1= owned)"||
-    #        unit ==  "Receive support for conservation (1= yes)" 
-             #        ) {
-    # variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region", "m_mean_farm_size_ha")
-    #}
+     else if (unit =="Access to non-farm income (1= yes)"|
+            unit =="Age (continuous)"||
+            unit =="Communicate with other farmers (1= yes)"||
+            unit == "Gender (1= male)"||
+            unit == "Land tenure (1= owned)"||
+            unit ==  "Receive support for conservation (1= yes)") {
+     variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region", "m_mean_farm_size_ha")}
     
     # Check if there are enough variables for modeling
     if (length(variables_to_include) > 0) {
@@ -176,9 +174,7 @@ for (unit in unique(m_pcc_data_2level$pcc_factor_unit)) {
       cat("Not enough data points for modeling in unit:", unit, "\n")
     }
     
-  } else {
-    cat("Not enough data points for modeling in unit:", unit, "\n")
-  }
+   
 }
 
 importance_df_2levels <- do.call(rbind, lapply(importance_list2, as.data.frame))%>%
@@ -274,7 +270,7 @@ for (unit in unique(pcc_data_3level$pcc_factor_unit)) {
 }
 
 # Convert the list to a data.frame
-importance_factors_3levels <- do.call(rbind, lapply(importance_list, as.data.frame))%>%
+importance_factors_3levels <- do.call(rbind, lapply(importance_list3, as.data.frame))%>%
   rownames_to_column(., var = "pcc_factor_unit")%>%
   mutate(pcc_factor_unit= sub("\\..*", "", pcc_factor_unit))
   rbind(awareness_i)%>%
