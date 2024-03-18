@@ -9,12 +9,6 @@ library(purrr)
 library(glmulti)
 library(dplyr)
 
-
- c("m_intervention_recla2","m_intervention_system_components", "m_region","m_education_years", "m_mean_farm_size_ha")
-                          
-("m_sub_region","m_av_year_assessment","n_predictors_num","m_sampling_unit","m_random_sample","m_type_data","m_model_method")
-
-
 eval(metafor:::.MuMIn)
 
 #Function to calculate the importance of moderators
@@ -72,7 +66,7 @@ sort(unique(heterogeneity_2level$pcc_factor_unit))
 #factors with sampling variance > 25% 
 m_pcc_data_2level<- pcc_data_2level%>%
   dplyr::left_join(heterogeneity_2level, by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
-  filter(!is.na(I2))%>%
+  filter(!is.na(I2))
   filter(
     pcc_factor_unit== "Livestock owned (1= yes)"|
     pcc_factor_unit== "Non-farm income (continuous)")
@@ -179,10 +173,9 @@ for (unit in unique(m_pcc_data_2level$pcc_factor_unit)) {
 
 importance_df_2levels <- do.call(rbind, lapply(importance_list2, as.data.frame))%>%
   rownames_to_column(., var = "pcc_factor_unit")%>%
-  mutate(pcc_factor_unit= sub("\\..*", "", pcc_factor_unit))
-  rbind(extension_frequency_i, livestock_owned_i,relatives_i,soil_fertility_h_i)%>%
+  mutate(pcc_factor_unit= sub("\\..*", "", pcc_factor_unit))%>%
   group_by(pcc_factor_unit) %>%
-  arrange(desc(Importance)) %>%
+  arrange(desc(Importance)) 
   slice_head(n = 5) %>%
   ungroup()
 sort(unique(importance_df_2levels$pcc_factor_unit))
@@ -272,10 +265,9 @@ for (unit in unique(pcc_data_3level$pcc_factor_unit)) {
 # Convert the list to a data.frame
 importance_factors_3levels <- do.call(rbind, lapply(importance_list3, as.data.frame))%>%
   rownames_to_column(., var = "pcc_factor_unit")%>%
-  mutate(pcc_factor_unit= sub("\\..*", "", pcc_factor_unit))
-  rbind(awareness_i)%>%
+  mutate(pcc_factor_unit= sub("\\..*", "", pcc_factor_unit))%>%
   group_by(pcc_factor_unit) %>%
-  arrange(desc(Importance)) %>%
+  arrange(desc(Importance)) 
   slice_head(n = 5) %>%
   ungroup()
 
@@ -288,36 +280,21 @@ sort(unique(importance_factors_3levels$pcc_factor_unit))
 importance_factors<-
   #importance_df_2levels%>%
   rbind(importance_df_2levels,importance_factors_3levels)%>%
-  mutate(colours= if_else(Importance>=0.5,"important","not_important"))
+  mutate(colours= if_else(Importance>=0.5,"important","not_important"))%>%
+  rename("moderator"="Term")
 
 
-importance_factors$Term[importance_factors$Term %in% c("m_education_years")] <- "Education (years)"
-importance_factors$Term[importance_factors$Term %in% c("m_intervention_recla2")] <- "Diversification practice"
-importance_factors$Term[importance_factors$Term %in% c("m_intervention_system_components")] <- "Diversification practice\ncomponents"
-importance_factors$Term[importance_factors$Term %in% c("m_region")] <- "Region"
-importance_factors$Term[importance_factors$Term %in% c("m_sub_region")] <- "Sub-region"
-
-importance_factors$Term[importance_factors$Term %in% c("m_mean_farm_size_ha")] <- "Farm size (ha)"
-importance_factors$Term[importance_factors$Term %in% c("m_education_years:m_intervention_recla2")] <- "Years of educationn (years):\nDiversification practice"
-
-importance_factors$Term[importance_factors$Term %in% c("m_education_years:m_intervention_system_components")] <- "Education (years):\nDiversification practice\ncomponents"
-importance_factors$Term[importance_factors$Term %in% c("m_intervention_recla2:m_intervention_system_components")] <- "Diversification practice:\nDiversification practice\ncomponents"
-importance_factors$Term[importance_factors$Term %in% c("m_intervention_system_components:m_region")] <- "Diversification systems\ncomponents:Regions"
-importance_factors$Term[importance_factors$Term %in% c("m_intervention_recla2:m_region")] <- "Diversification practice:\nRegion"
-importance_factors$Term[importance_factors$Term %in% c("m_mean_farm_size_ha:m_region")] <- "Farm size (ha):Region"
-importance_factors$Term[importance_factors$Term %in% c("m_intervention_system_components:m_mean_farm_size_ha")] <- "Diversification practice\ncomponents:Farm size (ha)"
-
-unique_category1 <- unique(importance_factors$pcc_factor_unit)
-unique_category2 <- unique(importance_factors$Term)
+#unique_category1 <- unique(importance_factors$pcc_factor_unit)
+#unique_category2 <- unique(importance_factors$Term)
 
 # Create all possible combinations
-all_combinations <- expand.grid(
-  pcc_factor_unit = unique_category1,
-  Term = unique_category2
-)
+#all_combinations <- expand.grid(
+ # pcc_factor_unit = unique_category1,
+  #Term = unique_category2
+#)
 
 # Merge with the original data frame to get missing combinations
-result <- merge(all_combinations, importance_factors, all.x = TRUE)
+#result <- merge(all_combinations, importance_factors, all.x = TRUE)
 
 
 sort(unique(importance_factors$Term))
@@ -327,25 +304,68 @@ library(reshape2)
 library(ggh4x)
 library(readxl)
 
-factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
-                                      sheet = "FACTORS_metric_assessed")
+factors_metric_assessed <- read_excel(
+  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
+  sheet = "FACTORS_metric_assessed")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
                                                  " (",factors_metric_assessed$pcc_unit,")", sep="")
+
 pcc_factor_class_unit<-factors_metric_assessed%>%
-  dplyr::select(factor_sub_class,pcc_factor_unit)
+  select(factor_sub_class,pcc_factor_unit)
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
-importance_factors<-result%>%
-  dplyr::mutate(colours= if_else(Importance>=0.5,"Important",
-                                 "Not important"))%>%
-  dplyr::mutate(colours= if_else(is.na(Importance),"NA",colours))%>%
-  left_join(pcc_factor_class_unit,by="pcc_factor_unit")%>%
-  mutate(factor_sub_class = toupper(factor_sub_class))%>%
-  mutate(factor_sub_class=if_else(factor_sub_class=="ACCESSIBILITY","ACCES\nSIBILITY",
-                                  if_else(factor_sub_class=="BIOPHYSICAL","BIO\nPHYSICAL",
-                                          factor_sub_class)))
+pcc_data<-read.csv("data/pcc_data.csv",header = TRUE, sep = ",")
+names(pcc_data)
 
+#Meta-regression results
+meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",")%>%
+  dplyr::select(moderator, factor_sub_class, pcc_factor_unit,f_test)%>%
+  filter(moderator=="m_education_years"|
+           moderator=="m_intervention_recla2"|
+           moderator=="m_intervention_system_components"|
+           moderator=="m_mean_farm_size_ha"|
+           moderator=="m_region"|
+           moderator=="m_sub_region")
+ 
+meta_regression <- meta_regression[!duplicated(meta_regression), ]
+
+sort(unique(meta_regression$moderator))
+
+importance_factors<-importance_factors%>%
+  #dplyr::mutate(colours= if_else(Importance>=0.5,"Important",
+   #                              "Not important"))%>%
+  #dplyr::mutate(colours= if_else(is.na(Importance),"NA",colours))%>%
+  left_join(pcc_factor_class_unit,by="pcc_factor_unit")%>%
+  full_join(meta_regression,by=c("pcc_factor_unit","moderator","factor_sub_class"))%>%
+  mutate(Importance=round(Importance, 2))
+
+
+
+importance_factors$moderator[importance_factors$moderator %in% c("m_education_years")] <- "Education (years)"
+importance_factors$moderator[importance_factors$moderator %in% c("m_intervention_recla2")] <- "Diversification practice"
+importance_factors$moderator[importance_factors$moderator %in% c("m_intervention_system_components")] <- "Diversification practice components"
+importance_factors$moderator[importance_factors$moderator %in% c("m_region")] <- "Region"
+importance_factors$moderator[importance_factors$moderator %in% c("m_sub_region")] <- "Sub-region"
+importance_factors$moderator[importance_factors$moderator %in% c("m_education_years")] <- "Education (years)"
+
+importance_factors$moderator[importance_factors$moderator %in% c("m_mean_farm_size_ha")] <- "Farm size (ha)"
+importance_factors$moderator[importance_factors$moderator %in% c("m_education_years:m_intervention_recla2")] <- "Years of educationn (years):Diversification practice"
+
+importance_factors$moderator[importance_factors$moderator %in% c("m_education_years:m_intervention_system_components")] <- "Education (years): Diversification practice components"
+importance_factors$moderator[importance_factors$moderator %in% c("m_intervention_recla2:m_intervention_system_components")] <- "Diversification practice: Diversification practice components"
+importance_factors$moderator[importance_factors$moderator %in% c("m_intervention_system_components:m_region")] <- "Diversification practice components:Regions"
+importance_factors$moderator[importance_factors$moderator %in% c("m_intervention_recla2:m_region")] <- "Diversification practice: Region"
+importance_factors$moderator[importance_factors$moderator %in% c("m_mean_farm_size_ha:m_region")] <- "Farm size (ha):Region"
+importance_factors$moderator[importance_factors$moderator %in% c("m_intervention_system_components:m_mean_farm_size_ha")] <- "Diversification practice components:Farm size (ha)"
+importance_factors$moderator[importance_factors$moderator %in% c("m_intervention_recla2:m_mean_farm_size_ha")] <- "Diversification practice:Farm size (ha)"
+importance_factors$moderator[importance_factors$moderator %in% c("m_region:m_sub_region")] <- "Region:Sub-region"
+importance_factors$moderator[importance_factors$moderator %in% c("m_education_years:m_mean_farm_size_ha")] <- "Education (years): Farm size (ha)"
+
+importance_factors<-importance_factors%>%
+  select("factor_sub_class","pcc_factor_unit","moderator","f_test","Importance","colours")
+  
+write.csv(importance_factors,"results/importance_moderators.csv", row.names=FALSE)
 
 
 sort(unique(importance_factors$Importance))
