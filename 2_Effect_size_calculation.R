@@ -70,7 +70,8 @@ library(metafor)
 #Formulas: 
 #rp <- tval/sqrt(tval^2+df)
 #v <- (1-rp^2)/df # Variance Stanley & Doucouliagos (2012)
-pcc_data<-escalc(measure="PCOR", ti= t_value_pcc, ni=n_samples_num, mi=n_predictors_num, data=data)
+pcc_data<-escalc(measure="PCOR", ti= t_value_pcc, ni=n_samples_num, mi=n_predictors_num, data=data,
+                 var.names=c("pcc.yi","pcc.vi"))
 
 
 sort(unique(pcc_data$pcc_factor_unit))
@@ -82,4 +83,17 @@ check_meta<- pcc_data%>%
 sort(unique(pcc_data$pcc_unit))
 
 write.csv(pcc_data, "data/pcc_data.csv", row.names=FALSE)
+
+######### Fisher Z transformation ---------------------------------
+#https://osf.io/ubqfg
+### Compute Fisher's z transformed partial correlations
+#fis <- 0.5*log((1+rp)/(1-rp))
+#v_fis <- rep(1/(n-3-1), k) # Variance Fisher's z transformed partial correlations
+
+fis_data<- pcc_data%>%
+  mutate(fis.yi= 0.5*log((1+pcc.yi)/(1-pcc.yi)))%>%
+  mutate(fis.vi= rep(1/(n_samples_num-3-(n_predictors_num-1))))
+
+
+write.csv(pcc_data, "data/fis_data.csv", row.names=FALSE)
 
