@@ -94,6 +94,6 @@ fis_data<- pcc_data%>%
   mutate(fis.yi= 0.5*log((1+pcc.yi)/(1-pcc.yi)))%>%
   mutate(fis.vi= rep(1/(n_samples_num-3-(n_predictors_num-1))))
 
-
-write.csv(pcc_data, "data/fis_data.csv", row.names=FALSE)
+names(fis_data)
+write.csv(fis_data, "data/fis_data.csv", row.names=FALSE)
 
