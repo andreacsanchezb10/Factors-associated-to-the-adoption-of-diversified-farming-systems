@@ -17,7 +17,7 @@ pcc_factor_class_unit<-factors_metric_assessed%>%
   select(factor_sub_class,pcc_factor_unit)
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
-pcc_data<-read.csv("data/pcc_data.csv",header = TRUE, sep = ",")
+pcc_data<-read.csv("data/fis_data.csv",header = TRUE, sep = ",")
 names(pcc_data)
 
 comparison<-read.csv("results/comparison_best_model.csv",header = TRUE, sep = ",")
@@ -36,7 +36,7 @@ write.csv(pcc_data_3level,"data/pcc_data_3levels.csv", row.names=FALSE)
 
 #### Estimate the overall effect by fitting an intercept-only model ----
 overall_3level <- function(data, metric_unit) {
-  overal_model <- rma.mv(yi, vi, 
+  overal_model <- rma.mv(fis.yi, fis.vi, 
                          random = list(~ 1 | ES_ID, ~ 1 | article_id),
                          data = data,
                          method = "REML", 
@@ -143,7 +143,7 @@ write.csv(pcc_data_2level,"data/pcc_data_2levels.csv", row.names=FALSE)
 
 #### Estimate the overall effect by fitting an intercept-only model ----
 overall_2level <- function(data, metric_unit) {
-  overal_model <- rma(yi, vi, 
+  overal_model <- rma(fis.yi, fis.vi, 
                          data = data,
                          method = "REML", 
                          test = "knha",

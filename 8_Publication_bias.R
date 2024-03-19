@@ -20,13 +20,13 @@ pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 ################################  PUBLICATION BIAS ###################################################################3----------------------------------------------------#
 #### THREE-LEVEL DATA
 pcc_data_3level<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")%>%
-  mutate(pcc_se = sqrt(vi),
+  mutate(pcc_se = sqrt(fis.vi),
          pcc_precision = (1/pcc_se))
 names(pcc_data_3level)
 
 #### TWO-LEVEL DATA
 pcc_data_2level<- read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ",")%>%
-  mutate(pcc_se = sqrt(vi),
+  mutate(pcc_se = sqrt(fis.vi),
          pcc_precision = (1/pcc_se))
 
 ##--------- EGGER REGRESSION TEST
@@ -50,7 +50,7 @@ factor_metric_units <- unique(pcc_data_3level$pcc_factor_unit)
 # List to store the results of all models
 egger_3level_list <- lapply(factor_metric_units, function(unit) {
   # Fit the model
-  egger_model <- rma.mv(yi, vi, 
+  egger_model <- rma.mv(fis.yi, fis.vi, 
                         random = list(~ 1 | ES_ID, ~ 1 | article_id),
                         data = pcc_data_3level,
                         mod = ~pcc_precision,
@@ -95,7 +95,7 @@ print(missed_units)
 
 # Fit the model only for selected levels of pcc_factor_unit
 egger_2level_list <- lapply(selected_units, function(unit) {
-  egger_model2 <- rma.uni(yi, vi, 
+  egger_model2 <- rma.uni(fis.yi, fis.vi, 
                           data = pcc_data_2level %>% filter(pcc_factor_unit == unit),
                           mod = ~pcc_precision,
                           method = "REML", 
@@ -130,13 +130,57 @@ write.csv(egger_test,"results/egger_test.csv", row.names=FALSE)
 
 ##########################################################################################
 ##--------- Funnel plot
+#https://rpubs.com/dylanjcraven/metaforr
 ### THREE-LEVEL DATA
+funnel_3level <- function(factor_units, pcc_data) {
+  num_cols <- 6
+  num_rows <- ceiling(length(factor_units) / num_cols)
+  par(mfrow = c(num_rows, num_cols), mar = c(3, 3, 1, 1))  # Adjust margins
+  
+  for (i in 1:length(factor_units)) {
+    factor_unit <- factor_units[i]
+    factor_unit_subset <- subset(pcc_data, pcc_factor_unit == factor_unit)
+    
+    funnel.model <- rma.mv(pcc.yi, pcc.vi,
+                             random = list(~ 1 | ES_ID, ~ 1 | article_id),
+                             test = "t",
+                             dfs="contain",
+                             data = factor_unit_subset,
+                             method = "REML")
+    summary(funnel.model, digits = 3)
+    
+    plot_index <- i %% num_cols
+    if (plot_index == 0) plot_index <- num_cols
+    
+    funnel.plots <- funnel(funnel.model, yaxis="seinv", refline=0 ,ylab="Precision (1/SE)" ,
+                           xlab="Residual value", main = paste(factor_unit),level= c(95))
+  }
+  
+  par(mfrow = c(1, 1))  # Reset to default plotting layout
+}
+
+# Example usage for multiple factor units
+factor_metric_units3 <- unique(pcc_data_3level$pcc_factor_unit)
+
+funnel_3level(factor_metric_units3, pcc_data_3level)
+
+
+
+
+
+
+
+
+
+
+
+
 pcc_data_3level%>%
   select(ES_ID)
 sort(unique(pcc_data_3level$pcc_factor_unit))
 
 rstandard_3level <- function(factor_unit, data) {
-  funnel <- rma.mv(yi, vi, 
+  funnel <- rma.mv(pcc.yi, pcc.vi, 
                    random = list(~ 1 | ES_ID, ~ 1 | article_id),
                    data = data,
                    method = "REML", 
@@ -145,7 +189,7 @@ rstandard_3level <- function(factor_unit, data) {
                    subset = (pcc_factor_unit == factor_unit))
   
   # Extracting standardized residuals
-  rstandard_stats <- rstandard.rma.mv(funnel,type= "rstandard")
+  rstandard_stats <- rstandard(funnel,type= "rstandard")
   
   # Extracting variance-covariance matrix
   vcov_matrix <- funnel$V
@@ -175,10 +219,15 @@ rstandard_3level_results <- do.call(rbind, rstandard_3level_list)
 
 sort(unique(rstandard_3level_results$pcc_factor_unit))
 
-ggplot(pcc_data_3level, aes(x=pcc_precision, y=rstandard_3level_results$resid.resid,  colour = factor(pcc_factor_unit)))+
-  geom_hline(yintercept = 0, colour = "grey20")+
+ggplot(pcc_data_3level, aes(y=pcc_precision, x=rstandard_3level_results$resid.resid,  colour = factor(pcc_factor_unit)))+
+  geom_vline(xintercept = 0, colour = "grey20")+
   geom_point(shape=1, size=3, color="black")+
-  facet_wrap(~ pcc_factor_unit, ncol = 3)
+  facet_wrap(~ pcc_factor_unit, ncol = 3, scales="free")
+
+
+
+
+
 
 
 ### TWO-LEVEL DATA
