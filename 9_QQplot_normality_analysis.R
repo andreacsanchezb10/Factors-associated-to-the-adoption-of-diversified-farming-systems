@@ -36,7 +36,7 @@ qqplot_3level <- function(factor_units, pcc_data) {
     overall_model3 <- rma.mv(yi, vi,
                             random = list(~ 1 | ES_ID, ~ 1 | article_id),
                             test = "t",
-                            dfs="contain"
+                            dfs="contain",
                             data = factor_unit_subset,
                             method = "REML")
     summary(overall_model3, digits = 3)
