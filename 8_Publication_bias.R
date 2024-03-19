@@ -5,7 +5,7 @@ library(purrr)
 library(readxl)
 library(stringr)
 
-################# META-REGRESSION ----------------
+################# FACTOR CLASS ----------------
 factors_metric_assessed <- read_excel(
   "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
   sheet = "FACTORS_metric_assessed")
