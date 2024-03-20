@@ -36,7 +36,7 @@ write.csv(pcc_data_3level,"data/pcc_data_3levels.csv", row.names=FALSE)
 
 #### Estimate the overall effect by fitting an intercept-only model ----
 overall_3level <- function(data, metric_unit) {
-  overal_model <- rma.mv(fis.yi, fis.vi, 
+  overal_model <- rma.mv(pcc.yi, pcc.vi, 
                          random = list(~ 1 | ES_ID, ~ 1 | article_id),
                          data = data,
                          method = "REML", 
@@ -63,7 +63,7 @@ for (unit in factor_metric_units) {
 # Combine overall results into one table
 overall_3level_results_list<- do.call(rbind, overall_3level_list)
 
-overall_3level_results <- as.data.frame(overall_3level_results_list)%>%
+pccoverall_3level_results <- as.data.frame(overall_3level_results_list)%>%
   rownames_to_column(., var = "pcc_factor_unit")%>%
   mutate(ci.lb = sapply(ci.lb, as.numeric),
          ci.ub = sapply(ci.ub, as.numeric))%>%
