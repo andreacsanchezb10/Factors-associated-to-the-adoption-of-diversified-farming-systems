@@ -20,7 +20,7 @@ pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 ################################  QQ PLOT: RESIDUALS ###################################################################3----------------------------------------------------#
 #### THREE-LEVEL DATA
 pcc_data_3level<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")%>%
-  mutate(pcc_se = sqrt(vi),
+  mutate(pcc_se = sqrt(fis.vi),
          pcc_precision = (1/pcc_se))
 names(pcc_data_3level)
 
@@ -33,7 +33,7 @@ qqplot_3level <- function(factor_units, pcc_data) {
     factor_unit <- factor_units[i]
     factor_unit_subset <- subset(pcc_data, pcc_factor_unit == factor_unit)
     
-    overall_model3 <- rma.mv(yi, vi,
+    overall_model3 <- rma.mv(fis.yi, fis.vi,
                             random = list(~ 1 | ES_ID, ~ 1 | article_id),
                             test = "t",
                             dfs="contain",
@@ -60,7 +60,7 @@ qqplot_3level(factor_metric_units3, pcc_data_3level)
 
 #### TWO-LEVEL DATA
 pcc_data_2level<- read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ",")%>%
-  mutate(pcc_se = sqrt(vi),
+  mutate(pcc_se = sqrt(fis.vi),
          pcc_precision = (1/pcc_se))
 
 qqplot_2level <- function(factor_units, pcc_data) {
@@ -72,7 +72,7 @@ qqplot_2level <- function(factor_units, pcc_data) {
     factor_unit <- factor_units[i]
     factor_unit_subset <- subset(pcc_data, pcc_factor_unit == factor_unit)
     
-    overall_model2 <- rma.uni(yi, vi,
+    overall_model2 <- rma.uni(fis.yi, fis.vi,
                              test = "knha",
                              data = factor_unit_subset,
                              method = "REML")

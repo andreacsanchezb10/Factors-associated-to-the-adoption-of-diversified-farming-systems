@@ -63,7 +63,7 @@ for (unit in factor_metric_units) {
 # Combine overall results into one table
 overall_3level_results_list<- do.call(rbind, overall_3level_list)
 
-pccoverall_3level_results <- as.data.frame(overall_3level_results_list)%>%
+overall_3level_results <- as.data.frame(overall_3level_results_list)%>%
   rownames_to_column(., var = "pcc_factor_unit")%>%
   mutate(ci.lb = sapply(ci.lb, as.numeric),
          ci.ub = sapply(ci.ub, as.numeric))%>%
@@ -71,8 +71,10 @@ pccoverall_3level_results <- as.data.frame(overall_3level_results_list)%>%
   mutate(significance = if_else(pval <=0.001,"***",
                                 if_else(pval>0.001&pval<0.01,"**",
                                         if_else(pval>0.01&pval<=0.05,"*",
-                                                if_else(pval>0.05&pval<=0.1,"","")))))%>%
-  select(pcc_factor_unit, beta,se, ci.lb, ci.ub,zval,pval,significance,sigma2,QEdf,
+                                                if_else(pval>0.05&pval>=0.1,"","",
+                                                        "")))))%>%
+  mutate(significance1= if_else(pval>0.05&pval<=0.1,"\u0A76",""))%>%
+  select(pcc_factor_unit, beta,se, ci.lb, ci.ub,zval,pval,significance,significance1,sigma2,QEdf,
          QE,QEp,s.nlevels)%>%
   mutate(sigma2=substr(sigma2, 3, nchar(sigma2) - 1))%>%
   mutate(sigma2.1= as.numeric(str_extract(sigma2, ".*(?=\\,)")))%>%
@@ -81,15 +83,14 @@ pccoverall_3level_results <- as.data.frame(overall_3level_results_list)%>%
   mutate(n_ES= as.numeric(str_extract(s.nlevels, ".*(?=\\,)")))%>%
   mutate(n_articles= as.numeric(str_extract(s.nlevels, "(?<=, ).*")))%>%
   mutate_at(2:7, as.numeric)%>%
-  mutate_at(8,as.character)%>%
-  mutate_at(9:12, as.numeric)%>%
+  mutate_at(8:9,as.character)%>%
+  mutate_at(10:12, as.numeric)%>%
   mutate_at(14:17, as.numeric)%>%
-  mutate(across(where(is.numeric), ~ round(., 3)))%>%
+  #mutate(across(where(is.numeric), ~ round(., 3)))%>%
   mutate(QEp= as.character(QEp))%>%
   mutate(QEp= if_else(QEp==0, "<0.001", QEp))%>%
-  select(pcc_factor_unit, beta,se, ci.lb, ci.ub,zval,pval,significance,n_ES, n_articles,sigma2.1,sigma2.2,QEdf,QE,QEp)
+  select(pcc_factor_unit, beta,se, ci.lb, ci.ub,zval,pval,significance,significance1,n_ES, n_articles,sigma2.1,sigma2.2,QEdf,QE,QEp)
   
-
 write.csv(overall_3level_results,"results/overall_results_3levels.csv", row.names=FALSE)
 
 #### D istribution of the variance over the three levels of the meta-analytic model ----
@@ -143,7 +144,7 @@ write.csv(pcc_data_2level,"data/pcc_data_2levels.csv", row.names=FALSE)
 
 #### Estimate the overall effect by fitting an intercept-only model ----
 overall_2level <- function(data, metric_unit) {
-  overal_model <- rma(fis.yi, fis.vi, 
+  overal_model <- rma(pcc.yi, pcc.vi, 
                          data = data,
                          method = "REML", 
                          test = "knha",
@@ -176,17 +177,19 @@ overall_2level_results <- as.data.frame(overall_2level_results_list)%>%
   mutate(significance = if_else(pval <=0.001,"***",
                                 if_else(pval>0.001&pval<0.01,"**",
                                         if_else(pval>0.01&pval<=0.05,"*",
-                                                if_else(pval>0.05&pval<=0.1,"","")))))%>%
-  rename("n_ES"="k")%>%
+                                                if_else(pval>0.05&pval>=0.1,"","",
+                                                                "")))))%>%
+  mutate(significance1= if_else(pval>0.05&pval<=0.1,"\u0A76",""))%>%
+  dplyr::rename("n_ES"="k")%>%
   select(pcc_factor_unit, beta,ci.lb,ci.ub,
          zval, pval,
-         significance,n_ES,
+         significance,significance1,n_ES,
          tau2,se.tau2, I2, QE,dfs, QEp)%>%
   #separate(fit.stats, into = c("ll.ML", "dev.ML", "AIC.ML","BIC.ML","AICc.ML",
    #                            "ll.REML", "dev.REML", "AIC.REML","BIC.REML","AICc.REML"), sep = ", ")%>%
   mutate_at(2:6, as.numeric)%>%
-  mutate_at(7, as.character)%>%
-  mutate_at(8:14, as.numeric)
+  mutate_at(7:8, as.character)%>%
+  mutate_at(9:15, as.numeric)
   
 write.csv(overall_2level_results,"results/overall_results_2levels.csv", row.names=FALSE)
 

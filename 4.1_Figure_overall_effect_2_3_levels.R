@@ -22,6 +22,7 @@ pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 pcc_data<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
   rbind(read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ","))
 
+  names(pcc_data)
 #### Overall results
 #Two-level
 pcc_2level<-read.csv("data/pcc_data_2levels.csv",
@@ -32,11 +33,11 @@ pcc_2level<-read.csv("data/pcc_data_2levels.csv",
 overall_2level_results<-read.csv("results/overall_results_2levels.csv",
                                           header = TRUE, sep = ",")%>%
   left_join(pcc_2level,by="pcc_factor_unit")%>%
-  select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","n_ES","n_articles")
+  select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","significance1","n_ES","n_articles")
   
 #Three-level
 overall_3level_results<-read.csv("results/overall_results_3levels.csv",header = TRUE, sep = ",")%>%
-  select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","n_ES","n_articles")
+  select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","significance1","n_ES","n_articles")
 
 sort(unique(overall_3level_results$pcc_factor_unit))
 
@@ -86,9 +87,9 @@ theme_overall<-theme(
   axis.title.x = element_text(color="black",size=13, family = "sans", face = "bold",vjust = -1),
   axis.text.x =element_text(color="black",size=12, family = "sans"),
   plot.background = element_rect(fill = "White", color = "White"),
-  #panel.background = element_blank(),
-  panel.grid.major  = element_line(color = "grey95",size = 0.6),
-  axis.line.x = element_line(colour = "black"))
+  panel.background = element_blank(),
+  panel.grid.major  = element_line(color = "grey85",size = 0.6),
+  axis.line = element_line(colour = "black"))
 
 overall_effect<-
   ggplot(overal_results, 
@@ -98,8 +99,12 @@ overall_effect<-
   geom_errorbar(width=0,size=1, position = (position_dodge(width = -0.2)),
                 show.legend = F)+
   geom_point(size = 3, position = (position_dodge(width = -0.2)),show.legend = F)+
-  geom_text(aes(label=significance, x=ci.ub+0.01, group=pcc_factor_unit), vjust=0.7, hjust=-0.005,
-            color="black", size=7, family="sans",position = (position_dodge(width = -0.5)))+
+  geom_text(aes(label=significance, x=ci.ub+0.01, group=pcc_factor_unit), 
+            vjust=0.7, hjust=-0.005,size=7,
+            color="black",  family="sans",position = (position_dodge(width = -0.5)))+
+  geom_text(aes(label=significance1, x=ci.ub+0.01, group=pcc_factor_unit), 
+            vjust=0.45, hjust=-0.005,size=10,
+            color="black",  family="sans",position = (position_dodge(width = -0.5)))+
     geom_segment(aes(y = reorder(pcc_factor_unit, beta),
                      yend = reorder(pcc_factor_unit, beta),
                      x=beta, xend = ci.lb_l),show.legend = F,size=1,
@@ -132,7 +137,7 @@ overall_distribution<-
   geom_bar(stat="identity",show.legend = F)+
   geom_errorbar(aes(xmin=0, xmax=n_ES), 
                 width=0, position = position_dodge(width = 0.9),size = 0.7,
-                show.legend = T) +
+                show.legend = F) +
     geom_point(aes(x=n_ES, y=reorder(pcc_factor_unit, beta),
                    fill = factor(factor_sub_class)),
                shape=18,size=2, position = (position_dodge(width = -0.2)),
