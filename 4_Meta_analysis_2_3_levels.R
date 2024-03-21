@@ -17,7 +17,7 @@ pcc_factor_class_unit<-factors_metric_assessed%>%
   select(factor_sub_class,pcc_factor_unit)
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
-pcc_data<-read.csv("data/fis_data.csv",header = TRUE, sep = ",")
+pcc_data<-read.csv("data/pcc_data.csv",header = TRUE, sep = ",")
 names(pcc_data)
 
 comparison<-read.csv("results/comparison_best_model.csv",header = TRUE, sep = ",")
@@ -36,7 +36,7 @@ write.csv(pcc_data_3level,"data/pcc_data_3levels.csv", row.names=FALSE)
 
 #### Estimate the overall effect by fitting an intercept-only model ----
 overall_3level <- function(data, metric_unit) {
-  overal_model <- rma.mv(pcc.yi, pcc.vi, 
+  overal_model <- rma.mv(fis.yi, fis.vi, 
                          random = list(~ 1 | ES_ID, ~ 1 | article_id),
                          data = data,
                          method = "REML", 
@@ -89,8 +89,12 @@ overall_3level_results <- as.data.frame(overall_3level_results_list)%>%
   #mutate(across(where(is.numeric), ~ round(., 3)))%>%
   mutate(QEp= as.character(QEp))%>%
   mutate(QEp= if_else(QEp==0, "<0.001", QEp))%>%
-  select(pcc_factor_unit, beta,se, ci.lb, ci.ub,zval,pval,significance,significance1,n_ES, n_articles,sigma2.1,sigma2.2,QEdf,QE,QEp)
-  
+  select(pcc_factor_unit, beta,se, ci.lb, ci.ub,zval,pval,significance,significance1,n_ES, n_articles,sigma2.1,sigma2.2,QEdf,QE,QEp)%>%
+  mutate(pcc.beta= (exp(2*beta)-1)/(exp(2*beta)+1))%>%
+  mutate(pcc.ci.lb= (exp(2*ci.lb)-1)/(exp(2*ci.lb)+1))%>%
+  mutate(pcc.ci.ub= (exp(2*ci.ub)-1)/(exp(2*ci.ub)+1))
+
+
 write.csv(overall_3level_results,"results/overall_results_3levels.csv", row.names=FALSE)
 
 #### D istribution of the variance over the three levels of the meta-analytic model ----
@@ -103,7 +107,7 @@ estimated.sampling.variance.func <- function (v) {
 
 overall_3level_sampling_variance<- pcc_data_3level%>%
   group_by(pcc_factor_unit)%>%
-  mutate(sampling.variance= estimated.sampling.variance.func(vi))%>%
+  mutate(sampling.variance= estimated.sampling.variance.func(fis.vi))%>%
   group_by(pcc_factor_unit,sampling.variance)%>%
   tally()%>%
   left_join(overall_3level_results, by = ("pcc_factor_unit"))%>%
@@ -144,7 +148,7 @@ write.csv(pcc_data_2level,"data/pcc_data_2levels.csv", row.names=FALSE)
 
 #### Estimate the overall effect by fitting an intercept-only model ----
 overall_2level <- function(data, metric_unit) {
-  overal_model <- rma(pcc.yi, pcc.vi, 
+  overal_model <- rma(fis.yi, fis.vi, 
                          data = data,
                          method = "REML", 
                          test = "knha",
@@ -189,7 +193,10 @@ overall_2level_results <- as.data.frame(overall_2level_results_list)%>%
    #                            "ll.REML", "dev.REML", "AIC.REML","BIC.REML","AICc.REML"), sep = ", ")%>%
   mutate_at(2:6, as.numeric)%>%
   mutate_at(7:8, as.character)%>%
-  mutate_at(9:15, as.numeric)
+  mutate_at(9:15, as.numeric)%>%
+  mutate(pcc.beta= (exp(2*beta)-1)/(exp(2*beta)+1))%>%
+  mutate(pcc.ci.lb= (exp(2*ci.lb)-1)/(exp(2*ci.lb)+1))%>%
+  mutate(pcc.ci.ub= (exp(2*ci.ub)-1)/(exp(2*ci.ub)+1))
   
 write.csv(overall_2level_results,"results/overall_results_2levels.csv", row.names=FALSE)
 
