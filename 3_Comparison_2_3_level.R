@@ -24,7 +24,7 @@ names(pcc_data)
 #                     sigma2=c(0,NA), tdist=TRUE, data=dataset)
 
 modelnovar2_model <- function(data, metric_unit) {
-  overal_model <- rma.mv(yi, vi, 
+  overal_model <- rma.mv(fis.yi, fis.vi, 
                          random = list(~ 1 | ES_ID, ~ 1 | article_id),
                          data = data,
                          method = "REML", 
@@ -34,7 +34,7 @@ modelnovar2_model <- function(data, metric_unit) {
   
   summary(overal_model, digits = 3)
   
-  modelnovar2 <- rma.mv(yi, vi, 
+  modelnovar2 <- rma.mv(fis.yi, fis.vi, 
                         random = list(~ 1 | ES_ID, ~ 1 | article_id),
                         data = data,
                         method = "REML", 
@@ -93,7 +93,7 @@ modelnovar2_results<-as.data.frame(modelnovar2_results_list)%>%
 #                    sigma2=c(NA,0), tdist=TRUE, data=dataset)
 #anova(overall,modelnovar3)
 modelnovar3_model <- function(data, metric_unit) {
-    overal_model <- rma.mv(yi, vi, 
+    overal_model <- rma.mv(fis.yi, fis.vi, 
                            random = list(~ 1 | ES_ID, ~ 1 | article_id),
                            data = data,
                            method = "REML", 
@@ -103,7 +103,7 @@ modelnovar3_model <- function(data, metric_unit) {
     
     summary(overal_model, digits = 3)
     
-    modelnovar3 <- rma.mv(yi, vi, 
+    modelnovar3 <- rma.mv(fis.yi, fis.vi, 
                           random = list(~ 1 | ES_ID, ~ 1 | article_id),
                           data = data,
                           method = "REML", 
