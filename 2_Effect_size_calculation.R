@@ -82,7 +82,7 @@ check_meta<- pcc_data%>%
 
 sort(unique(pcc_data$pcc_unit))
 
-write.csv(pcc_data, "data/pcc_data.csv", row.names=FALSE)
+#write.csv(pcc_data, "data/pcc_data.csv", row.names=FALSE)
 
 ######### Fisher Z transformation ---------------------------------
 #https://osf.io/ubqfg
