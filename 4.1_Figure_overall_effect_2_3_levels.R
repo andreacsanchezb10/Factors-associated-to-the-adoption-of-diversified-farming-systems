@@ -33,26 +33,29 @@ pcc_2level<-read.csv("data/pcc_data_2levels.csv",
 overall_2level_results<-read.csv("results/overall_results_2levels.csv",
                                           header = TRUE, sep = ",")%>%
   left_join(pcc_2level,by="pcc_factor_unit")%>%
-  select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","significance1","n_ES","n_articles")
+  select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","significance1","n_ES","n_articles",
+         "pcc.beta","pcc.ci.lb","pcc.ci.ub")
   
 #Three-level
 overall_3level_results<-read.csv("results/overall_results_3levels.csv",header = TRUE, sep = ",")%>%
-  select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","significance1","n_ES","n_articles")
+  select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","significance1","n_ES","n_articles",
+         "pcc.beta","pcc.ci.lb","pcc.ci.ub")
+
 
 sort(unique(overall_3level_results$pcc_factor_unit))
 
 overal_results<- overall_3level_results%>%
   rbind(overall_2level_results)%>%
   left_join(pcc_factor_class_unit, by="pcc_factor_unit")%>%
-  arrange(factor_sub_class,desc(beta))%>%
+  arrange(factor_sub_class,desc(pcc.beta))%>%
   mutate_at(vars("n_ES","n_articles"),as.numeric)%>%
-  mutate(significance2 = if_else(beta >0 & pval <=0.05, "significant_positive",
-                                if_else(beta <0 & pval <=0.05, "significant_negative",
-                                        if_else(beta>0&pval>0.05,"no_significant_positive",
+  mutate(significance2 = if_else(pcc.beta >0 & pval <=0.05, "significant_positive",
+                                if_else(pcc.beta <0 & pval <=0.05, "significant_negative",
+                                        if_else(pcc.beta>0&pval>0.05,"no_significant_positive",
                                                 "no_significant_negative"))))%>%
-  mutate(ci.lb_l = ifelse(ci.lb < -0.25, -0.25, NA),
-         ci.ub_l = ifelse(ci.ub > 0.5, 0.5, NA))%>%
-  mutate(ci.ub_l1= ifelse(pcc_factor_unit=="Soil slope (1= steep)",
+  mutate(pcc.ci.lb_l = ifelse(pcc.ci.lb < -0.25, -0.25, NA),
+         pcc.ci.ub_l = ifelse(pcc.ci.ub > 0.51, 0.51, NA))%>%
+  mutate(pcc.ci.ub_l1= ifelse(pcc_factor_unit=="Soil slope (1= steep)",
                          ci.ub,NA))
 
 #overal_results$factor_sub_class <- toupper(overal_results$factor_sub_class)
@@ -93,34 +96,35 @@ theme_overall<-theme(
 
 overall_effect<-
   ggplot(overal_results, 
-         aes(y=reorder(pcc_factor_unit, beta),x=beta,xmin=ci.lb, xmax=ci.ub,
+         aes(y=reorder(pcc_factor_unit, beta),x=pcc.beta,
+             xmin=pcc.ci.lb, xmax=pcc.ci.ub,
              colour = factor(factor_sub_class) ))+
   geom_vline(xintercept=0, colour = "grey30",linetype = 1, linewidth=0.5)+
   geom_errorbar(width=0,size=1, position = (position_dodge(width = -0.2)),
                 show.legend = F)+
   geom_point(size = 3, position = (position_dodge(width = -0.2)),show.legend = F)+
-  geom_text(aes(label=significance, x=ci.ub+0.01, group=pcc_factor_unit), 
+  geom_text(aes(label=significance, x=pcc.ci.ub+0.01, group=pcc_factor_unit), 
             vjust=0.7, hjust=-0.005,size=7,
             color="black",  family="sans",position = (position_dodge(width = -0.5)))+
-  geom_text(aes(label=significance1, x=ci.ub+0.01, group=pcc_factor_unit), 
-            vjust=0.45, hjust=-0.005,size=10,
+  geom_text(aes(label=significance1, x=pcc.ci.ub+0.01, group=pcc_factor_unit), 
+            vjust=0.35, hjust=-0.005,size=10,
             color="black",  family="sans",position = (position_dodge(width = -0.5)))+
-    geom_segment(aes(y = reorder(pcc_factor_unit, beta),
-                     yend = reorder(pcc_factor_unit, beta),
-                     x=beta, xend = ci.lb_l),show.legend = F,size=1,
+    geom_segment(aes(y = reorder(pcc_factor_unit, pcc.beta),
+                     yend = reorder(pcc_factor_unit, pcc.beta),
+                     x=pcc.beta, xend = pcc.ci.lb_l),show.legend = F,size=1,
                  arrow = arrow(length = unit(0.2, "cm")))+
-    geom_segment(aes(y = reorder(pcc_factor_unit, beta),
+    geom_segment(aes(y = reorder(pcc_factor_unit, pcc.beta),
                      yend = reorder(pcc_factor_unit, beta),
-                     x=beta, xend = ci.ub_l),show.legend = F,size=1,
+                     x=pcc.beta, xend = pcc.ci.ub_l),show.legend = F,size=1,
                  arrow = arrow(length = unit(0.2, "cm")))+
-    geom_segment(aes(y = reorder(pcc_factor_unit, beta),
-                     yend = reorder(pcc_factor_unit, beta),
-                     x=beta, xend = ci.ub_l1),show.legend = F,size=1)+
+    geom_segment(aes(y = reorder(pcc_factor_unit, pcc.beta),
+                     yend = reorder(pcc_factor_unit, pcc.beta),
+                     x=pcc.beta, xend = pcc.ci.ub_l1),show.legend = F,size=1)+
   scale_colour_manual(values = fills)+
   facet_grid2(vars(factor_sub_class),
               scales= "free", space='free_y', switch = "y",
               strip = overall_strips)+
-  scale_x_continuous(limit = c(-0.25,0.5),expand = c(0.05, 0.05),
+  scale_x_continuous(limit = c(-0.27,0.51),expand = c(0.05, 0.05),
                      breaks = c(-0.5,-0.25,0,0.25,0.5),
                      labels = c("-0.5","-0.25","0","0.25","0.5"))+
   xlab("Partial Correlation Coefficient (PCC)")+
