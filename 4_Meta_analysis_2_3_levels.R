@@ -33,7 +33,6 @@ sort(unique(pcc_data_3level$pcc_factor_unit))
 
 write.csv(pcc_data_3level,"data/pcc_data_3levels.csv", row.names=FALSE)
 
-
 #### Estimate the overall effect by fitting an intercept-only model ----
 overall_3level <- function(data, metric_unit) {
   overal_model <- rma.mv(fis.yi, fis.vi, 
