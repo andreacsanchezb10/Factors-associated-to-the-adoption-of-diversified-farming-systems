@@ -84,15 +84,15 @@ overall_3level_results <- as.data.frame(overall_3level_results_list)%>%
   mutate(n_articles= as.numeric(str_extract(s.nlevels, "(?<=, ).*")))%>%
   mutate_at(2:7, as.numeric)%>%
   mutate_at(8:9,as.character)%>%
-  mutate_at(10:12, as.numeric)%>%
-  mutate_at(14:17, as.numeric)%>%
+  mutate_at(11:12, as.numeric)%>%
+  mutate_at(15:17, as.numeric)%>%
   #mutate(across(where(is.numeric), ~ round(., 3)))%>%
   mutate(QEp= as.character(QEp))%>%
   mutate(QEp= if_else(QEp==0, "<0.001", QEp))%>%
   select(pcc_factor_unit, beta,se, ci.lb, ci.ub,zval,pval,significance,significance1,n_ES, n_articles,sigma2.1,sigma2.2,QEdf,QE,QEp)%>%
-  mutate(pcc.beta= (exp(2*beta)-1)/(exp(2*beta)+1))%>%
-  mutate(pcc.ci.lb= (exp(2*ci.lb)-1)/(exp(2*ci.lb)+1))%>%
-  mutate(pcc.ci.ub= (exp(2*ci.ub)-1)/(exp(2*ci.ub)+1))
+  mutate(pcc.beta= transf.ztor(beta))%>%
+  mutate(pcc.ci.lb= transf.ztor(ci.lb))%>%
+  mutate(pcc.ci.ub= transf.ztor(ci.ub))
 
 
 write.csv(overall_3level_results,"results/overall_results_3levels.csv", row.names=FALSE)
@@ -194,9 +194,9 @@ overall_2level_results <- as.data.frame(overall_2level_results_list)%>%
   mutate_at(2:6, as.numeric)%>%
   mutate_at(7:8, as.character)%>%
   mutate_at(9:15, as.numeric)%>%
-  mutate(pcc.beta= (exp(2*beta)-1)/(exp(2*beta)+1))%>%
-  mutate(pcc.ci.lb= (exp(2*ci.lb)-1)/(exp(2*ci.lb)+1))%>%
-  mutate(pcc.ci.ub= (exp(2*ci.ub)-1)/(exp(2*ci.ub)+1))
+  mutate(pcc.beta= transf.ztor(beta))%>%
+  mutate(pcc.ci.lb= transf.ztor(ci.lb))%>%
+  mutate(pcc.ci.ub= transf.ztor(ci.ub))
   
 write.csv(overall_2level_results,"results/overall_results_2levels.csv", row.names=FALSE)
 
