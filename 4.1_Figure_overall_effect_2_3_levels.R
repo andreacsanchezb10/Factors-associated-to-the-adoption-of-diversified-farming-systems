@@ -59,9 +59,8 @@ overal_results<- overall_3level_results%>%
                               ifelse(pcc_factor_unit=="Attitude toward practice (positive continuous)",pcc.ci.ub,
                                      ifelse(pcc_factor_unit=="Perceived benefit (1= erosion reduction)",pcc.ci.ub,
                                             ifelse(pcc_factor_unit=="Plot size (continuous)",pcc.ci.ub,
-                                                   ifelse(pcc_factor_unit=="Access to irrigation (1= yes)",pcc.ci.ub,
-                                     NA))))))%>%
-  mutate(pcc.ci.lb_l1= ifelse(pcc_factor_unit=="Non-farm income (continuous)", pcc.ci.lb,NA))
+                                                   ifelse(pcc_factor_unit=="Access to irrigation (1= yes)",pcc.ci.ub,NA))))))%>%
+  mutate(pcc.ci.lb_l1= ifelse(pcc_factor_unit=="Plot size (continuous)", pcc.ci.lb,NA))
 
 #overal_results$factor_sub_class <- toupper(overal_results$factor_sub_class)
 
