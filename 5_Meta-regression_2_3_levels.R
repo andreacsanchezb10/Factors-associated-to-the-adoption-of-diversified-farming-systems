@@ -79,7 +79,7 @@ for (moderator in moderators) {
         if (length(unique(subset_data[[moderator]])) > 1) {
           tryCatch({
             # Run the analysis
-            extension <- rma.mv(yi, vi, 
+            extension <- rma.mv(fis.yi, fis.vi, 
                                 random = list(~ 1 | ES_ID, ~ 1 | article_id),
                                 mods = as.formula(paste("~", moderator, formula_suffix)),
                                 data = subset_data,
@@ -194,7 +194,7 @@ for (moderator in moderators) {
         if (length(unique(subset_data[[moderator]])) > 1) {
           tryCatch({
             # Run the analysis
-            extension <- rma.uni(yi, vi,
+            extension <- rma.uni(fis.yi, fis.vi,
                                  mods = as.formula(paste("~", moderator, formula_suffix)),
                                  data = subset_data,
                                  method = "REML", 
