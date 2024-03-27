@@ -173,8 +173,8 @@ comparison<- modelnovar2_results%>%
          "LRT.pval.within", "LRT.pval.between",
          "best_model")
 
-length((comparison$best_model[comparison$best_model %in% "Three-level"])) #14
-length((comparison$best_model[comparison$best_model %in% "Two-level"])) #56
+length((comparison$best_model[comparison$best_model %in% "Three-level"])) #13
+length((comparison$best_model[comparison$best_model %in% "Two-level"])) #57
 
 
 write.csv(comparison, "results/comparison_best_model.csv", row.names=FALSE)
