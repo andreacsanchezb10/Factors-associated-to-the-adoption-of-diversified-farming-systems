@@ -94,20 +94,6 @@ fis_data<- pcc_data%>%
   mutate(fis.yi= 0.5*log((1+pcc.yi)/(1-pcc.yi)))%>%
   mutate(fis.vi= (1/(n_samples_num-3-(n_predictors_num-1))))
 
-names(fis_data)
 write.csv(fis_data, "data/pcc_data.csv", row.names=FALSE)
 
-escalc(measure="PCOR", ti= 0.7071, ni=50, mi=n_predictors_num, data=data,
-       var.names=c("pcc.yi","pcc.vi"))
 
-0.5*log((1+0.7071)/(1-0.7071))
-  
-0.5*log((1+0.7071)/(1-0.7071))
-
-
-### Select condition
-(1-(0.3162^2))/(25-2-1)
-
-
-rep(1/(25-3-1), 50)
-(1/(25-3-1))
