@@ -159,24 +159,24 @@ legend_ES <- get_legend(legend_ES)
 grid.newpage()
 grid.draw(legend_ES)
 
-legend_articles<- ggplot()+
-  geom_point(data = centroids, 
-             aes(x= lon, y=lat, group=region,size =n_articles), 
-             shape=15,fill="black",color="grey20", alpha = 0.5)+
-  scale_size_continuous(limits=c(1,30),breaks = c(1,5,10,15,20,25,30),
-                      name = "Articles",range = c(3, 6))+
-    theme(legend.position = "bottom",
-          legend.direction = "horizontal", 
-          legend.text = element_text(size = 8),
-          legend.key.size = unit(0.5, "cm"),
-          legend.title=element_text(size=9,face="bold"))+
-    guides(size = guide_legend(title.position = "left",
-                               title.hjust = 0.5, label.position = "left", nrow = 1,
-                               label.hjust = 1))
-legend_articles
-legend_articles <- get_legend(legend_articles)
-grid.newpage()
-grid.draw(legend_articles)
+#legend_articles<- ggplot()+
+ # geom_point(data = centroids, 
+  #           aes(x= lon, y=lat, group=region,size =n_articles), 
+   #          shape=15,fill="black",color="grey20", alpha = 0.5)+
+  #scale_size_continuous(limits=c(1,30),breaks = c(1,5,10,15,20,25,30),
+   #                   name = "Articles",range = c(3, 6))+
+    #theme(legend.position = "bottom",
+     #     legend.direction = "horizontal", 
+      #    legend.text = element_text(size = 8),
+       #   legend.key.size = unit(0.5, "cm"),
+        #  legend.title=element_text(size=9,face="bold"))+
+    #guides(size = guide_legend(title.position = "left",
+     #                          title.hjust = 0.5, label.position = "left", nrow = 1,
+      #                         label.hjust = 1))
+#legend_articles
+#legend_articles <- get_legend(legend_articles)
+#grid.newpage()
+#grid.draw(legend_articles)
 
 
 ## Data distribution by m_region 
