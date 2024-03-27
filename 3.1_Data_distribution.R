@@ -121,7 +121,7 @@ world<-
              shape=16,fill="black",color="grey30", alpha = 0.5,show.legend = F)+
   
   scale_size_continuous(limits=c(1,361),breaks = c(5,10,25,50,75,100),
-                        name = "Number of effect sizes",range = c(3, 15))+
+                        name = "Number of effect sizes",range = c(3, 10))+
   theme(legend.position = "none",
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
@@ -132,11 +132,11 @@ world<-
         plot.margin = margin(0, 0, 0, 0, "cm"))+
   labs(x = NULL, y = NULL)
 world
-world<- world+
-  geom_point(data = centroids, 
-             aes(x= lon, y=lat, group=region,size =n_articles), 
-             shape=15,color="black", alpha = 0.5,show.legend = F)
-world
+#world<- world+
+ # geom_point(data = centroids, 
+  #           aes(x= lon, y=lat, group=region,size =n_articles), 
+   #          shape=15,color="black", alpha = 0.5,show.legend = F)
+#world
 
 legend_ES<- ggplot()+
   geom_point(data = centroids, 
@@ -144,7 +144,7 @@ legend_ES<- ggplot()+
              shape=16,fill="black",color="grey20", alpha = 0.5)+
   scale_size_continuous(limits=c(1,361),breaks = c(5,10,25,50,75,100),
                         labels=c("5","10","25","50","70","≥100"),
-                        name = "Effect sizes",range = c(3, 15))+
+                        name = "Effect sizes",range = c(3, 10))+
   theme(legend.position = "bottom",
         legend.direction = "horizontal", 
         legend.text = element_text(size = 8),
