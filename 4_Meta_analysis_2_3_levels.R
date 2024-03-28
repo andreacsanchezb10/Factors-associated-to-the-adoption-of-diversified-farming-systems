@@ -129,7 +129,7 @@ overall_3level_sampling_variance<-overall_3level_sampling_variance%>%
   select("factor_sub_class","pcc_factor_unit", "sigma2.1", "sigma2.2",
          "heterogeneity_test", "I2_1",
          "I2_2", "I2_3")%>%
-  mutate(across(where(is.numeric), ~ round(., 3)))
+  mutate(across(where(is.numeric), ~ round(., 5)))
 
 
 write.csv(overall_3level_sampling_variance,"results/heterogeneity_3levels.csv", row.names=FALSE)
