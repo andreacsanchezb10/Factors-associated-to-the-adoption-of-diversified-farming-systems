@@ -11,7 +11,7 @@
 #library(stringr)
 
 ####################### Data distribution ---------------------------------
-
+install.packages("litsearchr")
 ######### PCC data ---------------------------------
 library(pals)
 library(RColorBrewer)
