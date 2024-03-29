@@ -269,11 +269,23 @@ education_mean<-pcc_data%>%
   mutate(combined= paste(article_id, m_education_years, sep = "_"))%>%
   distinct(combined, .keep_all = TRUE)
 
-sort(unique(x$combined))
+mean(education_mean$m_education_years)
+sd(education_mean$m_education_years)
+length(education_mean$m_education_years)
 
-mean(x$m_education_years)
-sd(x$m_education_years)
-length(x$m_education_years)
+# Data distribution by years of education
+names(pcc_data)
+gender_mean<-pcc_data%>%
+  filter(!is.na(m_male_percent))%>%
+  mutate(combined= paste(article_id, m_male_percent, sep = "_"))%>%
+  distinct(combined, .keep_all = TRUE)%>%
+  select(article_id,m_male_percent)
+
+mean(gender_mean$m_male_percent)
+sd(gender_mean$m_male_percent)
+length(gender_mean$m_male_percent)
+
+
 
 # Data distribution by pcc_factor_unit and diversification practices
 dist_factor_system <-pcc_data%>%
