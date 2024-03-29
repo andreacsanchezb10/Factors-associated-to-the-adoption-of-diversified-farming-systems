@@ -69,7 +69,8 @@ adoption_clean<- adoption%>%
                 n_samples,n_samples_num, 
                 limitation_of_use_obs,m_exact_variance_value,m_random_sample, m_mean_farm_size_ha, 
                 sampling_unit,type_data, m_endogeneity_correction, m_exposure_correction,
-                m_intervention_system_components)%>%
+                m_intervention_system_components,x_sample_yes_dummy_binary3,x_sample_no_dummy_binary4)%>%
+  
   mutate(factor_metric= paste(x_metric_recla, " (", x_metric_unit_recla, ")", sep=""))
 
 
@@ -661,7 +662,32 @@ m_education_years<- data_adoption_binary%>%
   select(article_id, model_id, x_mean_value)%>%
   dplyr::rename("m_education_years"="x_mean_value")
 
-sort(unique(data_adoption_binary$m_exposure_correction))
+m_age_years<-data_adoption_binary%>%
+  filter(factor_metric == "hh age (years)")%>%
+  select(article_id, model_id, x_mean_value)%>%
+  dplyr::rename("m_age_years"="x_mean_value")
+
+m_age_years<-data_adoption_binary%>%
+  filter(factor_metric == "hh age (years)")%>%
+  select(article_id, model_id, x_mean_value)%>%
+  dplyr::rename("m_age_years"="x_mean_value")
+
+names(data_adoption_binary)
+
+m_gender_percent<-data_adoption_binary%>%
+  filter(x_metric_recla == "hh gender")%>%
+  filter(x_metric_unit_raw=="1= female, 0= male"|
+         x_metric_unit_raw=="1= male, 0= female"|
+         x_metric_unit_raw=="1= male, 0= otherwise"|
+         x_metric_unit_raw=="1= male, 2= female")%>%
+  mutate_at(vars(x_sample_yes_dummy_binary3,x_sample_no_dummy_binary4),as.numeric)%>%
+  mutate(m_male_percent= if_else(x_metric_unit_raw=="1= female, 0= male"|
+                                 x_metric_unit_raw=="1= male, 2= female",
+                               (100-x_sample_yes_dummy_binary3), x_sample_yes_dummy_binary3))%>%
+  select(article_id, model_id,m_male_percent)
+    
+sort(unique(m_gender_percent$x_metric_unit_raw))
+
 pcc_data_adoption_binary<- data_adoption_binary%>%
   filter(!is.na(t_value_pcc))%>%
   filter(limitation_of_use_obs== "no limitation")%>%
@@ -669,6 +695,10 @@ pcc_data_adoption_binary<- data_adoption_binary%>%
   dplyr::rename("m_model_method"= "model_method")%>%
   left_join(m_education_years, by=c("article_id"="article_id",
                                     "model_id"="model_id"))%>%
+  left_join(m_age_years, by=c("article_id"="article_id",
+                                    "model_id"="model_id"))%>%
+  left_join(m_gender_percent,by=c("article_id"="article_id",
+                                  "model_id"="model_id"))%>%
   
   mutate(m_sampling_unit= if_else(sampling_unit== "farmers" |
                                     sampling_unit=="household"|
@@ -678,7 +708,7 @@ pcc_data_adoption_binary<- data_adoption_binary%>%
                                     sampling_unit=="managers", 1, 0))%>%
   mutate(m_type_data = if_else(type_data== "primary and secondary data" |
                                  type_data==  "primary data",1,0  ))%>%
-  mutate_at(vars("year_assessment_start", "year_assessment_end", "m_education_years"), as.numeric)%>%
+  mutate_at(vars("year_assessment_start", "year_assessment_end", "m_education_years","m_age_years"), as.numeric)%>%
   mutate(m_av_year_assessment= if_else(is.na(year_assessment_end),
                                        year_assessment_start,
                                        ((year_assessment_start+year_assessment_end)/2)))%>%
