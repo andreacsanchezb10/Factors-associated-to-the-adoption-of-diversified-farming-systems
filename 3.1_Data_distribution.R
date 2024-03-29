@@ -259,8 +259,23 @@ ggplot(skey_region_factor_systems,
 
 ######################################################
 ####### Data distribution plots ####################
+# Data distribution by gender
+# Data distribution by household size
 
-# Data distribution by pcc_factor_unit and m_intervention_recla2
+# Data distribution by years of education
+names(pcc_data)
+education_mean<-pcc_data%>%
+  filter(!is.na(m_education_years))%>%
+  mutate(combined= paste(article_id, m_education_years, sep = "_"))%>%
+  distinct(combined, .keep_all = TRUE)
+
+sort(unique(x$combined))
+
+mean(x$m_education_years)
+sd(x$m_education_years)
+length(x$m_education_years)
+
+# Data distribution by pcc_factor_unit and diversification practices
 dist_factor_system <-pcc_data%>%
   group_by(factor_sub_class.x,pcc_factor_unit,m_intervention_recla2 )%>%
   dplyr::summarise(n_articles = n_distinct(article_id),
