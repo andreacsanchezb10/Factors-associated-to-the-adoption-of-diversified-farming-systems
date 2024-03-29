@@ -77,13 +77,6 @@ pcc_data<-escalc(measure="PCOR", ti= t_value_pcc, ni=n_samples_num, mi=n_predict
 sort(unique(pcc_data$pcc_factor_unit))
 names(pcc_data)
 
-check_meta<- pcc_data%>%
-  filter(is.na(yi))
-
-sort(unique(pcc_data$pcc_unit))
-
-#write.csv(pcc_data, "data/pcc_data.csv", row.names=FALSE)
-
 ######### Fisher Z transformation ---------------------------------
 #https://osf.io/ubqfg
 ### Compute Fisher's z transformed partial correlations
