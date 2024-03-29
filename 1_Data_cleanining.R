@@ -681,8 +681,7 @@ m_gender_percent<-data_adoption_binary%>%
          x_metric_unit_raw=="1= male, 0= otherwise"|
          x_metric_unit_raw=="1= male, 2= female")%>%
   mutate_at(vars(x_sample_yes_dummy_binary3,x_sample_no_dummy_binary4),as.numeric)%>%
-  mutate(m_male_percent= if_else(x_metric_unit_raw=="1= female, 0= male"|
-                                 x_metric_unit_raw=="1= male, 2= female",
+  mutate(m_male_percent= if_else(x_metric_unit_raw=="1= female, 0= male",
                                (100-x_sample_yes_dummy_binary3), x_sample_yes_dummy_binary3))%>%
   select(article_id, model_id,m_male_percent)
     
