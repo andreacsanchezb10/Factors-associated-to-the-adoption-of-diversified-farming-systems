@@ -22,7 +22,7 @@ data<-read.csv("data/binary_adoption_clean_data.csv",header = TRUE, sep = ",")%>
          "n_samples"   ,                    "n_samples_num"      ,             "limitation_of_use_obs",           "factor_metric"    ,              
           "coefficient_variance_type" ,      "model_coefficient_variance_type", "t_value_pcc"  ,                  
           "b_logOR"        ,                 "se_logOR"    ,"m_region"    ,"m_sub_region",                 
-          "Developed_Developing" ,         
+          "Developed_Developing" , "m_age_years",                      "m_male_percent",        
          "m_intervention_recla2" ,"m_exact_variance_value","m_random_sample", "m_mean_farm_size_ha",
         "m_sampling_unit", "m_type_data", "m_av_year_assessment", "m_education_years", "m_intervention_system_components",
         "m_endogeneity_correction","m_exposure_correction")%>%
