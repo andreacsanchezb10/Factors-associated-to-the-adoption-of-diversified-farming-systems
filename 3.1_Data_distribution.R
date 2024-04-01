@@ -50,17 +50,15 @@ pcc_data$factor_sub_class.x <- toupper(pcc_data$factor_sub_class.x)
 pcc_data$m_region <- toupper(pcc_data$m_region)
 
 pcc_data<-pcc_data%>%
-  mutate(factor_sub_class.x=as.factor(factor_sub_class.x))%>%
-  mutate(factor_sub_class.x=if_else(factor_sub_class.x=="ACCESSIBILITY","ACCES-\nSIBILITY",
-         if_else(factor_sub_class.x=="FINANCIAL CAPITAL","FINANCIAL\nCAPITAL",
-                                    if_else(factor_sub_class.x=="TECHNICAL INFORMATION","TECHNICAL\nINFORMATION",
-                                            if_else(factor_sub_class.x=="PHYSICAL CAPITAL","PHYSICAL\nCAPITAL",
-                                                    if_else(factor_sub_class.x=="SOCIAL CAPITAL","SOCIAL\nCAPITAL",
-                                                            factor_sub_class.x))))))%>%
   mutate(m_region= if_else(m_region=="LATIN AMERICA AND THE CARIBBEAN","LATIN\nAMERICA",
                            if_else(m_region=="NORTHERN AMERICA","NORTH\nAMERICA",m_region)))%>%
   mutate(m_sub_region= if_else(is.na(m_sub_region),"Multi sub-regions",m_sub_region))%>%
-  mutate(m_sub_region = str_replace_all(m_sub_region, " ", "\n"))
+  mutate(m_sub_region = str_replace_all(m_sub_region, " ", "\n"))%>%
+  filter(factor_sub_class.x!="NO SE")%>%
+  mutate(factor_sub_class.x= if_else(factor_sub_class.x=="FINANCIAL RISK-MECHANISMS"|
+                                       factor_sub_class.x=="KNOWLEDGE ACCESS"|
+                                       factor_sub_class.x=="LAND TENURE","POLITICAL AND INSTITUTIONAL CONTEXT",
+                                     factor_sub_class.x))
   
   
 length(unique(pcc_data$article_id)) #153
@@ -81,7 +79,8 @@ sort(unique(pcc_data$country))
 country<- pcc_data%>%
   group_by(country,m_region)%>%
   dplyr::summarise(n_articles = n_distinct(article_id),
-                   n_ES = n_distinct(ES_ID))
+                   n_ES = n_distinct(ES_ID))%>%
+  mutate(n_ES_articles= paste(n_ES, "|", n_articles, sep=""))
 
 sort(unique(country$m_region))
 
@@ -118,10 +117,13 @@ world<-
   
   geom_point(data = centroids, 
              aes(x= lon, y=lat, group=region,size =n_ES), 
-             shape=16,fill="black",color="grey30", alpha = 0.5,show.legend = F)+
+             shape=16,fill="black",color="grey10", alpha = 0.5,show.legend = T)+
   
-  scale_size_continuous(limits=c(1,361),breaks = c(5,10,25,50,75,100),
+  scale_size_continuous(limits=c(1,361),breaks = c(5,10,25,50,75,100,200,300),
                         name = "Number of effect sizes",range = c(3, 10))+
+  #geom_text(data = centroids, 
+   #         aes(x= lon, y=lat, group=region,label=n_articles), size =3,
+      #      color="black",show.legend = F)+
   theme(legend.position = "none",
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
@@ -132,6 +134,7 @@ world<-
         plot.margin = margin(0, 0, 0, 0, "cm"))+
   labs(x = NULL, y = NULL)
 world
+
 #world<- world+
  # geom_point(data = centroids, 
   #           aes(x= lon, y=lat, group=region,size =n_articles), 
@@ -142,8 +145,8 @@ legend_ES<- ggplot()+
   geom_point(data = centroids, 
              aes(x= lon, y=lat, group=region,size =n_ES), 
              shape=16,fill="black",color="grey20", alpha = 0.5)+
-  scale_size_continuous(limits=c(1,361),breaks = c(5,10,25,50,75,100),
-                        labels=c("5","10","25","50","70","≥100"),
+  scale_size_continuous(limits=c(1,361),breaks = c(5,10,25,50,75,100,200,300),
+                        labels=c("5","10","25","50","70","≥100","200","≥300"),
                         name = "Effect sizes",range = c(3, 10))+
   theme(legend.position = "bottom",
         legend.direction = "horizontal", 
@@ -187,6 +190,8 @@ region<- pcc_data%>%
   mutate(percentage_ES= (n_ES/sum(n_ES))*100,
          percentage_articles= (n_articles/sum(n_articles))*100)
 
+sum(region$percentage_ES)
+
 ## Data distribution by pcc_factor_sub_class 
 factor_sub_class<- pcc_data%>%
   group_by(factor_sub_class.x)%>%
@@ -210,20 +215,26 @@ sum(systems$n_ES)
 library(ggsankey)
 
 region_factor_systems<- pcc_data%>%
-  select(ES_ID,m_region, factor_sub_class.y,m_intervention_recla2)
+  select(ES_ID,m_region, factor_sub_class.x,m_intervention_recla2)
 
 skey_region_factor_systems <- region_factor_systems %>%
-  make_long(m_region, factor_sub_class.y,m_intervention_recla2)              
+  make_long(m_region, factor_sub_class.x,m_intervention_recla2)              
+
+sort(unique(skey_region_factor_systems$node))
+sort(unique(skey_region_factor_systems$next_node))
 
 
-fills <- c("Africa"="#843272","Asia"="#b5562f",
-           "Northern America"="#5b6454",
-           "Latin America and the Caribbean"= "#f1ba41",
-           "Europe"="#743341",
-           "Accessibility"= "#f0c602","Biophysical"= "#ea6044","Financial capital"="#d896ff",
-           "Physical capital"=  "#87CEEB","Personal behaviour"="#6a57b8",
-           "Social capital"="#496491","Socio-demographic"="#92c46d",
-           "Technical information"= "#297d7d",
+fills <- c("AFRICA"="#843272","ASIA"="#b5562f",
+           "NORTH\nAMERICA"="#5b6454",
+           "LATIN\nAMERICA"= "#f1ba41",
+           "EUROPE"="#743341",
+           "BIOPHYSICAL CAPITAL"= "#f0c602","FARMERS BEHAVIOUR"= "#ea6044",
+           "FINANCIAL CAPITAL"="#d896ff",
+           "NATURAL CAPITAL"=  "#87CEEB","HUMAN CAPITAL"="#6a57b8",
+           "PHYSICAL CAPITAL"="#496491",
+           "POLITICAL AND INSTITUTIONAL CONTEXT"="#92c46d",
+
+           "SOCIAL CAPITAL"= "#297d7d",
            "Agroforestry"=  "#545454", "Crop rotation"="#545454", 
            "Cover crops"="#545454", "Fallow"="#545454",
            "Intercropping"="#545454",
