@@ -525,72 +525,73 @@ write.csv(factors_articles_count, "data/binary_adoption_factors_articles1.csv", 
 #### Filter only the factors I'm going to study ------
 data_adoption_binary<-adoption_binary%>%
   filter(
-#  Accessibility 
-  x_metric_recla=="distance farm-house" |           
-  x_metric_recla=="distance to market"| 
-  x_metric_recla=="distance to input market"| 
-  x_metric_recla=="distance to output market"|
-    x_metric_recla=="distance to road"|
-
-# Biophysical
-  x_metric_recla=="precipitation"|
-  x_metric_recla=="soil depth"|  
-  x_metric_recla=="soil fertility"|
-  x_metric_recla=="soil slope"|
-  x_metric_recla=="temperature"|
-
-# Financial capital 
-  x_metric_recla=="access to credit"|  
-  x_metric_recla=="access to credit is a constraint"|  
+    # Biophysical context
+    x_metric_recla=="precipitation"|
+    x_metric_recla=="soil depth"|  
+    x_metric_recla=="soil fertility"|
+    x_metric_recla=="soil slope"|
+    x_metric_recla=="temperature"|
+    
+    # Farmers behaviour
+    x_metric_recla=="hh perceive benefits of SFP or DFS"| #to check
+    x_metric_recla=="hh risk attitude"| #to check
+    x_metric_recla=="limitations to implement SFT or DFS"| #to check
+    x_metric_recla=="production constraints"| #to check
+    #  x_metric_recla=="hh perception of precipitation"|
+      
+      # Financial capital
   x_metric_recla=="access to off-farm income"|
   x_metric_recla=="h income"|
   x_metric_recla=="h off-farm income"| 
   x_metric_recla=="h on-farm income"|
-
-#Personal behaviour	
-  x_metric_recla=="hh perceive benefits of SFP or DFS"| #to check
-  x_metric_recla=="hh risk attitude"| #to check
-  x_metric_recla=="limitations to implement SFT or DFS"| #to check
-  x_metric_recla=="production constraints"| #to check
-#  x_metric_recla=="hh perception of precipitation"|
-  x_metric_recla=="hh perception of extension services"|
-
-# Physical capital 
-  x_metric_recla=="access to irrigation"|
-x_metric_recla=="farm size"|
-x_metric_recla=="land tenure security"| 
-x_metric_recla=="livestock owned"|
-x_metric_recla=="number of agricultural plots"|
-x_metric_recla=="plot size"|
-x_metric_recla=="units of livestock"|
-
-# Social capital
-  x_metric_recla=="family members and friends living in and out the community"|
+  x_metric_recla=="livestock owned"|
+  x_metric_recla=="units of livestock"|
+  
+  # Human capital
+  x_metric_recla=="h size"|
+  x_metric_recla=="hh age"|
+  x_metric_recla=="hh education"|
+  x_metric_recla=="hh gender"|
+  x_metric_recla=="hh is native"|
+  x_metric_recla=="hh marital status"|
   x_metric_recla=="farm labour force (non-hired)"|
   x_metric_recla=="farm labour force (hired)"|
   x_metric_recla=="h adult members"|
+    x_metric_recla=="hh farming experience" |
+    
+  #Natural capital
+  x_metric_recla=="farm size"|
+  x_metric_recla=="number of agricultural plots"|
+  x_metric_recla=="plot size"|
+  
+  # Physical capital 
+  x_metric_recla=="access to irrigation"|
+  x_metric_recla=="distance farm-house" |           
+  x_metric_recla=="distance to market"| 
+  x_metric_recla=="distance to input market"| 
+  x_metric_recla=="distance to output market"|
+  x_metric_recla=="distance to road"|
+  
+  # Social capital
+  x_metric_recla=="family members and friends living in and out the community"|
   x_metric_recla=="hh association member" |
   x_metric_recla=="hh comunicate with other farmers"|
+  x_metric_recla=="hh perception of extension services"|
   
 
-# Socio-demographic 
-x_metric_recla=="h size"|
-x_metric_recla=="hh age"|
-x_metric_recla=="hh education"|
-x_metric_recla=="hh gender"|
-x_metric_recla=="hh is native"|
-x_metric_recla=="hh marital status"|
+# Political and institutional context
+  x_metric_recla=="land tenure security"| 
   
-# Technical information 
   x_metric_recla== "access to agricultural extension"|
   x_metric_recla=="access to agricultural information"|
   x_metric_recla=="access to agricultural training"|
   x_metric_recla=="agricultural extension frequency"|
   x_metric_recla== "awareness of SFP or DFS"| #to check
-  x_metric_recla=="hh farming experience" |
-
-x_metric_recla=="receive incentive for conservation"|
-x_metric_recla=="use of DFS" ) # to check
+  
+  x_metric_recla=="receive incentive for conservation"|
+  x_metric_recla=="access to credit"|  
+  x_metric_recla=="access to credit is a constraint"  )
+#x_metric_recla=="use of DFS" ) # to check
 
 
 sort(unique(data_adoption_binary$limitation_of_use_obs))
