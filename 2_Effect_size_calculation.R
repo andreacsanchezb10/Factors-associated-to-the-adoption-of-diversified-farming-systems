@@ -89,4 +89,5 @@ fis_data<- pcc_data%>%
 
 write.csv(fis_data, "data/pcc_data.csv", row.names=FALSE)
 
+sort(unique(fis_data$pcc_factor_unit))
 
