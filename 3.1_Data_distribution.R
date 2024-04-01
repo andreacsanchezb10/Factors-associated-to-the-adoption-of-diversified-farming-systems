@@ -263,7 +263,6 @@ ggplot(skey_region_factor_systems,
 # Data distribution by household size
 
 # Data distribution by years of education
-names(pcc_data)
 education_mean<-pcc_data%>%
   filter(!is.na(m_education_years))%>%
   mutate(combined= paste(article_id, m_education_years, sep = "_"))%>%
@@ -273,18 +272,27 @@ mean(education_mean$m_education_years)
 sd(education_mean$m_education_years)
 length(education_mean$m_education_years)
 
-# Data distribution by years of education
-names(pcc_data)
+# Data distribution by gender
 gender_mean<-pcc_data%>%
   filter(!is.na(m_male_percent))%>%
   mutate(combined= paste(article_id, m_male_percent, sep = "_"))%>%
-  distinct(combined, .keep_all = TRUE)%>%
+  distinct(combined, .keep_all = TRUE)
   select(article_id,m_male_percent)
 
 mean(gender_mean$m_male_percent)
 sd(gender_mean$m_male_percent)
 length(gender_mean$m_male_percent)
 
+# Data distribution by age
+age_mean<-pcc_data%>%
+  filter(!is.na(m_age_years))%>%
+  mutate(combined= paste(article_id, m_age_years, sep = "_"))%>%
+  distinct(combined, .keep_all = TRUE)%>%
+  select(article_id,m_age_years)
+
+mean(age_mean$m_age_years)
+sd(age_mean$m_age_years)
+length(age_mean$m_age_years)
 
 
 # Data distribution by pcc_factor_unit and diversification practices
@@ -667,7 +675,6 @@ ggsave("figures/distribution_factor_methods_binary.png", width = 37, height = 42
 #################################################################################################################################
 
 # Data distribution by pcc_factor_metric
-
 dist_pcc_factor_unit <-pcc_data%>%
   group_by( factor_sub_class,x_metric_recla, pcc_factor_unit)%>%
   summarise(n_articles = n_distinct(article_id),
