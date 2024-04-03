@@ -11,7 +11,7 @@
 #library(stringr)
 
 ####################### Data distribution ---------------------------------
-install.packages("litsearchr")
+#install.packages("litsearchr")
 ######### PCC data ---------------------------------
 library(pals)
 library(RColorBrewer)
@@ -119,8 +119,8 @@ world<-
              aes(x= lon, y=lat, group=region,size =n_ES), 
              shape=16,fill="black",color="grey10", alpha = 0.5,show.legend = T)+
   
-  scale_size_continuous(limits=c(1,361),breaks = c(5,10,25,50,75,100,200,300),
-                        name = "Number of effect sizes",range = c(3, 10))+
+  scale_size_continuous(limits=c(1,361),breaks = c(5,10,25,50,100,200),
+                        name = "Number of effect sizes",range = c(3, 13))+
   #geom_text(data = centroids, 
    #         aes(x= lon, y=lat, group=region,label=n_articles), size =3,
       #      color="black",show.legend = F)+
@@ -145,9 +145,9 @@ legend_ES<- ggplot()+
   geom_point(data = centroids, 
              aes(x= lon, y=lat, group=region,size =n_ES), 
              shape=16,fill="black",color="grey20", alpha = 0.5)+
-  scale_size_continuous(limits=c(1,361),breaks = c(5,10,25,50,75,100,200,300),
-                        labels=c("5","10","25","50","70","≥100","200","≥300"),
-                        name = "Effect sizes",range = c(3, 10))+
+  scale_size_continuous(limits=c(1,361),breaks = c(5,10,25,50,100,200),
+                        labels=c("5","10","25","50","100","≥200"),
+                        name = "Effect sizes",range = c(3, 13))+
   theme(legend.position = "bottom",
         legend.direction = "horizontal", 
         legend.text = element_text(size = 8),
