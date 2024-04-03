@@ -22,7 +22,6 @@ pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 pcc_data<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
   rbind(read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ","))
 
-  names(pcc_data)
 #### Overall results
 #Two-level
 pcc_2level<-read.csv("data/pcc_data_2levels.csv",
@@ -34,7 +33,11 @@ overall_2level_results<-read.csv("results/overall_results_2levels.csv",
                                           header = TRUE, sep = ",")%>%
   left_join(pcc_2level,by="pcc_factor_unit")%>%
   select("pcc_factor_unit", "beta","ci.lb","ci.ub","zval", "pval","significance","significance1","n_ES","n_articles",
-         "pcc.beta","pcc.ci.lb","pcc.ci.ub")
+         "pcc.beta","pcc.ci.lb","pcc.ci.ub")%>%
+  filter(pcc_factor_unit!="Attitude toward practice (positive continuous)" )
+
+sort(unique(overall_2level_results$pcc_factor_unit))
+
   
 #Three-level
 overall_3level_results<-read.csv("results/overall_results_3levels.csv",header = TRUE, sep = ",")%>%
@@ -56,21 +59,26 @@ overal_results<- overall_3level_results%>%
   mutate(pcc.ci.lb_l = ifelse(pcc.ci.lb < -0.27, -0.27, NA),
          pcc.ci.ub_l = ifelse(pcc.ci.ub > 0.75, 0.75, NA))%>%
   mutate(pcc.ci.ub_l1= ifelse(pcc_factor_unit=="Soil slope (1= steep)", pcc.ci.ub,
-                              ifelse(pcc_factor_unit=="Attitude toward practice (positive continuous)",pcc.ci.ub,
                                      ifelse(pcc_factor_unit=="Perceived benefit (1= erosion reduction)",pcc.ci.ub,
                                             ifelse(pcc_factor_unit=="Plot size (continuous)",pcc.ci.ub,
-                                                   ifelse(pcc_factor_unit=="Access to irrigation (1= yes)",pcc.ci.ub,NA))))))%>%
-  mutate(pcc.ci.lb_l1= ifelse(pcc_factor_unit=="Plot size (continuous)", pcc.ci.lb,NA))
+                                                   ifelse(pcc_factor_unit=="Access to irrigation (1= yes)",pcc.ci.ub,NA)))))%>%
+  mutate(pcc.ci.lb_l1= ifelse(pcc_factor_unit=="Plot size (continuous)", pcc.ci.lb,NA))%>%
+  mutate(factor_sub_class= if_else(factor_sub_class=="Financial risk-mechanisms","Political_1",
+                                   if_else(factor_sub_class=="Knowledge access","Political_2",
+                                           if_else(factor_sub_class=="Land tenure","Political_3",
+                                                   factor_sub_class))))
+
+sort(unique(overal_results$factor_sub_class))
 
 #overal_results$factor_sub_class <- toupper(overal_results$factor_sub_class)
 
-overal_results$ID <- as.numeric(seq(70, 1, by = -1)) #add a new column with the effect size ID number
+overal_results$ID <- as.numeric(seq(68, 1, by = -1)) #add a new column with the effect size ID number
 
 ########################################################################################################
 ############# OVERALL RESULTS ONLY  ########################################################################################################
 ########################################################################################################
 ## Overall results for the most studied factors
-fills <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#297d7d")
+fills <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#92c46d","#92c46d","#297d7d")
 
   
 overall_strips <- strip_themed(
