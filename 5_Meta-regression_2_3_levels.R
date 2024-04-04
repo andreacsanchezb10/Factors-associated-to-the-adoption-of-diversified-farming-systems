@@ -33,19 +33,6 @@ heterogeneity_3level<- read.csv("results/heterogeneity_3levels.csv",header = TRU
 
 sort(unique(heterogeneity_3level$pcc_factor_unit))
 
-x<- rma.mv(yi, vi, 
-       random = list(~ 1 | ES_ID, ~ 1 | article_id),
-       mods = ~m_region-1,
-       data = pcc_data_3level,
-       subset=pcc_factor_unit=="Awareness of practice (1= yes)",
-       method = "REML", 
-       test = "t", dfs = "contain")
-x$QE
-summary(x)
-coef(summary(x))
-str(x)
-x$QMdf
-
 # List of moderators
 moderators <- c("m_intervention_recla2","m_intervention_system_components",
                 "m_region", "m_sub_region",
@@ -127,7 +114,6 @@ meta_regression_3levels_df <- bind_rows(results_list)%>%
   mutate(moderator_class= str_replace(.$moderator_class, paste0(".*", .$moderator), ""))%>%
   mutate_at(c("estimate","se","tval","pval" ,"ci.lb","ci.ub",
               "QM", "QMp"),  ~round(.,4))%>%
-  mutate(pval= round(pval,2))%>%
   mutate(significance2 = if_else(estimate >0 & pval<=0.05,"positive5",
                                  if_else(estimate <0 & pval <=0.05, "negative5",
                                          if_else(estimate >0 &pval>0.05&pval<=0.1, "positive1",
@@ -240,15 +226,15 @@ meta_regression_2levels_df <- bind_rows(results_list2)%>%
   mutate(moderator=str_replace_all(moderator, "~", ""))%>%
   mutate(moderator=str_replace_all(moderator, "-1", ""))%>%
   mutate(moderator_class= str_replace(.$moderator_class, paste0(".*", .$moderator), ""))%>%
-  mutate_at(c("estimate","se","tval","pval" ,"ci.lb","ci.ub",
+  mutate_at(c("estimate","se","tval","pval","ci.lb","ci.ub",
               "QM", "QMp"),  ~round(.,4))%>%
-  mutate(pval= round(pval,2))%>%
   mutate(significance2 = if_else(estimate >0 & pval<=0.05,"positive5",
                                  if_else(estimate <0 & pval <=0.05, "negative5",
                                          if_else(estimate >0 &pval>0.05&pval<=0.1, "positive1",
                                                  if_else(estimate <0 &pval>0.05&pval<=0.1, "negative1",
                                                          "non_significant")))))%>%
   mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p = ",QMp, sep = ""))%>%
+  
   select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
          "estimate","ci.lb","ci.ub","tval","df","pval" ,
          "f_test","significance2")
@@ -259,9 +245,11 @@ sort(unique(meta_regression_2levels_df$pcc_factor_unit))
 write.csv(meta_regression_2levels_df,"results/meta_regression_2levels.csv", row.names=FALSE)
 
 meta_regression_df<- rbind(meta_regression_3levels_df,meta_regression_2levels_df)%>%
-  mutate(significance = if_else(pval <=0.001,paste(pval,"***",sep=""),
-                                if_else(pval>0.001&pval<0.01,paste(pval,"**",sep=""),
-                                        if_else(pval>0.01&pval<=0.05,paste(pval,"*",sep=""),
-                                                if_else(pval>0.05&pval<=0.1,paste(pval,"\u2020",sep=""),
-                                                paste(pval))))))
+  mutate(significance= format(pval, scientific = TRUE))%>%
+  
+  mutate(significance = if_else(pval <=0.001,paste(significance,"***",sep=""),
+                                if_else(pval>0.001&pval<0.01,paste(significance,"**",sep=""),
+                                        if_else(pval>0.01&pval<=0.05,paste(significance,"*",sep=""),
+                                                if_else(pval>0.05&pval<=0.1,paste(significance,"\u2020",sep=""),
+                                                paste(significance))))))
 write.csv(meta_regression_df,"results/meta_regression.csv", row.names=FALSE)

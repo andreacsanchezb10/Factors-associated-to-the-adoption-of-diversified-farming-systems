@@ -31,10 +31,15 @@ pcc_data<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
 #### Meta-regression results
 meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",")%>%
   select(factor_sub_class,pcc_factor_unit, moderator, moderator_class,estimate,ci.lb, ci.ub,tval, pval, f_test, significance,significance2)%>%
+  
+  mutate(factor_sub_class= if_else(factor_sub_class=="Financial risk-mechanisms","Political_1",
+                                   if_else(factor_sub_class=="Knowledge access","Political_2",
+                                           if_else(factor_sub_class=="Land tenure","Political_3",
+                                                   factor_sub_class))))%>%
   arrange(factor_sub_class, moderator, 
           moderator_class)
 
-sort(unique(meta_regression$moderator))
+sort(unique(meta_regression$factor_sub_class))
 
 #Moderator: diversification practices components ------
 m_intervention_system_components<- meta_regression%>%
@@ -60,7 +65,7 @@ write.xlsx(m_farm_size, "results/meta_regression_farm_size.xlsx",
            sheetName = "farm_size", col.names = TRUE, row.names = TRUE, append = FALSE)
 m_farm_size<-m_farm_size%>%
   filter(moderator_class=="Farm size (ha)")
-m_farm_size$ID <- as.numeric(seq(32, 1, by = -1))
+m_farm_size$ID <- as.numeric(seq(31, 1, by = -1))
 
 #Moderator: education------
 m_education<- meta_regression%>%
@@ -122,7 +127,7 @@ m_dfs<- meta_regression%>%
   #tidyr::complete(., pcc_factor_unit, moderator_class, fill = list(estimate = NA))%>%
   left_join(m_dfs_distribution, by=c("pcc_factor_unit"="pcc_factor_unit",
                                      "moderator_class"="moderator_class"))%>%
-  mutate(icon_n_articles= if_else(n_articles>=10,
+  mutate(icon_n_articles= if_else(n_ES>=10,
                                   "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/more10.png",
                                   "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/less10.png" ))
 
@@ -147,9 +152,14 @@ m_region<- meta_regression%>%
       TRUE ~ NA_real_))%>%
   left_join(m_region_distribution, by=c("pcc_factor_unit"="pcc_factor_unit",
                                      "moderator_class"="moderator_class"))%>%
-  mutate(icon_n_articles= if_else(n_articles>=10,
+  mutate(icon_n_articles= if_else(n_ES>=10,
                                   "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/more10.png",
-                                  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/less10.png" ))
+                                  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/less10.png" ))%>%
+  rbind(c(factor_sub_class = "Biophysical context",
+             pcc_factor_unit = "Soil fertility (1= moderate)",
+          moderator= "m_region",
+             moderator_class = "Africa", 
+             rep(NA, ncol(m_region) - 4)))
 
 sort(unique(m_region$moderator_class))
   
@@ -303,8 +313,8 @@ plot1 +
     panel.background = element_rect(fill = "transparent"), 
     panel.border = element_blank()) +
   geom_vline(xintercept = 31.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 30.5, linetype = 1, size = 1)+
-  geom_vline(xintercept = 29.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 30.5, linetype = 1, size = 0.5, colour="grey50")+
+  geom_vline(xintercept = 29.5, linetype = 1, size = 1)+
   geom_vline(xintercept = 28.5, linetype = 1, size = 1)+
   geom_vline(xintercept = 27.5, linetype = 1, size = 0.5, colour="grey50")+
   geom_vline(xintercept = 26.5, linetype = 1, size = 0.5, colour="grey50")+
@@ -339,62 +349,90 @@ plot1 +
   
 #19x23
   
+#___________________________
+## Overall results for the most studied factors
+fills <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#92c46d","#92c46d","#297d7d")
 
+
+overall_strips <- strip_themed(
+  # Vertical strips
+  background_y = elem_list_rect(
+    fill = fills),
+  text_y = elem_list_text(size= 1,colour= fills,angle = 90),
+  by_layer_y = FALSE
+)
+
+overall_distribution_strips <- strip_themed(
+  # Vertical strips
+  background_y = elem_list_rect(
+    fill = "white"),
+  text_y = elem_list_text(size= 0.1,colour= "white",angle = 90),
+  by_layer_y = FALSE
+)
+
+theme_overall<-theme(
+  axis.title.y = element_blank(),
+  axis.title.x = element_blank(),
+
+  axis.text.x =element_text(color="black",size=12, family = "sans"),
+  plot.background = element_rect(fill = "White", color = "White"),
+  panel.background = element_blank(),
+  panel.grid  =  element_blank(),
   
+  #panel.grid.major  = element_line(color = "grey85",size = 0.6),
+  axis.line = element_line(colour = "grey45"))
 
- 
-  #Moderator: Farm size
-  geom_point(data=m_farm_size,aes(x=factor(ID),y=9,fill=factor(significance2),size=n_articles),
-             shape=21,show.legend = F) +
+dfs<- ggplot(m_dfs, aes(x=moderator_class ,y=pcc_factor_unit)) +
+  geom_tile(aes(fill=factor(significance2)),color= "grey45",lwd = 0.5,fill = "white") +
+  geom_point(aes(size = factor(icon_n_articles), fill=factor(significance2),
+                 colour= factor(significance2)), shape = 21, 
+             show.legend=F) +
+  scale_fill_manual(values = c("#F7ADA4","#FF4933","#D3D3D3","#BAF2C4","#256C32"))+
+  scale_colour_manual(values = c("#F7ADA4","#FF4933","#D3D3D3","#BAF2C4","#256C32"))+
+  scale_size_manual(values=c(5,11))+
+  
   scale_fill_manual(values = significance)+
-  scale_size_binned_area(breaks = c(2,5,10,25, 50,75,100),max_size = 10)+
-  scale_y_continuous(position = "right",limit = c(-3.75,6),expand = c(0, 0),
-                     breaks=c(-2,0.5,3.5,7.25,9,10,10.5),
-                     labels=c("Determinant factors",
-                             "Overall\neffect",
-                             "Diversified farming system",
-                             "Regions",
-                             "Farm size\n(ha)",
-                             "Education\n(years)",
-                             "")) +
-  theme(
-    panel.grid.major = element_blank(), 
-    panel.grid.minor = element_blank(),
-    axis.line.y = element_blank(),
-    axis.ticks.length.x = unit(0.2, "cm"),
-    axis.ticks=element_blank(),
-    axis.text.x = element_text(face="bold",size=12,family = "sans",colour = "black",
-                               vjust = 8),
-    axis.line = element_line(size=0.7,colour = "black"),
-    axis.text.y = element_blank(),
-    axis.title.x = element_blank(), 
-    axis.title.y = element_blank(), 
-    axis.ticks.length = unit(0.0001, "mm"),
-    panel.background = element_rect(fill = "transparent"), 
-    panel.border = element_blank()) +
-  geom_vline(xintercept = 37.5, linetype = 1, size = 0.5)+
-geom_vline(xintercept = 34.5, linetype = 1, size = 0.5)+
-  geom_vline(xintercept = 28.5, linetype = 1, size = 0.5)
-
-
-    #panel.grid.major = element_line(colour="grey"), 
-    #panel.grid.minor = element_line(colour="grey"), 
-    panel.margin = unit(c(0,-0.1,-0.1,-0.1), "mm")) 
-    plot.margin = unit(c(t=5,r=0.5,b=0.5,l=0.5), "mm"))
+  facet_grid2(vars(factor_sub_class),
+              scales= "free", space='free_y', switch = "y",
+              strip = overall_strips)+
+  scale_x_discrete(expand =c(0,0),position = "top")+
+  scale_y_discrete(expand =c(0,0))+
+  
+  theme_overall+
+  theme(strip.placement.y = "outside",
+        plot.margin = unit(c(t=0.5,r=0.1,b=0.5,l=1.5), "cm"),
+        axis.text.y =element_text(color="black",size=11, family = "sans"))
+dfs
   
 
 
+overall_distribution_strips <- strip_themed(
+  # Vertical strips
+  background_y = elem_list_rect(
+    fill = "white"),
+  text_y = elem_list_text(size= 0.1,colour= "white",angle = 90),
+  by_layer_y = FALSE)
 
-
-
-  #Moderator: Education
-  geom_point(data=m_farm_size,aes(factor(ID),8.1),
-             size=7,shape=1,show.legend = F) +
-  geom_text(data=m_farm_size,
-            aes(x=factor(ID),y=8.1, colour=significance,label=sign, fontface="bold"), 
-            hjust=0.5, vjust=0.4, size=5,show.legend = F) +
-  #scale_x_discrete(limits=rev)+
+region<-ggplot(m_region, aes(x=moderator_class,y=pcc_factor_unit)) +
+  geom_tile(aes(fill=factor(significance2)),color= "grey45",lwd = 0.5,fill = "white") +
+  geom_point(aes(size = factor(icon_n_articles), fill=factor(significance2),
+                 colour= factor(significance2)), shape = 21, 
+             show.legend=F) +
+  scale_fill_manual(values = c("#FF4933","#D3D3D3","#BAF2C4","#256C32"))+
+  scale_colour_manual(values = c("#FF4933","#D3D3D3","#BAF2C4","#256C32"))+
+  scale_size_manual(values=c(5,11))+
   
-  
+  facet_grid2(vars(factor_sub_class),
+              scales= "free", space='free_y', switch = "x", strip=overall_distribution_strips)+
+  scale_x_discrete(expand =c(0,0),position = "top")+
+  scale_y_discrete(expand =c(0,0))+
+  theme_overall+
+  theme(strip.placement.y = "outside",
+        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=0), "cm"),
+        axis.text.y =element_blank(),
+        axis.ticks.y=element_blank())
+region 
 
+regression.plot<-ggarrange(dfs,region,ncol = 2,widths = c(1, 0.30))
 
+regression.plot
