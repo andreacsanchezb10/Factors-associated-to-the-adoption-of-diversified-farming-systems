@@ -89,6 +89,7 @@ overall_3level_results <- as.data.frame(overall_3level_results_list)%>%
   mutate(QEp= as.character(QEp))%>%
   mutate(QEp= if_else(QEp==0, "<0.001", QEp))%>%
   select(pcc_factor_unit, beta,se, ci.lb, ci.ub,zval,pval,significance,significance1,n_ES, n_articles,sigma2.1,sigma2.2,QEdf,QE,QEp)%>%
+  #Transform back fisher's z to PCC
   mutate(pcc.beta= transf.ztor(beta))%>%
   mutate(pcc.ci.lb= transf.ztor(ci.lb))%>%
   mutate(pcc.ci.ub= transf.ztor(ci.ub))

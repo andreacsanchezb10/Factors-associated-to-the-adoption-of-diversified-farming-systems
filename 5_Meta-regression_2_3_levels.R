@@ -122,7 +122,12 @@ meta_regression_3levels_df <- bind_rows(results_list)%>%
   mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p = ",QMp, sep = ""))%>%
   select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
          "estimate","ci.lb","ci.ub","tval","df","pval" ,
-         "f_test","significance2")
+         "f_test","significance2")%>%
+  #Transform back fisher's z to PCC
+  mutate(pcc.estimate= transf.ztor(estimate))%>%
+  mutate(pcc.ci.lb= transf.ztor(ci.lb))%>%
+  mutate(pcc.ci.ub= transf.ztor(ci.ub))
+  
 
                      
 names(meta_regression_3levels_df)
@@ -237,7 +242,11 @@ meta_regression_2levels_df <- bind_rows(results_list2)%>%
   
   select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
          "estimate","ci.lb","ci.ub","tval","df","pval" ,
-         "f_test","significance2")
+         "f_test","significance2")%>%
+  #Transform back fisher's z to PCC
+  mutate(pcc.estimate= transf.ztor(estimate))%>%
+  mutate(pcc.ci.lb= transf.ztor(ci.lb))%>%
+  mutate(pcc.ci.ub= transf.ztor(ci.ub))
 
 sort(unique(meta_regression_2levels_df$moderator))
 sort(unique(meta_regression_2levels_df$pcc_factor_unit))
