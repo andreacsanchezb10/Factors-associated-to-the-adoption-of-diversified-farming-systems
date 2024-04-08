@@ -129,11 +129,13 @@ for (unit in unique(m_pcc_data_2level$pcc_factor_unit)) {
             unit == "Soil fertility (1= high)"||
              unit ==  "Soil fertility (1= moderate)") {
       variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_education_years", "m_mean_farm_size_ha")
-    }
+     } else if (unit == "Association member (1= yes)") {
+    variables_to_include <- c("m_intervention_recla2", "m_intervention_system_components", "m_region", "m_mean_farm_size_ha", "m_education_years")
+    
     else if ( unit =="Relatives and friends (number)" ||
              unit =="Marital status (1= married)" ) {
      variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region","m_sub_region","m_education_years", "m_mean_farm_size_ha") }
-     else if (unit == "Education (continuous)" ||
+     else if (
              unit ==  "Access to credit (1= yes)") {
       variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region","m_education_years", "m_mean_farm_size_ha") }
     else if (unit =="Access to irrigation (1= yes)"||
@@ -171,6 +173,9 @@ for (unit in unique(m_pcc_data_2level$pcc_factor_unit)) {
    
 }
 
+  unit == "Farm size (continuous)" ||
+    variables_to_include <- c("m_intervention_recla2", "m_intervention_system_components", "m_region", "m_sub_region", "m_mean_farm_size_ha")
+    
 importance_df_2levels <- do.call(rbind, lapply(importance_list2, as.data.frame))%>%
   rownames_to_column(., var = "pcc_factor_unit")%>%
   mutate(pcc_factor_unit= sub("\\..*", "", pcc_factor_unit))%>%
@@ -190,18 +195,57 @@ pcc_data_3level<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")
   group_by( pcc_factor_unit)%>%
   dplyr::mutate(n_articles = n_distinct(article_id))%>%
   filter(n_articles>9)%>%
-  ungroup()
+  ungroup()%>%
+  filter(pcc_factor_unit=="Land tenure (1= owned)"|
+           pcc_factor_unit=="Access to information (1= yes)"|
+           pcc_factor_unit=="Adults in household (continuous)"|
+           pcc_factor_unit=="Livestock units (continuous)"|
+           pcc_factor_unit=="Non-farm income (continuous)"|
+           pcc_factor_unit=="Awareness of practice (1= yes)"|
+           pcc_factor_unit== "Distance farm-house (continuous)"|
+           pcc_factor_unit== "Distance market (continuous)"|
+           pcc_factor_unit== "Household size (continuous)" |
+           pcc_factor_unit== "On-farm income (continuous)"|
+           pcc_factor_unit== "Education (continuous)")
+           
+        
+
+  
+#problemas
+#c("m_intervention_recla2", "m_intervention_system_components", "m_region", "m_sub_region", "m_mean_farm_size_ha")
+#pcc_factor_unit=="Livestock units (continuous)"
+#pcc_factor_unit=="Adults in household (continuous)"
+pcc_factor_unit=="Access to extension (1= yes)"
+
+#c("m_intervention_recla2", "m_intervention_system_components", "m_region", "m_mean_farm_size_ha")
+#pcc_factor_unit=="Access to information (1= yes)"
+
+#c("m_intervention_recla2","m_intervention_system_components","m_region","m_sub_region","m_mean_farm_size_ha","m_education_years")
+"Land tenure (1= owned)"
 
 sort(unique(pcc_data_3level$pcc_factor_unit))
 
 rma.glmulti1 <- function(formula, data, ...) {
-  rma.mv(formula, vi,
+  rma.mv(formula, fis.vi,
          random = list(~ 1 | ES_ID, ~ 1 | article_id),
          data=data, method="ML", ...)
 }
 
 unique_units <- unique(pcc_data_3level$pcc_factor_unit)
 importance_list3 <- list()
+
+m_intervention_recla2+m_intervention_system_components+m_region+m_sub_region+m_mean_farm_size_ha+m_education_years
+"m_intervention_recla2","m_intervention_system_components","m_mean_farm_size_ha")
+
+system.time(res1 <- glmulti(fis.yi ~ m_intervention_recla2+m_intervention_system_components+m_region+m_mean_farm_size_ha+m_education_years, 
+                            data=pcc_data_3level,
+                            level=2, marginality=TRUE, fitfunction=rma.glmulti1,
+                            crit="aicc", confsetsize=1, plotty=FALSE))
+
+res1
+
+table.glmulti(res1, type = "s")
+
 
 for (unit in unique(pcc_data_3level$pcc_factor_unit)) {
   
@@ -212,43 +256,40 @@ for (unit in unique(pcc_data_3level$pcc_factor_unit)) {
   subset_data <- as.data.frame(subset_data)
   
   # Check if there are enough data points for modeling
-  if (nrow(subset_data) > length(coef(subset_data)) + 2) {
-    
-    # List of variables to include in the model
-    #variables_to_include <- c("m_intervention_recla2", "m_intervention_system_components", "m_region")
+  if (nrow(subset_data) > length(coef(subset_data)) + 1) {
     
     # Include specific variables based on pcc_factor_unit
     if (unit == "Awareness of practice (1= yes)") {
       variables_to_include <- c( "m_intervention_recla2", "m_region", "m_mean_farm_size_ha")
-    } 
-    else if ( unit == "Distance farm-house (continuous)") {
-      variables_to_include <- c("m_intervention_recla2", "m_intervention_system_components", "m_region", "m_sub_region", "m_mean_farm_size_ha", "m_education_years")
-      
-    } else if (unit == "Access to information (1= yes)") {
-      variables_to_include <- c("m_intervention_recla2", "m_intervention_system_components", "m_region", "m_mean_farm_size_ha")
-      
-    } else if (unit == "Association member (1= yes)") {
+    
+      } else if ( unit == "Distance farm-house (continuous)"||
+                  unit =="Education (continuous)"|
+                  unit =="Access to information (1= yes)"|
+                  unit =="Land tenure (1= owned)") {
       variables_to_include <- c("m_intervention_recla2", "m_intervention_system_components", "m_region", "m_mean_farm_size_ha", "m_education_years")
       
-    } else if (unit == "Access to extension (1= yes)"||
-               unit == "Adults in household (continuous)" || 
-               unit == "Distance market (continuous)" || 
-               unit == "Farm size (continuous)" || 
-               unit == "Household size (continuous)" || 
-               unit == "Livestock units (continuous)" || 
-               unit == "On-farm income (continuous)") {
-      variables_to_include <- c("m_intervention_recla2", "m_intervention_system_components", "m_region", "m_sub_region", "m_mean_farm_size_ha")
-    }
+    } else if (unit == "Distance market (continuous)"|| 
+               unit == "Household size (continuous)" ){
+    variables_to_include <- c("m_intervention_recla2", "m_intervention_system_components", "m_region", "m_sub_region", "m_mean_farm_size_ha")
+   
+     }  else if (unit== "On-farm income (continuous)"||
+                 unit==  "Non-farm income (continuous)"||
+                 unit== "Livestock units (continuous)"){
+                 #unit=="Adults in household (continuous)"){
+      variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region","m_sub_region","m_mean_farm_size_ha","m_education_years")
     
+     }else if ( unit == "Adults in household (continuous)") {
+       variables_to_include <- c("m_intervention_recla2", "m_intervention_system_components", "m_region", "m_sub_region", "m_education_years")
+     }
     # Check if there are enough variables for modeling
     if (length(variables_to_include) > 0) {
       
-      formula_string <- paste("yi ~", paste(variables_to_include, collapse = "+"))
+      formula_string <- paste("fis.yi ~", paste(variables_to_include, collapse = "+"))
       
       # Perform glmulti analysis
       res1 <- glmulti(formula_string, data=subset_data, 
                       level=2, marginality=TRUE, fitfunction=rma.glmulti1,
-                      crit="aicc", confsetsize=1000, plotty=FALSE)
+                      crit="aicc", confsetsize=1, plotty=FALSE)
       
       # Store weightable results in the list
       importance_list3[[unit]] <- table.glmulti(res1, type = "s")
@@ -272,6 +313,9 @@ importance_factors_3levels <- do.call(rbind, lapply(importance_list3, as.data.fr
   ungroup()
 
 sort(unique(importance_factors_3levels$pcc_factor_unit))
+
+
+
 ##################################################################
 ## PLOT IMPORTANT MODERATORS
 ############################################################################
