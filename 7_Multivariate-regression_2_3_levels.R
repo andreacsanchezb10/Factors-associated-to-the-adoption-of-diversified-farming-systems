@@ -66,44 +66,44 @@ sort(unique(heterogeneity_2level$pcc_factor_unit))
 #factors with sampling variance > 25% 
 m_pcc_data_2level<- pcc_data_2level%>%
   dplyr::left_join(heterogeneity_2level, by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
-  filter(!is.na(I2))
-  filter(
-    pcc_factor_unit== "Livestock owned (1= yes)"|
-    pcc_factor_unit== "Non-farm income (continuous)")
-    pcc_factor_unit=="Plot size (continuous)"|
-    pcc_factor_unit=="Extension frequency (number of contacts)"|
-    pcc_factor_unit=="Soil fertility (1= high)"|
-    pcc_factor_unit ==  "Soil fertility (1= moderate)"|
-    pcc_factor_unit =="Relatives and friends (number)"|
-    pcc_factor_unit =="Marital status (1= married)"|
-    pcc_factor_unit =="Education (continuous)"|
-    pcc_factor_unit =="Access to credit (1= yes)"|
-      pcc_factor_unit =="Access to irrigation (1= yes)")
-      pcc_factor_unit =="Access to training (1= yes)")
-      pcc_factor_unit =="Farming experience (continuous)")
-        pcc_factor_unit ==  "Household is native (1= yes)")
-      pcc_factor_unit =="Use of DFS (1= yes)")
-        
-      pcc_factor_unit =="Access to non-farm income (1= yes)"|
-      pcc_factor_unit =="Age (continuous)"|
-      pcc_factor_unit =="Communicate with other farmers (1= yes)"|
-      pcc_factor_unit =="Gender (1= male)"|
-      pcc_factor_unit =="Land tenure (1= owned)"|
-      pcc_factor_unit == "Receive support for conservation (1= yes)" )
-
-  filter(pcc_factor_unit=="Access to non-farm income (1= yes)" )
-  select(m_mean_farm_size_ha)
+  filter(!is.na(I2))%>%
+  filter(pcc_factor_unit ==  "Soil fertility (1= moderate)"|
+           pcc_factor_unit=="Soil fertility (1= high)"|
+           pcc_factor_unit=="Relatives and friends (number)"|
+           pcc_factor_unit=="Household is native (1= yes)"|
+           pcc_factor_unit=="Farming experience (continuous)"|
+           pcc_factor_unit=="Gender (1= male)"|
+           pcc_factor_unit=="Farm size (continuous)"|
+           pcc_factor_unit=="Communicate with other farmers (1= yes)"|
+           pcc_factor_unit=="Association member (1= yes)"|
+           pcc_factor_unit =="Access to non-farm income (1= yes)"|
+           pcc_factor_unit =="Access to irrigation (1= yes)"|
+           pcc_factor_unit =="Access to credit (1= yes)"|
+           pcc_factor_unit=="Extension frequency (number of contacts)"|
+           pcc_factor_unit== "Plot size (continuous)")
+select(m_education_years)  
+select(m_mean_farm_size_ha)
+  
 sort(unique(m_pcc_data_2level$pcc_factor_unit))
+#problemas
+pcc_factor_unit== "Livestock owned (1= yes)"  
+pcc_factor_unit =="Access to training (1= yes)"
+pcc_factor_unit =="Age (continuous)"
+pcc_factor_unit =="Receive incentive for conservation (1= yes)"
 
+
+    
 rma.glmulti <- function(formula, data, ...)
-  rma(formula, vi, data=data, method="ML", ...)
+  rma(formula, fis.vi, data=data, method="ML", ...)
 
+m_intervention_recla2+m_intervention_system_components+m_region+m_sub_region+m_mean_farm_size_ha+m_education_years
 
-res <- glmulti( yi ~m_intervention_recla2+m_intervention_system_components+m_region+m_mean_farm_size_ha+m_education_years, 
+res2 <- glmulti( fis.yi ~m_intervention_recla2+m_intervention_system_components+m_region+m_sub_region+m_mean_farm_size_ha+m_education_years, 
                 data=m_pcc_data_2level, 
                level=2, marginality=TRUE, fitfunction=rma.glmulti,
-               crit="aicc", method="g", plotty=FALSE)
+               crit="aicc", confsetsize=1, plotty=FALSE)
 
+table.glmulti(res2, type = "s")
 # Most moderators
 unique_units <- unique(m_pcc_data_2level$pcc_factor_unit)
 importance_list2 <- list()
@@ -115,57 +115,39 @@ for (unit in unique(m_pcc_data_2level$pcc_factor_unit)) {
   subset_data <- m_pcc_data_2level %>%
     filter(pcc_factor_unit == unit)
   subset_data <- as.data.frame(subset_data)
-  
-  # Check if there are enough data points for modeling
-  #if (nrow(subset_data) > length(coef(subset_data)) + 2) {
     # Include specific variables based on pcc_factor_unit
-    if (unit == "Livestock owned (1= yes)") {
-      variables_to_include <- c( "m_intervention_recla2","m_intervention_system_components","m_sub_region", "m_mean_farm_size_ha")} 
-    else if ( unit =="Non-farm income (continuous)")  {
-      variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_mean_farm_size_ha")} 
-    else if ( unit =="Plot size (continuous)") {
-     variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_mean_farm_size_ha","m_education_years") }
-     else if ( unit =="Extension frequency (number of contacts)"||
-            unit == "Soil fertility (1= high)"||
-             unit ==  "Soil fertility (1= moderate)") {
-      variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_education_years", "m_mean_farm_size_ha")
-     } else if (unit == "Association member (1= yes)") {
-    variables_to_include <- c("m_intervention_recla2", "m_intervention_system_components", "m_region", "m_mean_farm_size_ha", "m_education_years")
-    
-    else if ( unit =="Relatives and friends (number)" ||
-             unit =="Marital status (1= married)" ) {
-     variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region","m_sub_region","m_education_years", "m_mean_farm_size_ha") }
-     else if (
-             unit ==  "Access to credit (1= yes)") {
-      variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region","m_education_years", "m_mean_farm_size_ha") }
-    else if (unit =="Access to irrigation (1= yes)"||
-             unit ==  "Access to training (1= yes)"||
-             unit =="Farming experience (continuous)"||
-             unit =="Household is native (1= yes)"||
-             unit== "Use of DFS (1= yes)") {
-    variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region", "m_mean_farm_size_ha")}
-    
-     else if (unit =="Access to non-farm income (1= yes)"|
-            unit =="Age (continuous)"||
-            unit =="Communicate with other farmers (1= yes)"||
-            unit == "Gender (1= male)"||
-            unit == "Land tenure (1= owned)"||
-            unit ==  "Receive support for conservation (1= yes)") {
-     variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region", "m_mean_farm_size_ha")}
-    
-    # Check if there are enough variables for modeling
+    if (unit == "Plot size (continuous)") {
+      variables_to_include <- c( "m_intervention_recla2","m_intervention_system_components","m_region", "m_mean_farm_size_ha","m_education_years")
+    } else if (unit =="Access to credit (1= yes)"||
+               unit =="Access to irrigation (1= yes)"||
+               unit== "Access to non-farm income (1= yes)"||
+               unit=="Association member (1= yes)"||
+               unit=="Communicate with other farmers (1= yes)"||
+               unit =="Extension frequency (number of contacts)"||
+               unit =="Farm size (continuous)"||
+               unit =="Gender (1= male)"||
+               unit =="Household is native (1= yes)"){
+      variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region","m_sub_region","m_mean_farm_size_ha")
+    } else if (unit =="Farming experience (continuous)"){
+      variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region","m_mean_farm_size_ha")
+    }else if (unit== "Relatives and friends (number)"||
+              #unit=="Marital status (1= married)"||
+              unit== "Soil fertility (1= high)"){
+      variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_region","m_sub_region","m_mean_farm_size_ha","m_education_years")
+    }else if (unit=="Soil fertility (1= moderate)"){
+      variables_to_include <- c("m_intervention_recla2","m_intervention_system_components","m_mean_farm_size_ha","m_education_years")
+    }  
+  # Check if there are enough variables for modeling
     if (length(variables_to_include) > 0) {
-      
-      formula_string <- paste("yi ~", paste(variables_to_include, collapse = "+"))
+      formula_string2 <- paste("fis.yi ~", paste(variables_to_include, collapse = "+"))
       
       # Perform glmulti analysis
-      res <- glmulti(formula_string, data=subset_data, 
+      res2 <- glmulti(formula_string2, data=subset_data, 
                       level=2, marginality=TRUE, fitfunction=rma.glmulti,
-                      crit="aicc", confsetsize=1000, plotty=FALSE)
+                      crit="aicc", confsetsize=100, plotty=FALSE)
       
       # Store weightable results in the list
-      importance_list2[[unit]] <- table.glmulti(res, type = "s")
-      
+      importance_list2[[unit]] <- table.glmulti(res2, type = "s")
     } else {
       cat("Not enough data points for modeling in unit:", unit, "\n")
     }
@@ -173,9 +155,6 @@ for (unit in unique(m_pcc_data_2level$pcc_factor_unit)) {
    
 }
 
-  unit == "Farm size (continuous)" ||
-    variables_to_include <- c("m_intervention_recla2", "m_intervention_system_components", "m_region", "m_sub_region", "m_mean_farm_size_ha")
-    
 importance_df_2levels <- do.call(rbind, lapply(importance_list2, as.data.frame))%>%
   rownames_to_column(., var = "pcc_factor_unit")%>%
   mutate(pcc_factor_unit= sub("\\..*", "", pcc_factor_unit))%>%
@@ -209,21 +188,12 @@ pcc_data_3level<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")
            pcc_factor_unit== "Education (continuous)")
            
         
+sort(unique(pcc_data_3level$pcc_factor_unit))
 
   
 #problemas
-#c("m_intervention_recla2", "m_intervention_system_components", "m_region", "m_sub_region", "m_mean_farm_size_ha")
-#pcc_factor_unit=="Livestock units (continuous)"
-#pcc_factor_unit=="Adults in household (continuous)"
 pcc_factor_unit=="Access to extension (1= yes)"
 
-#c("m_intervention_recla2", "m_intervention_system_components", "m_region", "m_mean_farm_size_ha")
-#pcc_factor_unit=="Access to information (1= yes)"
-
-#c("m_intervention_recla2","m_intervention_system_components","m_region","m_sub_region","m_mean_farm_size_ha","m_education_years")
-"Land tenure (1= owned)"
-
-sort(unique(pcc_data_3level$pcc_factor_unit))
 
 rma.glmulti1 <- function(formula, data, ...) {
   rma.mv(formula, fis.vi,
@@ -235,9 +205,8 @@ unique_units <- unique(pcc_data_3level$pcc_factor_unit)
 importance_list3 <- list()
 
 m_intervention_recla2+m_intervention_system_components+m_region+m_sub_region+m_mean_farm_size_ha+m_education_years
-"m_intervention_recla2","m_intervention_system_components","m_mean_farm_size_ha")
 
-system.time(res1 <- glmulti(fis.yi ~ m_intervention_recla2+m_intervention_system_components+m_region+m_mean_farm_size_ha+m_education_years, 
+system.time(res1 <- glmulti(fis.yi ~ m_region+m_mean_farm_size_ha, 
                             data=pcc_data_3level,
                             level=2, marginality=TRUE, fitfunction=rma.glmulti1,
                             crit="aicc", confsetsize=1, plotty=FALSE))
@@ -289,7 +258,7 @@ for (unit in unique(pcc_data_3level$pcc_factor_unit)) {
       # Perform glmulti analysis
       res1 <- glmulti(formula_string, data=subset_data, 
                       level=2, marginality=TRUE, fitfunction=rma.glmulti1,
-                      crit="aicc", confsetsize=1, plotty=FALSE)
+                      crit="aicc", confsetsize=100, plotty=FALSE)
       
       # Store weightable results in the list
       importance_list3[[unit]] <- table.glmulti(res1, type = "s")
