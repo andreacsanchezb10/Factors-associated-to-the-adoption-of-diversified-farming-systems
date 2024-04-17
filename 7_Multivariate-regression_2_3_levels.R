@@ -164,6 +164,7 @@ importance_df_2levels <- do.call(rbind, lapply(importance_list2, as.data.frame))
   ungroup()
 sort(unique(importance_df_2levels$pcc_factor_unit))
 
+write.csv(importance_df_2levels,"results/moderators_importance_akaike_2levels.csv", row.names=FALSE)
 
 ##########################################################################################################################################################
 ########################  THREE-LEVEL META-ANALYSIS ##########################################################################################################################################################
