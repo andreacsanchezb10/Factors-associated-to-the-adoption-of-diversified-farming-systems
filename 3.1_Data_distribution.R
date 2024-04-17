@@ -54,16 +54,26 @@ pcc_data<-pcc_data%>%
                            if_else(m_region=="NORTHERN AMERICA","NORTH\nAMERICA",m_region)))%>%
   mutate(m_sub_region= if_else(is.na(m_sub_region),"Multi sub-regions",m_sub_region))%>%
   mutate(m_sub_region = str_replace_all(m_sub_region, " ", "\n"))%>%
+  mutate(m_intervention_recla2 = str_replace_all(m_intervention_recla2, " ", "\n"))%>%
+  
   filter(factor_sub_class.x!="NO SE")%>%
   mutate(factor_sub_class.x= if_else(factor_sub_class.x=="FINANCIAL RISK-MECHANISMS"|
                                        factor_sub_class.x=="KNOWLEDGE ACCESS"|
-                                       factor_sub_class.x=="LAND TENURE","POLITICAL AND INSTITUTIONAL CONTEXT",
-                                     factor_sub_class.x))
+                                       factor_sub_class.x=="LAND TENURE","POLITICAL AND\nINSTITUTIONAL\nCONTEXT",
+                                     factor_sub_class.x))%>%
+  mutate(factor_sub_class.x=if_else(factor_sub_class.x=="SOCIAL CAPITAL","SOCIAL\nCAPITAL",
+                                    if_else(factor_sub_class.x=="NATURAL CAPITAL","NATURAL\nCAPITAL",
+                                            if_else(factor_sub_class.x=="FINANCIAL CAPITAL","FINANCIAL\nCAPITAL",
+                                                    if_else(factor_sub_class.x=="PHYSICAL CAPITAL","PHYSICAL\nCAPITAL",
+                                                            factor_sub_class.x)))))
+  
   
   
 length(unique(pcc_data$article_id)) #153
 sort(unique(pcc_data$x_metric_recla2))
 sort(unique(pcc_data$m_intervention_system_components))
+sort(unique(pcc_data$m_intervention_recla2))
+
 sort(unique(pcc_data$factor_sub_class.x))
 
 sort(unique(pcc_data$m_sub_region))
@@ -146,7 +156,7 @@ legend_ES<- ggplot()+
              aes(x= lon, y=lat, group=region,size =n_ES), 
              shape=16,fill="black",color="grey20", alpha = 0.5)+
   scale_size_continuous(limits=c(1,361),breaks = c(5,10,25,50,100,200),
-                        labels=c("5","10","25","50","100","≥200"),
+                        labels=c("≤5","10","25","50","100","≥200"),
                         name = "Effect sizes",range = c(3, 13))+
   theme(legend.position = "bottom",
         legend.direction = "horizontal", 
@@ -200,6 +210,7 @@ factor_sub_class<- pcc_data%>%
   mutate(percentage_ES= (n_ES/sum(n_ES))*100,
          percentage_articles= (n_articles/sum(n_articles))*100)
 
+sum(factor_sub_class$n_ES)
 
 ## Data distribution by m_intervention_recla2 
 systems<- pcc_data%>%
@@ -320,12 +331,12 @@ unique_levels <- unique(dist_factor_system$pcc_factor_unit)
 dist_factor_system$pcc_factor_unit <- factor(dist_factor_system$pcc_factor_unit, levels = rev(sort(unique_levels)))
 
 factors <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#297d7d")
-
+"#545454"
 overall_strips <- strip_themed(
   # Vertical strips
   background_y = elem_list_rect(fill = factors),
-  text_y = elem_list_text(size= 1,colour= factors,angle = 90),
-  text_x = elem_list_text(size= 12,colour= "#545454",angle = 0),
+  text_y = elem_list_text(size= 10,colour= "white",angle = 90, face="bold"),
+  text_x = elem_list_text(size= 12,colour= "white",angle = 90),
   
   background_x = elem_list_rect(fill = "#545454"),
   by_layer_y = FALSE
@@ -358,7 +369,9 @@ ggplot(dist_factor_system,
   theme(legend.position = "none")+
   geom_hline(yintercept = seq(0.5, nrow(dist_factor_system) - 0.5),
              color = "black", linetype = "solid", size = 0.5)
-  
+
+ggsave("figures/distribution_factor_systems.png", width = 35, height = 40, units = "cm")
+
 #1200 x 1700
 
 distr_legend<- ggplot(dist_factor_system, 
@@ -477,12 +490,12 @@ factor_region<- ggplot(dist_factor_region,
 
 factor_region
 
-ggsave("figures/distribution_factor_region.png", width = 23, height = 33, units = "cm")
+ggsave("figures/distribution_factor_region.png", width = 23, height = 35, units = "cm")
 
 
 # Data distribution by pcc_factor_unit and sub-region
 dist_factor_sub_region <-pcc_data%>%
-  group_by(factor_sub_class.x,pcc_factor_unit,m_sub_region )%>%
+  group_by(factor_sub_class.x, pcc_factor_unit,m_sub_region )%>%
   dplyr::summarise(n_articles = n_distinct(article_id),
                    n_ES = n_distinct(ES_ID))%>%
   mutate(n_articles_es = paste("(", n_articles," | ",n_ES,")", sep = "" ),
@@ -494,14 +507,18 @@ unique_levels <- unique(dist_factor_sub_region$pcc_factor_unit)
 dist_factor_sub_region$pcc_factor_unit <- factor(dist_factor_sub_region$pcc_factor_unit, levels = rev(sort(unique_levels)))
 
 sort(unique(dist_factor_sub_region$m_sub_region))
-fills <- c( "Central America"= "#f1ba41",
+sort(unique(dist_factor_sub_region$factor_sub_class.x))
+
+
+fills <- c( "Central\nAmerica"= "#f1ba41",
             "Eastern Africa"="#843272",
             "Eastern Asia"="#b5562f",
             "Eastern Europe"="#743341",
-            "Middle Africa" ="#843272",    
+            "Middle Africa" ="#843272", 
+            "Multi sub-regions"="#843272",
             "Northern Africa"="#843272",
             "Northern America"="#5b6454",
-            "South-eastern Asia"="#b5562f",
+            "South-eastern\nAsia"="#b5562f",
             "South America"="#f1ba41",
             "Southern Africa" ="#843272",  
             "Southern Asia" ="#b5562f",
@@ -519,10 +536,10 @@ overall_strips <- strip_themed(
                           face="bold"),
   by_layer_y = FALSE)
 
-factor_sub_region<-ggplot(dist_factor_sub_region, 
+factor_sub_region<- ggplot(dist_factor_sub_region, 
        aes(y=pcc_factor_unit,
            x=m_sub_region, fill= more_10))+ 
-  facet_grid2(vars(factor_sub_class.x), vars(m_sub_region),
+  facet_grid2(vars(factor_sub_class.x), vars( m_sub_region),
               scales= "free", space='free_y', switch = "y",
               strip = overall_strips)+
   geom_tile()+
@@ -532,7 +549,7 @@ factor_sub_region<-ggplot(dist_factor_sub_region,
   theme(legend.position = "none")+
   geom_hline(yintercept = seq(0.5, nrow(dist_factor_system) - 0.5),
              color = "black", linetype = "solid", size = 0.5)
-
+factor_sub_region
 ggsave("figures/distribution_factor_sub_region.png", width = 35, height = 40, units = "cm")
 
 factor_sub_region
@@ -678,7 +695,7 @@ factor_methods<- ggplot(dist_factor_methods,
 
 factor_methods
 
-ggsave("figures/distribution_factor_methods_binary.png", width = 37, height = 42, units = "cm")
+ggsave("figures/distribution_factor_methods.png", width = 37, height = 42, units = "cm")
 
 
 
