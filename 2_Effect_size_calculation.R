@@ -85,7 +85,8 @@ names(pcc_data)
 
 fis_data<- pcc_data%>%
   mutate(fis.yi= 0.5*log((1+pcc.yi)/(1-pcc.yi)))%>%
-  mutate(fis.vi= (1/(n_samples_num-3-(n_predictors_num-1))))
+  mutate(fis.vi= (1/(n_samples_num-3-(n_predictors_num-1))))%>%
+  filter(pcc_factor_unit!="Attitude toward practice (positive continuous)")
 
 write.csv(fis_data, "data/pcc_data.csv", row.names=FALSE)
 
