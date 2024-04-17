@@ -66,9 +66,12 @@ overal_results<- overall_3level_results%>%
   mutate(factor_sub_class= if_else(factor_sub_class=="Financial risk-mechanisms","Political_1",
                                    if_else(factor_sub_class=="Knowledge access","Political_2",
                                            if_else(factor_sub_class=="Land tenure","Political_3",
-                                                   factor_sub_class))))
+                                                   factor_sub_class))))%>%
+  mutate(significance1= if_else(pval>0.05&pval<=0.1,"†",""))
+  
 
 sort(unique(overal_results$factor_sub_class))
+sort(unique(overal_results$significance1))
 
 #overal_results$factor_sub_class <- toupper(overal_results$factor_sub_class)
 
