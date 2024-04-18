@@ -22,14 +22,19 @@ pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 pcc_data_3level<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")%>%
   mutate_at(vars(m_mean_farm_size_ha,n_samples_num,n_predictors_num,m_education_years ), as.numeric)%>%
   group_by( pcc_factor_unit)%>%
-  dplyr::mutate(n_articles = n_distinct(article_id))%>%
-  filter(n_articles>9)
+  dplyr::mutate(n_articles = n_distinct(article_id))
+  dplyr::mutate(n_es = n_distinct(ES_ID))%>%
+  #filter(n_articles>9)
+  filter(n_es>9)
+    
 sort(unique(pcc_data_3level$pcc_factor_unit))
 sort(unique(pcc_data_3level$m_model_method))
 names(pcc_data_3level)
 
+
 #Heterogeneity
-heterogeneity_3level<- read.csv("results/heterogeneity_3levels.csv",header = TRUE, sep = ",")
+heterogeneity_3level<- read.csv("results/heterogeneity_3levels.csv",header = TRUE, sep = ",")%>%
+  filter(I2_1<=25)
 
 sort(unique(heterogeneity_3level$pcc_factor_unit))
 
@@ -139,14 +144,15 @@ write.csv(meta_regression_3levels_df,"results/meta_regression_3levels.csv", row.
 ##########################################################################################
 ########### TWO-LEVEL META-ANALYSIS ############################################
 #Data
-
 pcc_data_2level<- read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ",")%>%
   mutate(m_mean_farm_size_ha= as.numeric(m_mean_farm_size_ha))%>%
   group_by( pcc_factor_unit)%>%
   dplyr::mutate(n_articles = n_distinct(article_id))%>%
-  filter(n_articles>9)
+  dplyr::mutate(n_es = n_distinct(ES_ID))%>%
+  filter(n_es>9)
+
 sort(unique(pcc_data_2level$pcc_factor_unit))    
-          
+table(pcc_data_2level$pcc_factor_unit,pcc_data_2level$n_es)          
 #Heterogeneity
 heterogeneity_2level<- read.csv("results/heterogeneity_2levels.csv",header = TRUE, sep = ",")%>%
   filter(I2>=75)
@@ -160,7 +166,6 @@ m_pcc_data_2level<- pcc_data_2level%>%
   filter(!is.na(I2))
 
 sort(unique(m_pcc_data_2level$pcc_factor_unit))
-
 
 # List of pcc_factor_unit
 pcc_factor_units <- unique(m_pcc_data_2level$pcc_factor_unit)
@@ -261,4 +266,6 @@ meta_regression_df<- rbind(meta_regression_3levels_df,meta_regression_2levels_df
                                         if_else(pval>0.01&pval<=0.05,paste(significance,"*",sep=""),
                                                 if_else(pval>0.05&pval<=0.1,paste(significance,"\u2020",sep=""),
                                                 paste(significance))))))
+sort(unique(meta_regression_df$pcc_factor_unit))
+
 write.csv(meta_regression_df,"results/meta_regression.csv", row.names=FALSE)

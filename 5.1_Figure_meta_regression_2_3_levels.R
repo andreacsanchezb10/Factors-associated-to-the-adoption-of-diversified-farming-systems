@@ -40,6 +40,7 @@ meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",
           moderator_class)
 
 sort(unique(meta_regression$factor_sub_class))
+sort(unique(meta_regression$pcc_factor_unit))
 
 #Moderator: diversification practices components ------
 m_intervention_system_components<- meta_regression%>%
@@ -65,7 +66,7 @@ write.xlsx(m_farm_size, "results/meta_regression_farm_size.xlsx",
            sheetName = "farm_size", col.names = TRUE, row.names = TRUE, append = FALSE)
 m_farm_size<-m_farm_size%>%
   filter(moderator_class=="Farm size (ha)")
-m_farm_size$ID <- as.numeric(seq(31, 1, by = -1))
+m_farm_size$ID <- as.numeric(seq(1, 40, by = 1))
 
 #Moderator: education------
 m_education<- meta_regression%>%
@@ -109,8 +110,6 @@ names(pcc_data)
 
 m_dfs<- meta_regression%>%
   filter(moderator== "m_intervention_recla2")%>%
-  left_join(select(m_farm_size, c(ID,pcc_factor_unit)), 
-            by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
   mutate(
     y = case_when(
       moderator_class == "Agro-aquaculture" ~ 0 + (0.5 *1),
@@ -140,8 +139,6 @@ m_region_distribution<-pcc_data%>%
 
 m_region<- meta_regression%>%
   filter(moderator== "m_region")%>%
-  left_join(select(m_farm_size, c(ID,pcc_factor_unit)), 
-            by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
   mutate(
     y = case_when(
       moderator_class == "Africa" ~ 10 + (0.5 *1),
@@ -168,7 +165,7 @@ sort(unique(m_region$moderator_class))
 ## SYNTHESIZE SOME PLOT DATA 
 ## OVERALL RESULTS
 overall<-m_farm_size%>%
-  select(ID, estimate, pcc_factor_unit)
+  select(ID, pcc_factor_unit)
 
 overall<-rbind(overall,data.frame(ID=c(max(m_farm_size$ID)+1,
                                        max(m_farm_size$ID)+2,
@@ -353,6 +350,13 @@ plot1 +
 ## Overall results for the most studied factors
 fills <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#92c46d","#92c46d","#297d7d")
 
+overall<-m_farm_size%>%
+  select(ID, pcc_factor_unit)
+
+
+m_dfs$ID <- overall$ID[match(m_dfs$pcc_factor_unit, overall$pcc_factor_unit)]
+
+
 
 overall_strips <- strip_themed(
   # Vertical strips
@@ -382,7 +386,7 @@ theme_overall<-theme(
   #panel.grid.major  = element_line(color = "grey85",size = 0.6),
   axis.line = element_line(colour = "grey45"))
 
-dfs<- ggplot(m_dfs, aes(x=moderator_class ,y=pcc_factor_unit)) +
+dfs<- ggplot(m_dfs, aes(x=moderator_class ,y=reorder(pcc_factor_unit,ID,decreasing=T))) +
   geom_tile(aes(fill=factor(significance2)),color= "grey45",lwd = 0.5,fill = "white") +
   geom_point(aes(size = factor(icon_n_articles), fill=factor(significance2),
                  colour= factor(significance2)), shape = 21, 
@@ -413,7 +417,10 @@ overall_distribution_strips <- strip_themed(
   text_y = elem_list_text(size= 0.1,colour= "white",angle = 90),
   by_layer_y = FALSE)
 
-region<-ggplot(m_region, aes(x=moderator_class,y=pcc_factor_unit)) +
+m_region$ID <- overall$ID[match(m_region$pcc_factor_unit, overall$pcc_factor_unit)]
+
+
+region<-ggplot(m_region, aes(x=moderator_class,y=reorder(pcc_factor_unit,ID,decreasing=T))) +
   geom_tile(aes(fill=factor(significance2)),color= "grey45",lwd = 0.5,fill = "white") +
   geom_point(aes(size = factor(icon_n_articles), fill=factor(significance2),
                  colour= factor(significance2)), shape = 21, 
@@ -436,3 +443,5 @@ region
 regression.plot<-ggarrange(dfs,region,ncol = 2,widths = c(1, 0.30))
 
 regression.plot
+
+#19x23
