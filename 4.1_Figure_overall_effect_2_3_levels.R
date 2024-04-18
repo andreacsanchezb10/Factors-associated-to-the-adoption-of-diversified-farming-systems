@@ -121,8 +121,8 @@ overall_effect<-
   geom_text(aes(label=significance, x=pcc.ci.ub+0.01, group=pcc_factor_unit), 
             vjust=0.7, hjust=-0.005,size=7,
             color="black",  family="sans",position = (position_dodge(width = -0.5)))+
-  geom_text(aes(label=significance1, x=pcc.ci.ub+0.01, group=pcc_factor_unit), 
-            vjust=0.35, hjust=-0.005,size=10,
+  geom_text(aes(label=significance1, x=pcc.ci.ub+0.01, group=pcc_factor_unit,fontface = "bold"), 
+            vjust=0.35, hjust=-0.005,size=3, 
             color="black",  family="sans",position = (position_dodge(width = -0.5)))+
     geom_segment(aes(y = reorder(pcc_factor_unit, pcc.beta),
                      yend = reorder(pcc_factor_unit, pcc.beta),
