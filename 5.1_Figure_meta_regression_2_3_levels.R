@@ -40,7 +40,6 @@ meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",
           moderator_class)
 
 sort(unique(meta_regression$factor_sub_class))
-sort(unique(meta_regression$pcc_factor_unit))
 
 #Moderator: diversification practices components ------
 m_intervention_system_components<- meta_regression%>%
@@ -65,8 +64,13 @@ m_farm_size<- meta_regression%>%
 write.xlsx(m_farm_size, "results/meta_regression_farm_size.xlsx", 
            sheetName = "farm_size", col.names = TRUE, row.names = TRUE, append = FALSE)
 m_farm_size<-m_farm_size%>%
-  filter(moderator_class=="Farm size (ha)")
-m_farm_size$ID <- as.numeric(seq(1, 40, by = 1))
+  filter(moderator_class=="Farm size (ha)")%>%
+  group_by(factor_sub_class)%>%
+  group_modify(~.x %>%
+                 arrange(factor(pcc_factor_unit, levels = c(sort(pcc_factor_unit), 
+                                   decreasing = TRUE))))
+
+m_farm_size$ID <- as.numeric(seq(1, 35, by = 1))
 
 #Moderator: education------
 m_education<- meta_regression%>%
@@ -110,25 +114,9 @@ names(pcc_data)
 
 m_dfs<- meta_regression%>%
   filter(moderator== "m_intervention_recla2")%>%
-  mutate(
-    y = case_when(
-      moderator_class == "Agro-aquaculture" ~ 0 + (0.5 *1),
-      moderator_class == "Agro-silvopasture" ~ 0 + (0.5 *3),
-      moderator_class == "Agroforestry" ~ 0 + (0.5 *5),
-      moderator_class == "Combined systems" ~ 0 + (0.5 * 7),
-      moderator_class == "Cover crops" ~ 0 + (0.5 * 9),
-      moderator_class == "Crop rotation" ~ 0 + (0.5 * 11),
-      moderator_class == "Embedded seminatural habitats" ~ 0 + (0.5 * 13),
-      moderator_class == "Fallow" ~ 0 + (0.5 * 15),
-      moderator_class == "Intercropping" ~ 0 + (0.5 * 17),
-      moderator_class == "Rotational grazing" ~ 0 + (0.5 * 19),
-      TRUE ~ NA_real_))%>%
-  #tidyr::complete(., pcc_factor_unit, moderator_class, fill = list(estimate = NA))%>%
   left_join(m_dfs_distribution, by=c("pcc_factor_unit"="pcc_factor_unit",
                                      "moderator_class"="moderator_class"))%>%
-  mutate(icon_n_articles= if_else(n_ES>=10,
-                                  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/more10.png",
-                                  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/less10.png" ))
+  mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))
 
 #Moderator: Region------
 m_region_distribution<-pcc_data%>%
@@ -139,24 +127,14 @@ m_region_distribution<-pcc_data%>%
 
 m_region<- meta_regression%>%
   filter(moderator== "m_region")%>%
-  mutate(
-    y = case_when(
-      moderator_class == "Africa" ~ 10 + (0.5 *1),
-      moderator_class == "Asia" ~ 10 + (0.5 * 3),
-      moderator_class == "Europe" ~ 10 + (0.5 * 5),
-      moderator_class == "Latin America and the Caribbean" ~ 10 + (0.5 * 7),
-      moderator_class == "Northern America" ~ 10 + (0.5 * 9),
-      TRUE ~ NA_real_))%>%
   left_join(m_region_distribution, by=c("pcc_factor_unit"="pcc_factor_unit",
                                      "moderator_class"="moderator_class"))%>%
-  mutate(icon_n_articles= if_else(n_ES>=10,
-                                  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/more10.png",
-                                  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons_significance/less10.png" ))%>%
+  mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))%>%
   rbind(c(factor_sub_class = "Biophysical context",
              pcc_factor_unit = "Soil fertility (1= moderate)",
           moderator= "m_region",
              moderator_class = "Africa", 
-             rep(NA, ncol(m_region) - 4)))
+             rep(NA, ncol(.) - 4)))
 
 sort(unique(m_region$moderator_class))
   
@@ -167,196 +145,16 @@ sort(unique(m_region$moderator_class))
 overall<-m_farm_size%>%
   select(ID, pcc_factor_unit)
 
-overall<-rbind(overall,data.frame(ID=c(max(m_farm_size$ID)+1,
-                                       max(m_farm_size$ID)+2,
-                                       max(m_farm_size$ID)+3),
-                                       #max(overal_results$ID)+4),
-                                  estimate=NA,
-                                  pcc_factor_unit=NA))
-#overall<-overall%>%
- # left_join(overall_results_more10, by= c("ID","beta", "ci.lb","ci.ub" ))
-
-
-## identify the rows to be highlighted, and 
-## build a function to add the layers
-# Create a data frame with alternating colors
-hl_rows <- data.frame(ID = (1:floor(length(unique(overall$ID[which(overall$ID > 0)])) / 2)) * 2,
-                      col = "lightgrey", width = 1,height=1)
-
-# Set the color and width for ID = 40
-hl_rows$col[hl_rows$ID %in% 33] <- "white"
-hl_rows$col[hl_rows$ID %in% 34] <- "white"
-hl_rows$height[hl_rows$ID %in% 33] <- 4
-
-
-
-hl_rect <- function(col = "lightgrey", alpha = 0.8, 
-                    border_col = "lightgrey", width = 1, height = 1) {
-  rectGrob(
-    x = 0, y = 0, width = width, height = height, just = c("left", "bottom"),
-    gp = gpar(alpha = alpha, fill = col, col = border_col)
-  )
-}
-
-
-## Systems icons
-library("ggimage")
-systems_path1 <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/icons/"
-
-systems_icons <- list.files(systems_path1, pattern = "\\.png$", full.names = TRUE)
-systems_icons
-
-RtLabels <- data.frame(systems_path = systems_icons)%>%
-  mutate(moderator_class = sub(paste0("^", systems_path1), "", systems_path))%>%
-  mutate(moderator_class = sub("\\.png$", "", moderator_class))%>%
-  mutate(
-    moderator_class = case_when(
-      moderator_class == "integrated_aquaculture_agriculture"~"Agro-aquaculture",
-      moderator_class == "agrosilvopasture"~"Agro-silvopasture",
-      moderator_class == "agroforestry"~"Agroforestry" ,
-      moderator_class == "combined_systems" ~"Combined systems",
-      moderator_class =="cover_crops"  ~"Cover crops" ,
-      moderator_class == "crop_rotation"~"Crop rotation",
-      moderator_class == "embedded_seminatural_habitats"~"Embedded seminatural habitats",
-      moderator_class == "fallow"~"Fallow" ,
-      moderator_class == "intercropping"~"Intercropping" ,
-      moderator_class == "rotational_grazing"~"Rotational grazing" ))%>%
-  mutate(
-    y = case_when(
-      moderator_class == "Agro-aquaculture" ~ 0 + (0.5 *1),
-      moderator_class == "Agro-silvopasture" ~ 0 + (0.5 *3),
-      moderator_class == "Agroforestry" ~ 0 + (0.5 *5),
-      moderator_class == "Combined systems" ~ 0 + (0.5 * 7),
-      moderator_class == "Cover crops" ~ 0 + (0.5 * 9),
-      moderator_class == "Crop rotation" ~ 0 + (0.5 * 11),
-      moderator_class == "Embedded seminatural habitats" ~ 0 + (0.5 * 13),
-      moderator_class == "Fallow" ~ 0 + (0.5 * 15),
-      moderator_class == "Intercropping" ~ 0 + (0.5 * 17),
-      moderator_class == "Rotational grazing" ~ 0 + (0.5 * 19),
-      TRUE ~ NA_real_))
-
-
-## BASIC PLOT
-#Themes
-significance <- c("#F7ADA4","#FF4933","#D3D3D3","#BAF2C4","#256C32")
-        
-
-#####  
-## LEFT PANEL
-plot1<-ggplot(overall,aes(x=factor(ID),y=estimate))+ labs(x=NULL, y=NULL)
-
-  
-plot1
-plot1 + 
-  geom_hline(aes(yintercept=-3.75),linetype=1, size=0.5)+
-  geom_hline(aes(yintercept=0),linetype=1, size=1)+
-  geom_hline(aes(yintercept=1),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=2),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=3),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=4),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=5),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=6),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=7),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=8),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=9),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=10),linetype=1, size=1)+
-  geom_hline(aes(yintercept=11),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=12),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=13),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=14),linetype=2, size=0.5, colour="grey50")+
-  geom_hline(aes(yintercept=15),linetype=1, size=1)+
-  
-  #Determinant factors
-  geom_text(data=overall,aes(x=factor(ID),y=-0.05,label=pcc_factor_unit),
-            vjust=0.4, hjust=1, size=5)+
-  coord_flip()+
-  #Sub-titles
-  geom_image(data=RtLabels, aes(x=34.5, y=y,image=systems_path), size=.05)+
-  #Moderator: Diversified farming systems
-  geom_point(data=m_dfs,aes(x=factor(ID),y=y,fill=factor(significance2),
-                            colour= factor(significance2)),
-             size=11.8,shape=21,show.legend = F)+
-  geom_image(data=m_dfs, aes(x=factor(ID),y=y,image=icon_n_articles), 
-             colour="black",size=.02)+
-  scale_colour_manual(values = significance)+
-  scale_fill_manual(values = significance)+
-  #Moderator: region
-  geom_point(data=m_region,aes(x=factor(ID),y=y,fill=factor(significance2),
-                            colour= factor(significance2)),
-             size=11.8,shape=21,show.legend = F)+
-  geom_image(data=m_region, aes(x=factor(ID),y=y,image=icon_n_articles), 
-             colour="black",size=.02)+
-  #scale_size_binned_area(breaks = c(2,5,10,25, 50,75,100),max_size = 10)+
-  scale_y_continuous(position = "right",limit = c(-3.75,15),expand = c(0, 0),
-                     breaks=c(-2,3.6,7.25),
-                     labels=c("Determinant factors",
-                             "Diversified farming system",
-                             "Regions")) +
-  geom_vline(xintercept = 37.5, linetype = 1, size = 0.5)+
-  theme(
-    panel.grid.major = element_blank(), 
-    panel.grid.minor = element_blank(),
-    legend.position="none",
-    axis.line.y = element_blank(),
-    axis.ticks.length.x = unit(0.2, "cm"),
-    axis.ticks=element_blank(),
-    axis.text.x = element_text(face="bold",size=12,family = "sans",colour = "black",
-                               vjust = 8),
-    axis.line = element_line(size=0.7,colour = "black"),
-    axis.text.y = element_blank(),
-    axis.title.x = element_blank(), 
-    axis.title.y = element_blank(), 
-    axis.ticks.length = unit(0.0001, "mm"),
-    panel.background = element_rect(fill = "transparent"), 
-    panel.border = element_blank()) +
-  geom_vline(xintercept = 31.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 30.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 29.5, linetype = 1, size = 1)+
-  geom_vline(xintercept = 28.5, linetype = 1, size = 1)+
-  geom_vline(xintercept = 27.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 26.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 25.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 24.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 23.5, linetype = 1, size = 1)+
-  geom_vline(xintercept = 22.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 21.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 20.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 19.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 18.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 17.5, linetype = 1, size = 1)+
-  geom_vline(xintercept = 16.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 15.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 14.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 13.5, linetype = 1, size = 1)+
-  geom_vline(xintercept = 12.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 11.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 10.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 9.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 8.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 7.5, linetype = 1, size = 1)+
-  geom_vline(xintercept = 6.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 5.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 4.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 3.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 2.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 1.5, linetype = 1, size = 0.5, colour="grey50")+
-  geom_vline(xintercept = 0.5, linetype = 1, size = 1)
-  
-  
-  
-#19x23
-  
 #___________________________
 ## Overall results for the most studied factors
 fills <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#92c46d","#92c46d","#297d7d")
+significance <- c("#F7ADA4","#FF4933","#D3D3D3","#BAF2C4","#256C32")
 
 overall<-m_farm_size%>%
   select(ID, pcc_factor_unit)
 
 
 m_dfs$ID <- overall$ID[match(m_dfs$pcc_factor_unit, overall$pcc_factor_unit)]
-
-
 
 overall_strips <- strip_themed(
   # Vertical strips
@@ -388,14 +186,13 @@ theme_overall<-theme(
 
 dfs<- ggplot(m_dfs, aes(x=moderator_class ,y=reorder(pcc_factor_unit,ID,decreasing=T))) +
   geom_tile(aes(fill=factor(significance2)),color= "grey45",lwd = 0.5,fill = "white") +
-  geom_point(aes(size = factor(icon_n_articles), fill=factor(significance2),
+  geom_point(aes(size = factor(icon_n_es), fill=factor(significance2),
                  colour= factor(significance2)), shape = 21, 
              show.legend=F) +
   scale_fill_manual(values = c("#F7ADA4","#FF4933","#D3D3D3","#BAF2C4","#256C32"))+
   scale_colour_manual(values = c("#F7ADA4","#FF4933","#D3D3D3","#BAF2C4","#256C32"))+
   scale_size_manual(values=c(5,11))+
   
-  scale_fill_manual(values = significance)+
   facet_grid2(vars(factor_sub_class),
               scales= "free", space='free_y', switch = "y",
               strip = overall_strips)+
@@ -422,7 +219,7 @@ m_region$ID <- overall$ID[match(m_region$pcc_factor_unit, overall$pcc_factor_uni
 
 region<-ggplot(m_region, aes(x=moderator_class,y=reorder(pcc_factor_unit,ID,decreasing=T))) +
   geom_tile(aes(fill=factor(significance2)),color= "grey45",lwd = 0.5,fill = "white") +
-  geom_point(aes(size = factor(icon_n_articles), fill=factor(significance2),
+  geom_point(aes(size = factor(icon_n_es), fill=factor(significance2),
                  colour= factor(significance2)), shape = 21, 
              show.legend=F) +
   scale_fill_manual(values = c("#FF4933","#D3D3D3","#BAF2C4","#256C32"))+
@@ -445,3 +242,5 @@ regression.plot<-ggarrange(dfs,region,ncol = 2,widths = c(1, 0.30))
 regression.plot
 
 #19x23
+
+#18x20
