@@ -133,32 +133,38 @@ write.csv(egger_test,"results/egger_test.csv", row.names=FALSE)
 #https://rpubs.com/dylanjcraven/metaforr
 ### THREE-LEVEL DATA
 funnel_3level <- function(factor_units, pcc_data) {
-  num_cols <- 6
-  num_rows <- ceiling(length(factor_units) / num_cols)
-  par(mfrow = c(num_rows, num_cols), mar = c(3, 3, 1, 1))  # Adjust margins
+  # Generate unique folder name based on current timestamp
+  timestamp <- format(Sys.time(), "%Y%m%d%H%M%S")
+  folder_path <- paste0("plots_", timestamp, "/")
+  
+  # Create the folder
+  dir.create(folder_path)
   
   for (i in 1:length(factor_units)) {
     factor_unit <- factor_units[i]
     factor_unit_subset <- subset(pcc_data, pcc_factor_unit == factor_unit)
     
-    funnel.model <- rma.mv(pcc.yi, pcc.vi,
-                             random = list(~ 1 | ES_ID, ~ 1 | article_id),
-                             test = "t",
-                             dfs="contain",
-                             data = factor_unit_subset,
-                             method = "REML")
+    funnel.model <- rma.mv(fis.yi, fis.vi,
+                           random = list(~ 1 | ES_ID, ~ 1 | article_id),
+                           test = "t",
+                           dfs="contain",
+                           data = factor_unit_subset,
+                           method = "REML")
     summary(funnel.model, digits = 3)
-    
-    plot_index <- i %% num_cols
-    if (plot_index == 0) plot_index <- num_cols
     
     funnel.plots <- funnel(funnel.model, yaxis="seinv", refline=0 ,ylab="Precision (1/SE)" ,
                            xlab="Residual value", main = paste(factor_unit),level= c(90,95,99),
                            shade=c("white", "gray", "darkgray"),back="white"
-                           )
+    )
+    
+    # Generate file name
+    plot_filename <- paste0("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/figures/funnel_plots/", "plot_", gsub(" ", "_", factor_unit), ".png")
+    
+    # Save plot
+    png(plot_filename)
+    print(funnel.plots)
+    dev.off()
   }
-  
-  par(mfrow = c(1, 1))  # Reset to default plotting layout
 }
 
 # Example usage for multiple factor units
@@ -168,214 +174,43 @@ funnel_3level(factor_metric_units3, pcc_data_3level)
 
 
 
-
-
-
-
-
-
-
-
-
-pcc_data_3level%>%
-  select(ES_ID)
-sort(unique(pcc_data_3level$pcc_factor_unit))
-
-rstandard_3level <- function(factor_unit, data) {
-  funnel <- rma.mv(pcc.yi, pcc.vi, 
-                   random = list(~ 1 | ES_ID, ~ 1 | article_id),
-                   data = data,
-                   method = "REML", 
-                   test = "t",
-                   dfs = "contain",
-                   subset = (pcc_factor_unit == factor_unit))
-  
-  # Extracting standardized residuals
-  rstandard_stats <- rstandard(funnel,type= "rstandard")
-  
-  # Extracting variance-covariance matrix
-  vcov_matrix <- funnel$V
-  
-  # Extracting standard errors and z-values
-  se <- sqrt(diag(vcov_matrix))
-  z <- funnel$coef / se
-  
-  # Create data frame with results
-  results <- data.frame(
-    pcc_factor_unit = factor_unit,
-    resid = rstandard_stats,
-    se = se,
-    z = z
-  )
-  return(results)
-}
-
-# List of all factor units
-factor_units3 <- sort(unique(pcc_data_3level$pcc_factor_unit))
-
-# Apply the analysis function for each factor unit
-rstandard_3level_list <- lapply(factor_units3, rstandard_3level, data = pcc_data_3level)
-
-# Combine results into one data frame
-rstandard_3level_results <- do.call(rbind, rstandard_3level_list)
-
-sort(unique(rstandard_3level_results$pcc_factor_unit))
-
-ggplot(pcc_data_3level, aes(y=pcc_precision, x=rstandard_3level_results$resid.resid,  colour = factor(pcc_factor_unit)))+
-  geom_vline(xintercept = 0, colour = "grey20")+
-  geom_point(shape=1, size=3, color="black")+
-  facet_wrap(~ pcc_factor_unit, ncol = 3, scales="free")
-
-
-
-
-
-
-
 ### TWO-LEVEL DATA
-pcc_data_2level
-sort(unique(pcc_data_2level$pcc_factor_unit))
-
-funnel <- rma.uni(yi, vi, 
-                  data = pcc_data_2level,
-                  method = "REML", 
-                  test = "knha",
-                  subset = (pcc_factor_unit == "Total income (continuous)"))
-
-results<-  as.data.frame(rstandard(funnel, type = "conditional"))
-
-
-
-seq_along(as.data.frame(results))
-
-  rownames_to_column(., var = "column_id")
+funnel_2level <- function(factor_units, pcc_data) {
+  # Generate unique folder name based on current timestamp
+  timestamp <- format(Sys.time(), "%Y%m%d%H%M%S")
+  folder_path <- paste0("plots_", timestamp, "/")
   
+  # Create the folder
+  dir.create(folder_path)
   
-
-funnel_2level_results <- data.frame()
-
-# Iterate over each unique pcc_factor_unit
-for (factor_unit in unique(pcc_data_2level$pcc_factor_unit)) {
-  # Fit a random effects meta-analysis model
-  model <- rma.uni(yi, vi, 
-                   data = subset(pcc_data_2level, pcc_factor_unit == factor_unit),
-                   method = "REML", 
-                   test = "knha")
-  
-  # Calculate rstandard
-  rstandard_values <- rstandard(model, type = "conditional")
-  
-  # Store results in a data frame
-  results <- data.frame(factor_unit = factor_unit,
-                        rstandard = rstandard_values)
-  
-  # Append results to all_results data frame
-  funnel_2level_results <- rbind(funnel_2level_results, results)
+  for (i in 1:length(factor_units)) {
+    factor_unit <- factor_units[i]
+    factor_unit_subset <- subset(pcc_data, pcc_factor_unit == factor_unit)
+    
+    funnel.model <- rma(fis.yi, fis.vi,
+                           test = "knha",
+                           data = factor_unit_subset,
+                           method = "REML")
+    summary(funnel.model, digits = 3)
+    
+    funnel.plots <- funnel(funnel.model, yaxis="seinv", refline=0 ,ylab="Precision (1/SE)" ,
+                           xlab="Residual value", main = paste(factor_unit),level= c(90,95,99),
+                           shade=c("white", "gray", "darkgray"),back="white"
+    )
+    
+    # Generate file name
+    plot_filename <- paste0("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/figures/funnel_plots/", "plot_", gsub(" ", "_", gsub("/", "_", factor_unit)), ".png")
+    
+    # Save plot
+    png(plot_filename)
+    print(funnel.plots)
+    dev.off()
+  }
 }
 
-library(gridExtra)
+# Example usage for multiple factor units
+factor_metric_units2 <- unique(pcc_data_2level$pcc_factor_unit)
 
-library(ggplot2)
-library(ggh4x)
-library(readxl)
-library(dplyr)
-library(ggpubr)
-library(grid)
-library(plyr)
-library(forcats)
+funnel_2level(factor_metric_units2, pcc_data_2level)
 
-ggplot(pcc_data_2level, aes(x=pcc_precision, y=funnel_2level_results$rstandard.resid,  colour = factor(factor_sub_class)))+
-  geom_hline(yintercept = 0, colour = "grey20")+
-  geom_point(shape=1, size=3, color="black")+
-  facet_wrap(~ pcc_factor_unit, ncol = 3)
-
-  facet_grid(~pcc_factor_unit,ncol=4)
-              scales= "free", space='free_y', switch = "y")
-
-
-funnel_plot
-
-
-
-
-
-
-funnel_plot <- ggplot(effectsize_2, aes(x=Financial_precision, y=resid.overall$resid))+
-  geom_hline(yintercept = 0, colour = "grey20")+
-  geom_point(shape=1, size=3, color="black")+
-  facet_wrap_custom(~Financial_outcome, scales = "free", ncol = 3,nrow=2,
-                    strip.position = "left",
-                    labeller = as_labeller(c("B/C ratio" = "Residuals", 
-                                             "Net income" = "Residuals",
-                                             "Gross income" = "Residuals",
-                                             "Gross margin" = "Residuals",
-                                             "Total cost" = "Residuals")),
-                    scale_overrides = list(
-                      scale_override(1, scale_x_continuous(breaks = c(0,5,10,15,20,25,30),limits = c(0,30))),
-                      scale_override(2, scale_x_continuous(breaks = c(0,1,2,3,4),limits = c(0,4))),
-                      scale_override(3, scale_x_continuous(breaks = c(0,2,4,6,8),limits = c(0,8))),
-                      scale_override(4, scale_x_continuous(breaks = c(0,50,100,150,200),limits = c(0,200))),
-                      scale_override(5, scale_x_continuous(breaks = c(0,100,200,300),limits = c(0,300))),
-                      scale_override(1, scale_y_continuous(breaks = c(-1.5,-1,-0.5,0,0.5,1,1.5),limits = c(-1.5,1.5))),
-                      scale_override(2, scale_y_continuous(breaks = c(-20,-15,-10,-5,0,5,10,15,20),limits = c(-15,15))),
-                      scale_override(3, scale_y_continuous(breaks = c(-20,-10,0,10,20,30),limits = c(-20,35))),
-                      scale_override(4, scale_y_continuous(breaks = c(-2,-1,0,1,2,3),limits = c(-2,3))),
-                      scale_override(5, scale_y_continuous(breaks = c(-3,-2,-1,0,1,2,3,4),limits = c(-3,4)))))+
-  
-  theme_F3+
-  theme(plot.margin = unit(c(t=0.5,b=1,l=0.5,r=0.5), "lines"))
-funnel_plot<- ggplotGrob(funnel_plot)
-grid.show.layout(gtable:::gtable_layout(funnel_plot))
-funnel_plot<- gtable_add_rows(x = funnel_plot, heights = unit(1, 'cm'), pos = 2)
-funnel_plot<-  gtable_add_grob(x = funnel_plot,grobs = list(rectGrob(gp = gpar(col = NA,fill = NA)),
-                                                            textGrob(label = "a)  B/C ratio", gp = gpar(col = "black",fontface="bold",fontsize=18,fontfamily="sans"))),
-                               t = 3, l = 10, b = 2, r = 6, name = c("strip-top-1-rectg", "strip-top-1-text"))
-funnel_plot<-  gtable_add_grob(x = funnel_plot,grobs = list(rectGrob(gp = gpar(col = NA,fill = NA)),
-                                                            textGrob(label = "b)  Gross margin", gp = gpar(col = "black",fontface="bold",fontsize=18,fontfamily="sans"))),
-                               t = 3, l = 18, b = 2, r = 9, name = c("strip-top-2-rectg", "strip-top-2-text"))
-
-funnel_plot<-  gtable_add_grob(x = funnel_plot,grobs = list(rectGrob(gp = gpar(col = NA,fill = NA)),
-                                                            textGrob(label = "c)  Net income", gp = gpar(col = "black",fontface="bold",fontsize=18,fontfamily="sans"))),
-                               t = 3, l = 23, b = 2, r = 17, name = c("strip-top-3-rectg", "strip-top-3-text"))
-funnel_plot<- ggplotGrob(funnel_plot)
-funnel_plot<- gtable_add_rows(x = funnel_plot, heights = unit(1.5, 'cm'), pos = 11)
-funnel_plot<-  gtable_add_grob(x = funnel_plot,grobs = list(rectGrob(gp = gpar(col = NA,fill = NA)),
-                                                            textGrob(label = "d)  Gross income", gp = gpar(col = "black",fontface="bold",fontsize=18,fontfamily="sans"))),
-                               t = 15, l = 10, b = 6, r = 6, name = c("strip-top-4-rectg", "strip-top-3-text"))
-
-funnel_plot<-  gtable_add_grob(x = funnel_plot,grobs = list(rectGrob(gp = gpar(col = NA,fill = NA)),
-                                                            textGrob(label = "e)  Total cost", gp = gpar(col = "black",fontface="bold",fontsize=18,fontfamily="sans"))),
-                               t = 15, l = 18, b = 6, r = 9, name = c("strip-top-5-rectg", "strip-top-3-text"))
-
-funnel_plot<-  gtable_add_grob(x = funnel_plot,grobs = list(rectGrob(gp = gpar(col = NA,fill = NA)),
-                                                            textGrob(label = "  Gross income", gp = gpar(col = "black",fontface="bold",fontsize=15,fontfamily="sans"))),
-                               t = 15, l = 10, b = 6, r = 6, name = c("strip-top-4-rectg", "strip-top-3-text"))
-funnel_plot<- ggplotGrob(funnel_plot)
-funnel_plot<- gtable_add_rows(x = funnel_plot, heights = unit(0.5, 'cm'), pos = -3)
-funnel_plot<-  gtable_add_grob(x = funnel_plot,grobs = list(rectGrob(gp = gpar(col = NA,fill = NA)),
-                                                            textGrob(label = expression(paste("Precision ", (SE^-1))), gp = gpar(col = "black",fontface="plain",fontsize=14,fontfamily="sans"))),
-                               t = -3, l = 7, b = 18, r = 9, name = c("strip-top-1-rectg", "strip-top-1-text"))
-funnel_plot<-  gtable_add_grob(x = funnel_plot,grobs = list(rectGrob(gp = gpar(col = NA,fill = NA)),
-                                                            textGrob(label = expression(paste("Precision ", (SE^-1))), gp = gpar(col = "black",fontface="plain",fontsize=14,fontfamily="sans"))),
-                               t = -3, l = 17.5, b = 18, r = 12, name = c("strip-top-2-rectg", "strip-top-2-text"))
-
-
-funnel_plot<-  gtable_add_grob(x = funnel_plot,grobs = list(rectGrob(gp = gpar(col = NA,fill = NA)),
-                                                            textGrob(label = expression(paste("Precision ", (SE^-1))), gp = gpar(col = "black",fontface="plain",fontsize=14,fontfamily="sans"))),
-                               t = 10, l = 7, b = 10, r = 9, name = c("strip-top-1-rectg", "strip-top-1-text"))
-funnel_plot<-  gtable_add_grob(x = funnel_plot,grobs = list(rectGrob(gp = gpar(col = NA,fill = NA)),
-                                                            textGrob(label = expression(paste("Precision ", (SE^-1))), gp = gpar(col = "black",fontface="plain",fontsize=14,fontfamily="sans"))),
-                               t = 10, l = 17.5, b = 10, r = 12, name = c("strip-top-2-rectg", "strip-top-2-text"))
-
-funnel_plot<-  gtable_add_grob(x = funnel_plot,grobs = list(rectGrob(gp = gpar(col = NA,fill = NA)),
-                                                            textGrob(label = expression(paste("Precision ", (SE^-1))), gp = gpar(col = "black",fontface="plain",fontsize=14,fontfamily="sans"))),
-                               t = 10, l = 23, b = 10, r = 17, name = c("strip-top-2-rectg", "strip-top-2-text"))
-grid.newpage()
-grid.draw(funnel_plot) 
-
-tiff('Results_2022.06.21/Figure_A18.tiff', units="cm", width=35, height=20, res=300)
-grid.draw(funnel_plot) 
-dev.off()
-
-ggsave("Results_2022.06.21/Figure_A18.pdf", plot = funnel_plot, dpi = 320,
-       width = 55,height = 30, units = "cm")
+850x580
