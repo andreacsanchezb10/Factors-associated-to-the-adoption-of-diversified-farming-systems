@@ -152,7 +152,9 @@ funnel_3level <- function(factor_units, pcc_data) {
                            method = "REML")
     summary(funnel.model, digits = 3)
     
-    funnel.plots <- funnel(funnel.model, yaxis="seinv", refline=0 ,ylab="Precision (1/SE)" ,
+    trimandfill <- trimfill(funnel.model)
+    
+    funnel.plots <- funnel(trimandfill, yaxis="seinv", refline=0 ,ylab="Precision (1/SE)" ,
                            xlab="Residual value", main = paste(factor_unit),level= c(90,95,99),
                            shade=c("white", "gray", "darkgray"),back="white"
     )
@@ -193,7 +195,9 @@ funnel_2level <- function(factor_units, pcc_data) {
                            method = "REML")
     summary(funnel.model, digits = 3)
     
-    funnel.plots <- funnel(funnel.model, yaxis="seinv", refline=0 ,ylab="Precision (1/SE)" ,
+    trimandfill <- trimfill(funnel.model)
+    
+    funnel.plots <- funnel(trimandfill, yaxis="seinv", refline=0 ,ylab="Precision (1/SE)" ,
                            xlab="Residual value", main = paste(factor_unit),level= c(90,95,99),
                            shade=c("white", "gray", "darkgray"),back="white"
     )
