@@ -25,31 +25,38 @@ pcc_data_3level<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")
 names(pcc_data_3level)
 
 qqplot_3level <- function(factor_units, pcc_data) {
-  num_cols <- 6
-  num_rows <- ceiling(length(factor_units) / num_cols)
-  par(mfrow = c(num_rows, num_cols), mar = c(3, 3, 1, 1))  # Adjust margins
+  # Generate unique folder name based on current timestamp
+  timestamp <- format(Sys.time(), "%Y%m%d%H%M%S")
+  folder_path <- paste0("plots_", timestamp, "/")
+  
+  # Create the folder
+  dir.create(folder_path)
   
   for (i in 1:length(factor_units)) {
     factor_unit <- factor_units[i]
     factor_unit_subset <- subset(pcc_data, pcc_factor_unit == factor_unit)
     
     overall_model3 <- rma.mv(fis.yi, fis.vi,
-                            random = list(~ 1 | ES_ID, ~ 1 | article_id),
-                            test = "t",
-                            dfs="contain",
-                            data = factor_unit_subset,
-                            method = "REML")
+                              random = list(~ 1 | ES_ID, ~ 1 | article_id),
+                              test = "t",
+                              dfs="contain",
+                              data = factor_unit_subset,
+                              method = "REML")
     summary(overall_model3, digits = 3)
     
-    plot_index <- i %% num_cols
-    if (plot_index == 0) plot_index <- num_cols
+    qqplot<- qqnorm(residuals(overall_model3, type = "rstandard"), 
+                    main = paste(factor_unit),level= overall_model3$level)
+      qqline(residuals(overall_model3, type = "rstandard"), col = "red")
     
-    qqnorm(residuals(overall_model3, type = "rstandard"), 
-           main = paste(factor_unit))
-    qqline(residuals(overall_model3, type = "rstandard"), col = "red")
+    
+    # Generate file name
+    plot_filename <- paste0("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/figures/funnel_plots/", "plot_", gsub(" ", "_", factor_unit), ".png")
+    
+    # Save plot
+    png(plot_filename)
+    print(qqplot)
+    dev.off()
   }
-  
-  par(mfrow = c(1, 1))  # Reset to default plotting layout
 }
 
 # Example usage for multiple factor units
@@ -64,34 +71,40 @@ pcc_data_2level<- read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ",")
          pcc_precision = (1/pcc_se))
 
 qqplot_2level <- function(factor_units, pcc_data) {
-  num_cols <- 6
-  num_rows <- ceiling(length(factor_units) / num_cols)
-  par(mfrow = c(num_rows, num_cols), mar = c(3, 3, 1, 1))  # Adjust margins
+  # Generate unique folder name based on current timestamp
+  timestamp <- format(Sys.time(), "%Y%m%d%H%M%S")
+  folder_path <- paste0("plots_", timestamp, "/")
+  
+  # Create the folder
+  dir.create(folder_path)
   
   for (i in 1:length(factor_units)) {
     factor_unit <- factor_units[i]
     factor_unit_subset <- subset(pcc_data, pcc_factor_unit == factor_unit)
     
-    overall_model2 <- rma.uni(fis.yi, fis.vi,
-                             test = "knha",
-                             data = factor_unit_subset,
-                             method = "REML")
-    
-
+    overall_model2 <- rma(fis.yi, fis.vi,
+                        test = "knha",
+                        data = factor_unit_subset,
+                        method = "REML")
     summary(overall_model2, digits = 3)
     
-    plot_index <- i %% num_cols
-    if (plot_index == 0) plot_index <- num_cols
-    
-    qqnorm(residuals(overall_model2, type = "rstandard"), 
-           main = paste(factor_unit))
+    qqplot<- qqnorm(residuals(overall_model2, type = "rstandard"), 
+           main = paste(factor_unit),envelope=TRUE)
     qqline(residuals(overall_model2, type = "rstandard"), col = "red")
+    
+    # Generate file name
+    plot_filename <- paste0("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/figures/funnel_plots/", "plot_", gsub(" ", "_", gsub("/", "_", factor_unit)), ".png")
+    
+    # Save plot
+    png(plot_filename)
+    print(qqplot)
+    dev.off()
   }
-  
-  par(mfrow = c(1, 1))  # Reset to default plotting layout
 }
+
 
 # Example usage for multiple factor units
 factor_metric_units2 <- unique(pcc_data_2level$pcc_factor_unit)
 
 qqplot_2level(factor_metric_units2, pcc_data_2level)
+
