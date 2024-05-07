@@ -58,7 +58,7 @@ overal_results<- overall_3level_results%>%
                                                 "no_significant_negative"))))%>%
   mutate(pcc.ci.lb_l = ifelse(pcc.ci.lb < -0.27, -0.27, NA),
          pcc.ci.ub_l = ifelse(pcc.ci.ub > 0.75, 0.75, NA))%>%
-  mutate(pcc.ci.ub_l1= ifelse(pcc_factor_unit=="Soil slope (1= steep)", pcc.ci.ub,
+  mutate(pcc.ci.ub_l1= ifelse(pcc_factor_unit=="Steep slope (1= yes, 0= no)", pcc.ci.ub,
                                      ifelse(pcc_factor_unit=="Perceived benefit (1= erosion reduction)",pcc.ci.ub,
                                             ifelse(pcc_factor_unit=="Plot size (continuous)",pcc.ci.ub,
                                                    ifelse(pcc_factor_unit=="Access to irrigation (1= yes)",pcc.ci.ub,NA)))))%>%
@@ -75,7 +75,7 @@ sort(unique(overal_results$significance1))
 
 #overal_results$factor_sub_class <- toupper(overal_results$factor_sub_class)
 
-overal_results$ID <- as.numeric(seq(68, 1, by = -1)) #add a new column with the effect size ID number
+overal_results$ID <- as.numeric(seq(66, 1, by = -1)) #add a new column with the effect size ID number
 
 ########################################################################################################
 ############# OVERALL RESULTS ONLY  ########################################################################################################
@@ -145,6 +145,8 @@ overall_effect<-
   scale_x_continuous(limit = c(-0.27,0.75),expand = c(0.05, 0.05),
                      breaks = c(-0.5,-0.25,0,0.25,0.5,0.75),
                      labels = c("-0.5","-0.25","0","0.25","0.5","0.75"))+
+  xlab(expression(paste("Partial Correlation Coefficient (", italic("r"), " [", italic("p"), "])")))+
+
   xlab("Partial Correlation Coefficient (PCC)")+
   theme_overall+
   theme(strip.placement.y = "outside",
