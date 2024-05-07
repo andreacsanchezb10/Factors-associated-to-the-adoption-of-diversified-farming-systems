@@ -61,7 +61,7 @@ overal_results<- overall_3level_results%>%
   mutate(pcc.ci.ub_l1= ifelse(pcc_factor_unit=="Steep slope (1= yes, 0= no)", pcc.ci.ub,
                                      ifelse(pcc_factor_unit=="Perceived benefit (1= erosion reduction)",pcc.ci.ub,
                                             ifelse(pcc_factor_unit=="Plot size (continuous)",pcc.ci.ub,
-                                                   ifelse(pcc_factor_unit=="Access to irrigation (1= yes)",pcc.ci.ub,NA)))))%>%
+                                                   ifelse(pcc_factor_unit=="Access to irrigation (1= yes, 0= no)",pcc.ci.ub,NA)))))%>%
   mutate(pcc.ci.lb_l1= ifelse(pcc_factor_unit=="Plot size (continuous)", pcc.ci.lb,NA))%>%
   mutate(factor_sub_class= if_else(factor_sub_class=="Financial risk-mechanisms","Political_1",
                                    if_else(factor_sub_class=="Knowledge access","Political_2",
@@ -146,8 +146,6 @@ overall_effect<-
                      breaks = c(-0.5,-0.25,0,0.25,0.5,0.75),
                      labels = c("-0.5","-0.25","0","0.25","0.5","0.75"))+
   xlab(expression(paste("Partial Correlation Coefficient (", italic("r"), " [", italic("p"), "])")))+
-
-  xlab("Partial Correlation Coefficient (PCC)")+
   theme_overall+
   theme(strip.placement.y = "outside",
         plot.margin = unit(c(t=0.5,r=0,b=0.5,l=3.5), "cm"),
