@@ -147,7 +147,7 @@ modelnovar3_results <- as.data.frame(modelnovar3_results_list)%>%
          "pval.between"= "pval")%>%
   mutate_at(2:4, as.numeric)%>%
   mutate_at(2:4, ~round(.,4))
-
+names(modelnovar3_results)
 ### Table S6.	Results of the comparison between the three-level and two-level model 
 #structures for each determinant factor, based on the Akaike Information Criterion (AIC), 
 #Likelihood Ratio Test (LRT) and p-value. The three-level model was chosen as the best model
