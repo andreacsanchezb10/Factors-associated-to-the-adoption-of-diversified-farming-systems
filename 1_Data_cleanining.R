@@ -590,8 +590,8 @@ data_adoption_binary<-adoption_binary%>%
   
   x_metric_recla=="receive incentive for conservation"|
   x_metric_recla=="access to credit"|  
-  x_metric_recla=="access to credit is a constraint"  )
-#x_metric_recla=="use of DFS" ) # to check
+  x_metric_recla=="access to credit is a constraint"  |
+  x_metric_recla=="hh perception of climate change" ) # to check
 
 
 sort(unique(data_adoption_binary$limitation_of_use_obs))

@@ -37,7 +37,7 @@ names(data)
 length(unique(data$article_id)) #153 articles for PCC analysis
 sort(unique(data$article_id))  
 sort(unique(data$pcc_factor_unit))  #66
-length(unique(data$pcc_factor_unit)) #70
+length(unique(data$pcc_factor_unit)) #68
 
 length(unique(data$m_intervention_recla2)) #10 systems
 sort(unique(data$country)) #44
