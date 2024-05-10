@@ -59,7 +59,7 @@ overal_results<- overall_3level_results%>%
   mutate(pcc.ci.lb_l = ifelse(pcc.ci.lb < -0.27, -0.27, NA),
          pcc.ci.ub_l = ifelse(pcc.ci.ub > 0.75, 0.75, NA))%>%
   mutate(pcc.ci.ub_l1= ifelse(pcc_factor_unit=="Steep slope (1= yes, 0= no)", pcc.ci.ub,
-                                     ifelse(pcc_factor_unit=="Perceived benefit (1= erosion reduction)",pcc.ci.ub,
+                                     ifelse(pcc_factor_unit=="Perceived erosion reduction benefit (1= yes, 0= no)",pcc.ci.ub,
                                             ifelse(pcc_factor_unit=="Plot size (continuous)",pcc.ci.ub,
                                                    ifelse(pcc_factor_unit=="Access to irrigation (1= yes, 0= no)",pcc.ci.ub,NA)))))%>%
   mutate(pcc.ci.lb_l1= ifelse(pcc_factor_unit=="Plot size (continuous)", pcc.ci.lb,NA))%>%
@@ -75,7 +75,7 @@ sort(unique(overal_results$significance1))
 
 #overal_results$factor_sub_class <- toupper(overal_results$factor_sub_class)
 
-overal_results$ID <- as.numeric(seq(66, 1, by = -1)) #add a new column with the effect size ID number
+overal_results$ID <- as.numeric(seq(67, 1, by = -1)) #add a new column with the effect size ID number
 
 ########################################################################################################
 ############# OVERALL RESULTS ONLY  ########################################################################################################
@@ -121,9 +121,9 @@ overall_effect<-
   geom_text(aes(label=significance, x=pcc.ci.ub+0.01, group=pcc_factor_unit), 
             vjust=0.7, hjust=-0.005,size=7,
             color="black",  family="sans",position = (position_dodge(width = -0.5)))+
-  geom_text(aes(label=significance1, x=pcc.ci.ub+0.01, group=pcc_factor_unit,fontface = "bold"), 
-            vjust=0.35, hjust=-0.005,size=3, 
-            color="black",  family="sans",position = (position_dodge(width = -0.5)))+
+ # geom_text(aes(label=significance1, x=pcc.ci.ub+0.01, group=pcc_factor_unit,fontface = "bold"), 
+  #          vjust=0.35, hjust=-0.005,size=3, 
+   #         color="black",  family="sans",position = (position_dodge(width = -0.5)))+
     geom_segment(aes(y = reorder(pcc_factor_unit, pcc.beta),
                      yend = reorder(pcc_factor_unit, pcc.beta),
                      x=pcc.beta, xend = pcc.ci.lb_l),show.legend = F,size=1,
@@ -143,9 +143,9 @@ overall_effect<-
               scales= "free", space='free_y', switch = "y",
               strip = overall_strips)+
   scale_x_continuous(limit = c(-0.27,0.75),expand = c(0.05, 0.05),
-                     breaks = c(-0.5,-0.25,0,0.25,0.5,0.75),
+                     breaks = c(-0.50,-0.25,0,0.25,0.50,0.75),
                      labels = c("-0.5","-0.25","0","0.25","0.5","0.75"))+
-  xlab(expression(paste("Partial Correlation Coefficient (", italic("r"), " [", italic("p"), "])")))+
+  labs(x = expression("Partial correlation coefficient (r"[p]*")"))+
   theme_overall+
   theme(strip.placement.y = "outside",
         plot.margin = unit(c(t=0.5,r=0,b=0.5,l=3.5), "cm"),
