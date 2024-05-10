@@ -174,7 +174,7 @@ comparison<- modelnovar2_results%>%
          "best_model")
 
 length((comparison$best_model[comparison$best_model %in% "Three-level"])) #13
-length((comparison$best_model[comparison$best_model %in% "Two-level"])) #57
+length((comparison$best_model[comparison$best_model %in% "Two-level"])) #54
 
 
 write.csv(comparison, "results/comparison_best_model.csv", row.names=FALSE)
