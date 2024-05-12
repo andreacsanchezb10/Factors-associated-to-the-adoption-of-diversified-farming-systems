@@ -51,9 +51,10 @@ table.glmulti <- function(x, type = "p", ...) {
 pcc_data_2level<- read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ",")%>%
   mutate(m_mean_farm_size_ha= as.numeric(m_mean_farm_size_ha))%>%
   group_by( pcc_factor_unit)%>%
-  dplyr::mutate(n_articles = n_distinct(article_id))%>%
-  filter(n_articles>9)%>%
+  dplyr::mutate(n_es = n_distinct(ES_ID))%>%
+  filter(n_es>9)%>%
   ungroup()
+  names(pcc_data_2level)
 sort(unique(pcc_data_2level$pcc_factor_unit))    
 
 #Heterogeneity
@@ -67,6 +68,8 @@ sort(unique(heterogeneity_2level$pcc_factor_unit))
 m_pcc_data_2level<- pcc_data_2level%>%
   dplyr::left_join(heterogeneity_2level, by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
   filter(!is.na(I2))
+sort(unique(m_pcc_data_2level$pcc_factor_unit))    
+
 
 rma.glmulti <- function(formula, data, ...)
   rma(formula, fis.vi, data=data, method="ML", ...)
@@ -130,7 +133,9 @@ for (unit in unique(m_pcc_data_2level$pcc_factor_unit)) {
 
 importance_df_2levels <- do.call(rbind, lapply(importance_list2, as.data.frame))%>%
   rownames_to_column(., var = "pcc_factor_unit")%>%
-  mutate(pcc_factor_unit= sub("\\..*", "", pcc_factor_unit))%>%
+  mutate(pcc_factor_unit= sub("\\..*", "", pcc_factor_unit))
+  filter(Importance>= 0.5)
+
   group_by(pcc_factor_unit) %>%
   arrange(desc(Importance)) 
   slice_head(n = 5) %>%
@@ -146,33 +151,11 @@ write.csv(importance_df_2levels,"results/moderators_importance_akaike_2levels.cs
 pcc_data_3level<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")%>%
   mutate_at(vars(m_mean_farm_size_ha,n_samples_num,n_predictors_num,m_education_years ), as.numeric)%>%
   group_by( pcc_factor_unit)%>%
-  dplyr::mutate(n_articles = n_distinct(article_id))%>%
-  filter(n_articles>9)%>%
-  ungroup()%>%
-  filter(
-    pcc_factor_unit== "Distance to farm-house (continuous)")#no funciona
-      
-    pcc_factor_unit=="Awareness of practice (1= yes, 0= no)"|
-      
-    pcc_factor_unit=="Non-farm income (continuous)"|
-      pcc_factor_unit=="Land tenure security (1= yes, 0= no)"|
-      pcc_factor_unit=="Access to information (1= yes, 0= no)"|
-      pcc_factor_unit=="Livestock units (continuous)"|
-      pcc_factor_unit=="Adults in household (continuous)")
-    
-
-           
-           pcc_factor_unit== "Distance market (continuous)"|
-           pcc_factor_unit== "Household size (continuous)" |
-           pcc_factor_unit== "On-farm income (continuous)"|
-           pcc_factor_unit== "Education (continuous)")
-
-sort(unique(pcc_data_3level$pcc_factor_unit))
-
+  dplyr::mutate(n_es = n_distinct(ES_ID))%>%
+  filter(n_es>9)%>%
+  ungroup()
   
-#problemas
-pcc_factor_unit=="Access to extension (1= yes)"
-
+sort(unique(pcc_data_3level$pcc_factor_unit))
 
 rma.glmulti1 <- function(formula, data, ...) {
   rma.mv(formula, fis.vi,
@@ -195,29 +178,27 @@ for (unit in unique(pcc_data_3level$pcc_factor_unit)) {
   if (nrow(subset_data) > length(coef(subset_data)) + 1) {
     
     # Include specific variables based on pcc_factor_unit
-    if (unit == "Awareness of practice (1= yes)") {
-      variables_to_include <- c( "m_intervention_recla2", "m_region","m_sub_region", "m_mean_farm_size_ha")
-    
-      } else if ( unit == "Distance to farm-house (continuous)"||
-                  unit =="Education (continuous)"|
-                  unit =="Land tenure security (1= yes, 0= no)") {
+    if (unit == "Awareness of practice (1= yes, 0= no)"||
+        unit =="Access to extension (1= yes, 0= no)") {
+      variables_to_include <- c( "m_intervention_recla2", "m_region","m_sub_region", "m_mean_farm_size_ha","n_predictors_num","m_sampling_unit","m_random_sample","m_type_data","m_model_method","m_av_year_assessment")
+      } else if (unit =="Education (continuous)"|
+                 unit =="Land tenure security (1= yes, 0= no)") {
       variables_to_include <- c("m_intervention_recla2", "m_region","m_sub_region", "m_mean_farm_size_ha", "m_education_years","n_predictors_num","m_sampling_unit","m_random_sample","m_type_data","m_model_method")
       } else if ( unit == "Access to information (1= yes, 0= no)") { 
         variables_to_include <- c("m_intervention_recla2", "m_region", "m_mean_farm_size_ha", "m_education_years","n_predictors_num","m_sampling_unit","m_random_sample","m_type_data","m_model_method")
-                
-    } else if (unit == "Distance to market (continuous)"|| 
-               unit == "Household size (continuous)" ){
-    variables_to_include <- c("m_intervention_recla2", "m_region", "m_sub_region", "m_mean_farm_size_ha")
-   
-     }  else if (unit== "On-farm income (continuous)"||
-                 unit==  "Non-farm income (continuous)"||
-                 unit== "Livestock units (continuous)"||
-                 unit=="Adults in household (continuous)"){
-      variables_to_include <- c("m_intervention_recla2","m_region","m_sub_region","m_mean_farm_size_ha","m_education_years","n_predictors_num","m_sampling_unit","m_random_sample","m_model_method")
-    
-     }else if ( unit == "Adults in household (continuous)") {
-       variables_to_include <- c("m_intervention_recla2", "m_region", "m_sub_region", "m_education_years")
-     }
+        } else if (unit == "Distance to market (continuous)"|| 
+                   unit == "Household size (continuous)" ){
+          variables_to_include <- c("m_intervention_recla2", "m_region", "m_sub_region", "m_mean_farm_size_ha","n_predictors_num","m_sampling_unit","m_random_sample","m_type_data","m_model_method")
+          }  else if (unit== "On-farm income (continuous)"||
+                      unit==  "Non-farm income (continuous)"||
+                      unit== "Livestock units (continuous)"||
+                      unit=="Adults in household (continuous)"){
+            variables_to_include <- c("m_intervention_recla2","m_region","m_sub_region","m_mean_farm_size_ha","m_education_years","n_predictors_num","m_sampling_unit","m_random_sample","m_model_method")
+            } else if ( unit == "Distance to farm-house (continuous)"){
+              variables_to_include <- c("m_intervention_recla2", "m_region","m_sub_region", "m_mean_farm_size_ha", "m_education_years","n_predictors_num","m_sampling_unit","m_random_sample","m_type_data")
+              }else if ( unit == "Adults in household (continuous)") {
+                variables_to_include <- c("m_intervention_recla2", "m_region", "m_sub_region", "m_education_years")
+                }
     # Check if there are enough variables for modeling
     if (length(variables_to_include) > 0) {
       
@@ -243,11 +224,9 @@ for (unit in unique(pcc_data_3level$pcc_factor_unit)) {
 # Convert the list to a data.frame
 importance_factors_3levels <- do.call(rbind, lapply(importance_list3, as.data.frame))%>%
   rownames_to_column(., var = "pcc_factor_unit")%>%
-  mutate(pcc_factor_unit= sub("\\..*", "", pcc_factor_unit))%>%
-  group_by(pcc_factor_unit) %>%
-  arrange(desc(Importance)) 
-  slice_head(n = 5) %>%
-  ungroup()
+  mutate(pcc_factor_unit= sub("\\..*", "", pcc_factor_unit))
+  filter(Importance>= 0.5)
+
 
 sort(unique(importance_factors_3levels$pcc_factor_unit))
 
@@ -259,26 +238,12 @@ sort(unique(importance_factors_3levels$pcc_factor_unit))
 sort(unique(importance_factors_3levels$pcc_factor_unit))
 
 importance_factors<-
-  #importance_df_2levels%>%
   rbind(importance_df_2levels,importance_factors_3levels)%>%
-  mutate(colours= if_else(Importance>=0.5,"important","not_important"))%>%
-  rename("moderator"="Term")
+  dplyr::rename("moderator"="Term")
 
 
-#unique_category1 <- unique(importance_factors$pcc_factor_unit)
-#unique_category2 <- unique(importance_factors$Term)
-
-# Create all possible combinations
-#all_combinations <- expand.grid(
- # pcc_factor_unit = unique_category1,
-  #Term = unique_category2
-#)
-
-# Merge with the original data frame to get missing combinations
-#result <- merge(all_combinations, importance_factors, all.x = TRUE)
-
-
-sort(unique(importance_factors$Term))
+sort(unique(importance_factors$moderator))
+sort(unique(importance_factors$pcc_factor_unit))
 
   
 library(reshape2)
