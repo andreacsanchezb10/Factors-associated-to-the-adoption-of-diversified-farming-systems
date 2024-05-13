@@ -102,10 +102,10 @@ for (unit in unique(m_pcc_data_2level$pcc_factor_unit)) {
     } else if (unit =="Farming experience (continuous)"){
       variables_to_include <- c("m_intervention_recla2","m_region","m_sub_region","m_mean_farm_size_ha","n_predictors_num","m_sampling_unit","m_random_sample","m_type_data","m_model_method")
     }else if (unit== "Relatives and friends (continuous)"||
-              unit=="Married farmer (1= yes, 0= no)"||
-              unit== "High soil fertility (1= yes, 0= no)"){
+              unit=="Married (1= yes, 0= others)"||
+              unit== "High soil fertility (1= yes, 0= others)"){
       variables_to_include <- c("m_intervention_recla2","m_region","m_sub_region","m_mean_farm_size_ha","m_education_years","n_predictors_num","m_sampling_unit","m_random_sample","m_type_data","m_model_method")
-      }else if (unit=="Moderate soil fertility (1= yes, 0= no)"){
+      }else if (unit=="Moderate soil fertility (1= yes, 0= others)"){
       variables_to_include <- c("m_intervention_recla2","m_mean_farm_size_ha","m_education_years","n_predictors_num","m_sampling_unit","m_random_sample","m_type_data","m_model_method","m_av_year_assessment")
       } else if (unit =="Livestock owned (1= yes, 0= no)"||
                  unit =="Age (continuous)"||
@@ -176,7 +176,7 @@ for (unit in unique(pcc_data_3level$pcc_factor_unit)) {
     
     # Include specific variables based on pcc_factor_unit
     if (unit == "Awareness of practice (1= yes, 0= no)"||
-        unit == "Steep slope (1= yes, 0= no)"||
+        unit == "Steep slope (1= yes, 0= others)"||
         unit =="Access to extension (1= yes, 0= no)") {
       variables_to_include <- c( "m_intervention_recla2", "m_region","m_sub_region", "m_mean_farm_size_ha","n_predictors_num","m_sampling_unit","m_random_sample","m_type_data","m_model_method","m_av_year_assessment")
       } else if (unit =="Education (continuous)"|
@@ -254,7 +254,7 @@ names(pcc_data)
 importance_factors<-
   rbind(importance_df_2levels,importance_factors_3levels)%>%
   dplyr::rename("moderator"="Term")%>%
-  left_join(pcc_factor_class_unit,by="pcc_factor_unit")
+  left_join(pcc_factor_class_unit,by="pcc_factor_unit")%>%
   #mutate(Importance=round(Importance, 2))
   filter(factor_sub_class=="Biophysical context")
 
