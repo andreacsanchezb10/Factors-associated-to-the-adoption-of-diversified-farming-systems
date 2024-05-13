@@ -138,10 +138,6 @@ importance_df_2levels <- do.call(rbind, lapply(importance_list2, as.data.frame))
   mutate(pcc_factor_unit= sub("\\..*", "", pcc_factor_unit))%>%
   filter(Importance>= 0.5)
 
-  group_by(pcc_factor_unit) %>%
-  arrange(desc(Importance)) 
-  slice_head(n = 5) %>%
-  ungroup()
 sort(unique(importance_df_2levels$pcc_factor_unit))
 
 write.csv(importance_df_2levels,"results/moderators_importance_akaike_2levels.csv", row.names=FALSE)
