@@ -58,10 +58,10 @@ overal_results<- overall_3level_results%>%
                                                 "no_significant_negative"))))%>%
   mutate(pcc.ci.lb_l = ifelse(pcc.ci.lb < -0.27, -0.27, NA),
          pcc.ci.ub_l = ifelse(pcc.ci.ub > 0.75, 0.75, NA))%>%
-  mutate(pcc.ci.ub_l1= ifelse(pcc_factor_unit=="Steep slope (1= yes, 0= no)", pcc.ci.ub,
-                                     ifelse(pcc_factor_unit=="Perceived erosion reduction benefit (1= yes, 0= no)",pcc.ci.ub,
+  mutate(pcc.ci.ub_l1= ifelse(pcc_factor_unit=="Steep slope (1= yes, 0= others)", pcc.ci.ub,
+                                     ifelse(pcc_factor_unit=="Perceived erosion reduction benefit (1= yes, 0= others)",pcc.ci.ub,
                                             ifelse(pcc_factor_unit=="Plot size (continuous)",pcc.ci.ub,
-                                                   ifelse(pcc_factor_unit=="Access to irrigation (1= yes, 0= no)",pcc.ci.ub,NA)))))%>%
+                                                   ifelse(pcc_factor_unit=="Access to irrigation (1= yes, 0= others)",pcc.ci.ub,NA)))))%>%
   mutate(pcc.ci.lb_l1= ifelse(pcc_factor_unit=="Plot size (continuous)", pcc.ci.lb,NA))%>%
   mutate(factor_sub_class= if_else(factor_sub_class=="Financial risk-mechanisms","Political_1",
                                    if_else(factor_sub_class=="Knowledge access","Political_2",

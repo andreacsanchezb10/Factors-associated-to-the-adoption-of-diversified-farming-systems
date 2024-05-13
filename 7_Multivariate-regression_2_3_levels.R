@@ -222,7 +222,7 @@ for (unit in unique(pcc_data_3level$pcc_factor_unit)) {
 # Convert the list to a data.frame
 importance_factors_3levels <- do.call(rbind, lapply(importance_list3, as.data.frame))%>%
   rownames_to_column(., var = "pcc_factor_unit")%>%
-  mutate(pcc_factor_unit= sub("\\..*", "", pcc_factor_unit))
+  mutate(pcc_factor_unit= sub("\\..*", "", pcc_factor_unit))%>%
   filter(Importance>= 0.5)
 
 
@@ -254,7 +254,7 @@ names(pcc_data)
 importance_factors<-
   rbind(importance_df_2levels,importance_factors_3levels)%>%
   dplyr::rename("moderator"="Term")%>%
-  left_join(pcc_factor_class_unit,by="pcc_factor_unit")%>%
+  left_join(pcc_factor_class_unit,by="pcc_factor_unit")
   #mutate(Importance=round(Importance, 2))
   filter(factor_sub_class=="Biophysical context")
 
