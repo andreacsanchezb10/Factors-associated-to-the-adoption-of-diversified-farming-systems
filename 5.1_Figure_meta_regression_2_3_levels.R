@@ -37,7 +37,11 @@ meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",
                                            if_else(factor_sub_class=="Land tenure","Political_3",
                                                    factor_sub_class))))%>%
   arrange(factor_sub_class, moderator, 
-          moderator_class)
+          moderator_class)%>%
+  mutate(estimate2= if_else(estimate>= 0.33, "large",
+                            if_else(estimate < 0.33 | 
+                                      estimate >=0.17, "moderate",
+                                    if_else(estimate <0.17, "small","xx"))))
 
 sort(unique(meta_regression$factor_sub_class))
 
