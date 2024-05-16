@@ -67,8 +67,33 @@ overal_results<- overall_3level_results%>%
                                    if_else(factor_sub_class=="Knowledge access","Political_2",
                                            if_else(factor_sub_class=="Land tenure","Political_3",
                                                    factor_sub_class))))%>%
-  mutate(significance1= if_else(pval>0.05&pval<=0.1,"†",""))
-  
+  #mutate(significance1= if_else(pval>0.05&pval<=0.1,"†",""))%>%
+  mutate(pcc_factor_unit2= seq(67, 1 ))
+
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in% "Deep soil (1= yes, 0= others)"] <- 65
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"High soil fertility (1= yes, 0= others)"] <- 64
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Moderate soil fertility (1= yes, 0= others)"] <-63
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Poor soil fertility (1= yes, 0= others)"] <-62
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Moderate slope (1= yes, 0= others)"] <-61
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Flat slope (1= yes, 0= others)"] <-60
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Steep slope (1= yes, 0= others)"] <-59
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Precipitation (mm/year)"] <-58
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Temperature (Celsius)"] <-57
+
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Negative attitude toward practice (1= yes, 0= others)"]<-55
+
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived environmental benefit (1= yes, 0= others)"]<-54
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived financial benefit (1= yes, 0= others)"]<-53
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived soil fertility benefit (1= yes, 0= others)"]<-52
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived erosion reduction benefit (1= yes, 0= others)"]<-51
+
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Awareness of practice (1= yes, 0= no)"]<-50
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Awareness of climate change (1= yes, 0= no)"]<-49
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived financial constraint (1= yes, 0= others)"]<-48
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Risk-aversion (1= yes, 0= others)"]<-47
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived soil fertility as production constraint (1= yes, 0= others)"]<-46
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived drought as production constraint (1= yes, 0= others)"]<-45
+overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived pest as production constraint (1= yes, 0= others)"]<-44
 
 sort(unique(overal_results$factor_sub_class))
 sort(unique(overal_results$significance1))
@@ -111,7 +136,8 @@ theme_overall<-theme(
 
 overall_effect<-
   ggplot(overal_results, 
-         aes(y=reorder(pcc_factor_unit, beta),x=pcc.beta,
+         #aes(y=pcc_factor_unit,x=pcc.beta,
+         aes(y=reorder(pcc_factor_unit, pcc_factor_unit2),x=pcc.beta,
              xmin=pcc.ci.lb, xmax=pcc.ci.ub,
              colour = factor(factor_sub_class) ))+
   geom_vline(xintercept=0, colour = "grey30",linetype = 1, linewidth=0.5)+
@@ -124,19 +150,19 @@ overall_effect<-
  # geom_text(aes(label=significance1, x=pcc.ci.ub+0.01, group=pcc_factor_unit,fontface = "bold"), 
   #          vjust=0.35, hjust=-0.005,size=3, 
    #         color="black",  family="sans",position = (position_dodge(width = -0.5)))+
-    geom_segment(aes(y = reorder(pcc_factor_unit, pcc.beta),
-                     yend = reorder(pcc_factor_unit, pcc.beta),
+    geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
+                     yend = reorder(pcc_factor_unit, pcc_factor_unit2),
                      x=pcc.beta, xend = pcc.ci.lb_l),show.legend = F,size=1,
                  arrow = arrow(length = unit(0.2, "cm")))+
-    geom_segment(aes(y = reorder(pcc_factor_unit, pcc.beta),
-                     yend = reorder(pcc_factor_unit, beta),
+    geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
+                     yend = reorder(pcc_factor_unit, pcc_factor_unit2),
                      x=pcc.beta, xend = pcc.ci.ub_l),show.legend = F,size=1,
                  arrow = arrow(length = unit(0.2, "cm")))+
-    geom_segment(aes(y = reorder(pcc_factor_unit, pcc.beta),
-                     yend = reorder(pcc_factor_unit, pcc.beta),
+    geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
+                     yend = reorder(pcc_factor_unit, pcc_factor_unit2),
                      x=pcc.beta, xend = pcc.ci.ub_l1),show.legend = F,size=1)+
-  geom_segment(aes(y = reorder(pcc_factor_unit, pcc.beta),
-                   yend = reorder(pcc_factor_unit, pcc.beta),
+  geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   yend = reorder(pcc_factor_unit, pcc_factor_unit2),
                    x=pcc.beta, xend = pcc.ci.lb_l1),show.legend = F,size=1)+
   scale_colour_manual(values = fills)+
   facet_grid2(vars(factor_sub_class),
@@ -168,7 +194,9 @@ overall_distribution<-
   scale_fill_manual(values = fills)+
   facet_grid2(vars(factor_sub_class),
               scales= "free", space='free_y', switch = "x", strip=overall_distribution_strips)+
-  xlab("Number")+
+  xlab("")+
+  
+  #xlab("Number")+
   theme_overall+
   theme(strip.placement.y = "outside",
         axis.text.y =element_blank(),
