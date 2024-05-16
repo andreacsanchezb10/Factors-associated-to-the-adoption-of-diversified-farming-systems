@@ -127,7 +127,7 @@ world<-
   
   geom_point(data = centroids, 
              aes(x= lon, y=lat, group=region,size =n_ES), 
-             shape=21,fill="black",color="white", alpha = 0.5,show.legend = T)+
+             shape=21,fill="black",color="grey80",stroke=1.5, alpha = 0.5,show.legend = T)+
   
   scale_size_continuous(limits=c(1,361),breaks = c(5,10,25,50,100,200),
                         name = "Number of effect sizes",range = c(3, 13))+
