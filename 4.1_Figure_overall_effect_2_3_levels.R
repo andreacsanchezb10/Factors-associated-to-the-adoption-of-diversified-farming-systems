@@ -145,7 +145,8 @@ overall_effect<-
   scale_x_continuous(limit = c(-0.27,0.75),expand = c(0.05, 0.05),
                      breaks = c(-0.50,-0.25,0,0.25,0.50,0.75),
                      labels = c("-0.5","-0.25","0","0.25","0.5","0.75"))+
-  xlab(bquote(bold("Partial correlation coefficient (" *italic(r)[p]*")")))+
+  xlab("")+
+  #xlab(bquote(bold("Partial correlation coefficient (" *italic(r)[p]*")")))+
   theme_overall+
   theme(strip.placement.y = "outside",
         plot.margin = unit(c(t=0.5,r=0,b=0.5,l=3.5), "cm"),
@@ -220,3 +221,4 @@ overall_distribution_legend
 overall_distribution_legend <- get_legend(overall_distribution_legend)
 grid.newpage()
 grid.draw(overall_distribution_legend)
+
