@@ -152,6 +152,16 @@ pcc_data_3level<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")
   dplyr::mutate(n_es = n_distinct(ES_ID))%>%
   filter(n_es>9)%>%
   ungroup()
+  filter(pcc_factor_unit=="Steep slope (1= yes, 0= others)")
+  select(m_education_years)
+    pcc_factor_unit=="Access to extension (1= yes, 0= no)"|
+           pcc_factor_unit=="Access to information (1= yes, 0= no)"|
+             pcc_factor_unit=="Adults in household (continuous)"|
+           pcc_factor_unit=="Awareness of practice (1= yes, 0= no)"|
+           pcc_factor_unit=="Distance to farm-house (continuous)"|
+           pcc_factor_unit=="Distance to market (continuous)"|
+           pcc_factor_unit=="Education (continuous)"|
+           )
 
 sort(unique(pcc_data_3level$pcc_factor_unit))
 
@@ -176,7 +186,6 @@ for (unit in unique(pcc_data_3level$pcc_factor_unit)) {
     
     # Include specific variables based on pcc_factor_unit
     if (unit == "Awareness of practice (1= yes, 0= no)"||
-        unit == "Steep slope (1= yes, 0= others)"||
         unit =="Access to extension (1= yes, 0= no)") {
       variables_to_include <- c( "m_intervention_recla2", "m_region","m_sub_region", "m_mean_farm_size_ha","n_predictors_num","m_sampling_unit","m_random_sample","m_type_data","m_model_method","m_av_year_assessment")
       } else if (unit =="Education (continuous)"|
@@ -194,9 +203,9 @@ for (unit in unique(pcc_data_3level$pcc_factor_unit)) {
             variables_to_include <- c("m_intervention_recla2","m_region","m_sub_region","m_mean_farm_size_ha","m_education_years","n_predictors_num","m_sampling_unit","m_random_sample","m_model_method")
             } else if ( unit == "Distance to farm-house (continuous)"){
               variables_to_include <- c("m_intervention_recla2", "m_region","m_sub_region", "m_mean_farm_size_ha", "m_education_years","n_predictors_num","m_sampling_unit","m_random_sample","m_type_data")
-              }else if ( unit == "Adults in household (continuous)") {
-                variables_to_include <- c("m_intervention_recla2", "m_region", "m_sub_region", "m_education_years")
-                }
+            } else if ( unit == "Steep slope (1= yes, 0= others)"){
+              variables_to_include <- c("m_intervention_recla2", "m_region","m_sub_region", "m_mean_farm_size_ha", "n_predictors_num","m_random_sample","m_type_data")
+            } 
     # Check if there are enough variables for modeling
     if (length(variables_to_include) > 0) {
       
@@ -255,6 +264,10 @@ importance_factors<-
   rbind(importance_df_2levels,importance_factors_3levels)%>%
   dplyr::rename("moderator"="Term")%>%
   left_join(pcc_factor_class_unit,by="pcc_factor_unit")%>%
+  group_by(factor_sub_class)%>%
+  summarise(total = n_distinct(pcc_factor_unit))
+  mutate()
+
   #mutate(Importance=round(Importance, 2))
   filter(factor_sub_class=="Biophysical context")
 
@@ -276,7 +289,7 @@ importance_factors$moderator[importance_factors$moderator %in% c("m_sub_region")
 
 sort(unique(importance_factors$moderator))
 
-table(importance_factors$moderator,importance_factors$factor_sub_class)
+table(importance_factors$factor_sub_class, importance_factors$moderator)
 
 #Meta-regression results
 meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",")%>%
