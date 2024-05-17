@@ -38,12 +38,19 @@ meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",
                                                    factor_sub_class))))%>%
   arrange(factor_sub_class, moderator, 
           moderator_class)%>%
-  mutate(estimate2= if_else(estimate>= 0.33, "large",
-                            if_else(estimate < 0.33 | 
-                                      estimate >=0.17, "moderate",
-                                    if_else(estimate <0.17, "small","xx"))))
+  dplyr::mutate(estimate2= if_else(estimate>= 0.33, "large",
+                            if_else(estimate < 0.33 & estimate >=0.17, "moderate",
+                                    if_else(estimate <0.17 & estimate>-0.17, "small","xx"))))
+
+                                            if_else(estimate< -0.17&estimate<0, "small","xx")))))
+                                                    if_else(estimate< -0.17& estimate> -0.33, "moderate",
+                                                            if_else(estimate<=-0.33,"large",
+                                                                    "xx")))))))%>%
+  mutate(estimate2_significance2= paste(estimate2,significance2,sep = "_"))
 
 sort(unique(meta_regression$factor_sub_class))
+sort(unique(meta_regression$estimate2_significance2))
+
 
 #Moderator: diversification practices components ------
 m_intervention_system_components<- meta_regression%>%
@@ -188,13 +195,17 @@ theme_overall<-theme(
   #panel.grid.major  = element_line(color = "grey85",size = 0.6),
   axis.line = element_line(colour = "grey45"))
 
+sort(unique(m_dfs$estimate2_significance2))
 dfs<- ggplot(m_dfs, aes(x=moderator_class ,y=reorder(pcc_factor_unit,ID,decreasing=T))) +
-  geom_tile(aes(fill=factor(significance2)),color= "grey45",lwd = 0.5,fill = "white") +
-  geom_point(aes(size = factor(icon_n_es), fill=factor(significance2),
-                 colour= factor(significance2)), shape = 21, 
+  geom_tile(aes(fill=factor(estimate2_significance2)),color= "grey45",lwd = 0.5,fill = "white") +
+  geom_point(aes(size = factor(icon_n_es), fill=factor(estimate2_significance2),
+                 colour= factor(estimate2_significance2)), shape = 21, 
              show.legend=F) +
-  scale_fill_manual(values = c("#F7ADA4","#FF4933","#D3D3D3","#BAF2C4","#256C32"))+
-  scale_colour_manual(values = c("#F7ADA4","#FF4933","#D3D3D3","#BAF2C4","#256C32"))+
+  scale_fill_manual(values = c("#D3D3D3","#15320C","#D3D3D3",
+                               "#256C32","#F7ADA4","#D3D3D3","#BAF2C4"))+
+  #"#8F1D1E","#FF4933","#D3D3D3","#BAF2C4",))+
+  scale_colour_manual(values = c("#D3D3D3","#15320C","#D3D3D3",
+                                 "#256C32","#F7ADA4","#D3D3D3","#BAF2C4"))+
   scale_size_manual(values=c(5,11))+
   
   facet_grid2(vars(factor_sub_class),
