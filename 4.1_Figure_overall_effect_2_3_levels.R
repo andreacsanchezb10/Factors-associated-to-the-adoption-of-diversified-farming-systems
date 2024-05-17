@@ -195,7 +195,6 @@ overall_distribution<-
   facet_grid2(vars(factor_sub_class),
               scales= "free", space='free_y', switch = "x", strip=overall_distribution_strips)+
   xlab("")+
-  
   #xlab("Number")+
   theme_overall+
   theme(strip.placement.y = "outside",
