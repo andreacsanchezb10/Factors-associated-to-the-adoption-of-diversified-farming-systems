@@ -201,8 +201,8 @@ dfs<- ggplot(m_dfs, aes(x=moderator_class ,y=reorder(pcc_factor_unit,ID,decreasi
                                "#FF4933","#D3D3D3","#329244",
                                "#F7ADA4","#D3D3D3","#BAF2C4"))+
   #,"#FF4933","#D3D3D3","#BAF2C4",))+
-  scale_colour_manual(values = c("#8F1D1E","#D3D3D3","#15320C",
-                                 "#FF4933","#D3D3D3","#256C32",
+  scale_colour_manual(values = c("#8F1D1E","#D3D3D3","#184620",
+                                 "#FF4933","#D3D3D3","#329244",
                                  "#F7ADA4","#D3D3D3","#BAF2C4"))+
   scale_size_manual(values=c(5,11))+
   
@@ -229,25 +229,30 @@ overall_distribution_strips <- strip_themed(
 
 m_region$ID <- overall$ID[match(m_region$pcc_factor_unit, overall$pcc_factor_unit)]
 
-
+sort(unique(m_region$estimate2_significance2))
 region<-ggplot(m_region, aes(x=moderator_class,y=reorder(pcc_factor_unit,ID,decreasing=T))) +
-  geom_tile(aes(fill=factor(significance2)),color= "grey45",lwd = 0.5,fill = "white") +
-  geom_point(aes(size = factor(icon_n_es), fill=factor(significance2),
-                 colour= factor(significance2)), shape = 21, 
+  geom_tile(aes(fill=factor(estimate2_significance2)),color= "grey45",lwd = 0.5,fill = "white") +
+  geom_point(aes(size = factor(icon_n_es), fill=factor(estimate2_significance2),
+                 colour= factor(estimate2_significance2)), shape = 21, 
              show.legend=F) +
-  scale_fill_manual(values = c("#FF4933","#D3D3D3","#BAF2C4","#256C32"))+
-  scale_colour_manual(values = c("#FF4933","#D3D3D3","#BAF2C4","#256C32"))+
+  scale_fill_manual(values = c("#8F1D1E","#D3D3D3","#184620",
+                               "#D3D3D3","#329244",
+                               "#D3D3D3","#BAF2C4"))+
+  scale_colour_manual(values = c("#8F1D1E","#D3D3D3","#184620",
+                                 "#D3D3D3","#329244",
+                                 "#D3D3D3","#BAF2C4"))+
   scale_size_manual(values=c(5,11))+
   
   facet_grid2(vars(factor_sub_class),
-              scales= "free", space='free_y', switch = "x", strip=overall_distribution_strips)+
+              scales= "free", space='free_y', switch = "y",
+              strip = overall_strips)+
   scale_x_discrete(expand =c(0,0),position = "top")+
   scale_y_discrete(expand =c(0,0))+
   theme_overall+
   theme(strip.placement.y = "outside",
-        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=0), "cm"),
-        axis.text.y =element_blank(),
-        axis.ticks.y=element_blank())
+        plot.margin = unit(c(t=0.5,r=0.1,b=0.5,l=1.5), "cm"),
+        axis.text.y =element_text(color="black",size=11, family = "sans"))
+
 region 
 
 regression.plot<-ggarrange(dfs,region,ncol = 2,widths = c(1, 0.30))
