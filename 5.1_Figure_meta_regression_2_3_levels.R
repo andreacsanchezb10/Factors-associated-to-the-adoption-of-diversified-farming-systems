@@ -38,14 +38,10 @@ meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",
                                                    factor_sub_class))))%>%
   arrange(factor_sub_class, moderator, 
           moderator_class)%>%
-  dplyr::mutate(estimate2= if_else(estimate>= 0.33, "large",
-                            if_else(estimate < 0.33 & estimate >=0.17, "moderate",
-                                    if_else(estimate <0.17 & estimate>-0.17, "small","xx"))))
-
-                                            if_else(estimate< -0.17&estimate<0, "small","xx")))))
-                                                    if_else(estimate< -0.17& estimate> -0.33, "moderate",
-                                                            if_else(estimate<=-0.33,"large",
-                                                                    "xx")))))))%>%
+  dplyr::mutate(estimate2= ifelse(estimate > 0.33, "large",
+                                  ifelse(estimate >= 0.17, "moderate",
+                                         ifelse(estimate > -0.17, "small",
+                                                ifelse(estimate >= -0.33, "moderate", "large")))))%>%
   mutate(estimate2_significance2= paste(estimate2,significance2,sep = "_"))
 
 sort(unique(meta_regression$factor_sub_class))
@@ -201,11 +197,13 @@ dfs<- ggplot(m_dfs, aes(x=moderator_class ,y=reorder(pcc_factor_unit,ID,decreasi
   geom_point(aes(size = factor(icon_n_es), fill=factor(estimate2_significance2),
                  colour= factor(estimate2_significance2)), shape = 21, 
              show.legend=F) +
-  scale_fill_manual(values = c("#D3D3D3","#15320C","#D3D3D3",
-                               "#256C32","#F7ADA4","#D3D3D3","#BAF2C4"))+
-  #"#8F1D1E","#FF4933","#D3D3D3","#BAF2C4",))+
-  scale_colour_manual(values = c("#D3D3D3","#15320C","#D3D3D3",
-                                 "#256C32","#F7ADA4","#D3D3D3","#BAF2C4"))+
+  scale_fill_manual(values = c("#8F1D1E","#D3D3D3","#184620",
+                               "#FF4933","#D3D3D3","#329244",
+                               "#F7ADA4","#D3D3D3","#BAF2C4"))+
+  #,"#FF4933","#D3D3D3","#BAF2C4",))+
+  scale_colour_manual(values = c("#8F1D1E","#D3D3D3","#15320C",
+                                 "#FF4933","#D3D3D3","#256C32",
+                                 "#F7ADA4","#D3D3D3","#BAF2C4"))+
   scale_size_manual(values=c(5,11))+
   
   facet_grid2(vars(factor_sub_class),
