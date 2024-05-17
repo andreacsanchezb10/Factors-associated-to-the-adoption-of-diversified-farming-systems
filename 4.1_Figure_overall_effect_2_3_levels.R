@@ -170,7 +170,7 @@ overall_effect<-
               strip = overall_strips)+
   scale_x_continuous(limit = c(-0.27,0.75),expand = c(0.05, 0.05),
                      breaks = c(-0.50,-0.25,0,0.25,0.50,0.75),
-                     labels = c("-0.5","-0.25","0","0.25","0.5","0.75"))+
+                     labels = c("-0.50","-0.25","0","0.25","0.50","0.75"))+
   xlab("")+
   #xlab(bquote(bold("Partial correlation coefficient (" *italic(r)[p]*")")))+
   theme_overall+
@@ -181,13 +181,13 @@ overall_effect
 
 overall_distribution<-
   ggplot(overal_results, 
-         aes(x=n_articles, y=reorder(pcc_factor_unit, beta),
+         aes(x=n_articles, y=reorder(pcc_factor_unit, pcc_factor_unit2),
                                   fill = factor(factor_sub_class))) +
   geom_bar(stat="identity",show.legend = F)+
   geom_errorbar(aes(xmin=0, xmax=n_ES), 
                 width=0, position = position_dodge(width = 0.9),size = 0.7,
                 show.legend = F) +
-    geom_point(aes(x=n_ES, y=reorder(pcc_factor_unit, beta),
+    geom_point(aes(x=n_ES, y=reorder(pcc_factor_unit, pcc_factor_unit2),
                    fill = factor(factor_sub_class)),
                shape=18,size=2, position = (position_dodge(width = -0.2)),
                show.legend = F)+
@@ -204,9 +204,9 @@ overall_distribution<-
         axis.ticks.y=element_line(colour = "grey"),
         plot.margin = unit(c(t=0.5,r=0,b=0.5,l=0), "cm"))+
   scale_x_continuous(
-    limit = c(0,140),expand = c(0,0),
-    breaks = c(0,25,50,75,100,125),
-    labels= c("0","25","50","75","100","125"))
+    limit = c(0,175),expand = c(0,0),
+    breaks = c(0,25,50,75,100,125,150,175),
+    labels= c("0","25","50","75","100","125","150","175"))
 overall_distribution
 
 overall.plot<-ggarrange(overall_effect,overall_distribution,ncol = 2,widths = c(1, 0.25))
