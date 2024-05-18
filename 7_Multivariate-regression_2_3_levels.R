@@ -260,145 +260,187 @@ pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 pcc_data<-read.csv("data/pcc_data.csv",header = TRUE, sep = ",")
 names(pcc_data)
 
-importance_factors<-
+importance_factors1<-
   rbind(importance_df_2levels,importance_factors_3levels)%>%
   dplyr::rename("moderator"="Term")%>%
   left_join(pcc_factor_class_unit,by="pcc_factor_unit")%>%
   group_by(factor_sub_class)%>%
-  summarise(total = n_distinct(pcc_factor_unit))
-  mutate()
+  summarise(total = n_distinct(pcc_factor_unit))%>%
+  ungroup()%>%
+  mutate(total= if_else(factor_sub_class=="Human capital", 8,total))
 
-  #mutate(Importance=round(Importance, 2))
-  filter(factor_sub_class=="Biophysical context")
+importance_factors<-
+    rbind(importance_df_2levels,importance_factors_3levels)%>%
+    dplyr::rename("moderator"="Term")%>%
+    left_join(pcc_factor_class_unit,by="pcc_factor_unit")
 
 sort(unique(importance_factors$pcc_factor_unit))
 sort(unique(importance_factors$factor_sub_class))
 
 sort(unique(importance_factors$moderator))
-importance_factors$moderator[importance_factors$moderator %in% c("m_intervention_recla2")] <- "Diversification practice"
-importance_factors$moderator[importance_factors$moderator %in% c("m_education_years")] <- "Education (years)"
+importance_factors$moderator[importance_factors$moderator %in% c("m_intervention_recla2")] <- "Diversification\npractice"
+importance_factors$moderator[importance_factors$moderator %in% c("m_education_years")] <- "Education\n(years)"
 importance_factors$moderator[importance_factors$moderator %in% c("m_mean_farm_size_ha")] <- "Farm size (ha)"
-importance_factors$moderator[importance_factors$moderator %in% c("m_av_year_assessment")] <- "Year of assessment"
+importance_factors$moderator[importance_factors$moderator %in% c("m_av_year_assessment")] <- "Year of\nassessment"
 importance_factors$moderator[importance_factors$moderator %in% c("m_model_method")] <- "Model type"
-importance_factors$moderator[importance_factors$moderator %in% c("m_random_sample")] <- "Random sampling"
-importance_factors$moderator[importance_factors$moderator %in% c("m_sampling_unit")] <- "Household sampling unit"
+importance_factors$moderator[importance_factors$moderator %in% c("m_random_sample")] <- "Random\nsampling"
+importance_factors$moderator[importance_factors$moderator %in% c("m_sampling_unit")] <- "Household\nsampling unit"
 importance_factors$moderator[importance_factors$moderator %in% c("m_type_data")] <- "Primary data"
-importance_factors$moderator[importance_factors$moderator %in% c("n_predictors_num")] <- "Number of predictors"
+importance_factors$moderator[importance_factors$moderator %in% c("n_predictors_num")] <- "Number of\npredictors"
 importance_factors$moderator[importance_factors$moderator %in% c("m_region")] <- "Region"
 importance_factors$moderator[importance_factors$moderator %in% c("m_sub_region")] <- "Sub-region"
 
 sort(unique(importance_factors$moderator))
+sort(unique(importance_factors$factor_sub_class))
 
-table(importance_factors$factor_sub_class, importance_factors$moderator)
+importance_factors2<-as.data.frame(table(importance_factors$factor_sub_class, importance_factors$moderator))%>%
+  dplyr::rename("factor_sub_class"="Var1",
+                "moderator"= "Var2")%>%
+  left_join(importance_factors1, by= "factor_sub_class")%>%
+  mutate(percentage= round((Freq/total)*100,0))%>%
+  mutate(analysis="AICc")
+  
+
+importance_factors2$factor_sub_class[importance_factors2$factor_sub_class %in% c("Land tenure")] <- "Political context_3"
+importance_factors2$factor_sub_class[importance_factors2$factor_sub_class %in% c( "Financial risk-mechanisms")] <- "Political context_1"
+importance_factors2$factor_sub_class[importance_factors2$factor_sub_class %in% c( "Knowledge access")] <- "Political context_2"
+sort(unique(importance_factors2$factor_sub_class))
+
+importance_factors2<- importance_factors2%>%
+  group_by(factor_sub_class) %>%
+  mutate(dense_rank = dense_rank(-percentage)) %>%
+  mutate(Important = ifelse(dense_rank <= 2, "Yes", "No")) %>%
+  select(-dense_rank)%>%
+  mutate(Important=if_else(percentage==0, "No", Important) )
 
 #Meta-regression results
 meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",")%>%
-  dplyr::select(moderator, factor_sub_class, pcc_factor_unit,f_test)%>%
-  filter(moderator=="m_education_years"|
-           moderator=="m_intervention_recla2"|
-           moderator=="m_intervention_system_components"|
-           moderator=="m_mean_farm_size_ha"|
-           moderator=="m_region"|
-           moderator=="m_sub_region")
- 
-meta_regression <- meta_regression[!duplicated(meta_regression), ]
+  dplyr::select(moderator, factor_sub_class, pcc_factor_unit,QMp)%>%
+  filter(moderator!="m_intervention_system_components")%>%
+  filter(moderator!="m_endogeneity_correction")%>%
+  filter(moderator!="m_exact_variance_value")%>%
+  filter(moderator!="m_exposure_correction")%>%
+  filter(moderator!="n_samples_num" )%>%
+  filter(QMp<=0.05)
+meta_regression<-unique(meta_regression)
+
+meta_regression$moderator[meta_regression$moderator %in% c("m_intervention_recla2")] <- "Diversification\npractice"
+meta_regression$moderator[meta_regression$moderator %in% c("m_education_years")] <- "Education\n(years)"
+meta_regression$moderator[meta_regression$moderator %in% c("m_mean_farm_size_ha")] <- "Farm size (ha)"
+meta_regression$moderator[meta_regression$moderator %in% c("m_av_year_assessment")] <- "Year of\nassessment"
+meta_regression$moderator[meta_regression$moderator %in% c("m_model_method")] <- "Model type"
+meta_regression$moderator[meta_regression$moderator %in% c("m_random_sample")] <- "Random\nsampling"
+meta_regression$moderator[meta_regression$moderator %in% c("m_sampling_unit")] <- "Household\nsampling unit"
+meta_regression$moderator[meta_regression$moderator %in% c("m_type_data")] <- "Primary data"
+meta_regression$moderator[meta_regression$moderator %in% c("n_predictors_num")] <- "Number of\npredictors"
+meta_regression$moderator[meta_regression$moderator %in% c("m_region")] <- "Region"
+meta_regression$moderator[meta_regression$moderator %in% c("m_sub_region")] <- "Sub-region"
 
 sort(unique(meta_regression$moderator))
 
+meta_regression2<-as.data.frame(table(meta_regression$factor_sub_class, meta_regression$moderator))%>%
+  dplyr::rename("factor_sub_class"="Var1",
+                "moderator"= "Var2")%>%
+  left_join(importance_factors1, by= "factor_sub_class")%>%
+  mutate(percentage= round((Freq/total)*100,0))%>%
+  mutate(analysis= "F-test")
+meta_regression2$factor_sub_class[meta_regression2$factor_sub_class %in% c("Land tenure")] <- "Political context_3"
+meta_regression2$factor_sub_class[meta_regression2$factor_sub_class %in% c( "Financial risk-mechanisms")] <- "Political context_1"
+meta_regression2$factor_sub_class[meta_regression2$factor_sub_class %in% c( "Knowledge access")] <- "Political context_2"
+
+landtenure<- meta_regression2%>%
+  filter(factor_sub_class=="Social capital")%>%
+  mutate(factor_sub_class="Political context_3",
+         Freq= 0,total = 1,percentage= 0)
+
+naturalcapital<- meta_regression2%>%
+  filter(factor_sub_class=="Social capital")%>%
+  mutate(factor_sub_class="Natural capital",
+         Freq= 0,total = 2,percentage= 0)
+
+meta_regression2<-rbind(meta_regression2, landtenure,naturalcapital)%>%
+  group_by(factor_sub_class) %>%
+  mutate(dense_rank = dense_rank(-percentage)) %>%
+  mutate(Important = ifelse(dense_rank <= 2, "Yes", "No")) %>%
+  select(-dense_rank)%>%
+  mutate(Important=if_else(percentage==0, "No", Important) )
+
+sort(unique(meta_regression2$factor_sub_class))
+sort(unique(meta_regression2$moderator))
 
 
-
-importance_factors<-importance_factors%>%
-  select("factor_sub_class","pcc_factor_unit","moderator","f_test","Importance","colours")
-  
-write.csv(importance_factors,"results/importance_moderators.csv", row.names=FALSE)
+importance_factors3<-rbind(importance_factors2,meta_regression2)
+sort(unique(importance_factors3$moderator))
 
 
-sort(unique(importance_factors$Importance))
-
-
-fills <- c("#f0c602", "#ea6044","#d896ff",  "#87CEEB", "#496491", "#92c46d", "#297d7d")
-
+fills <- c("#f0c602","#ea6044","#d896ff","#6a57b8","#87CEEB","#496491","#92c46d","#92c46d","#92c46d","#297d7d")
 
 overall_strips <- strip_themed(
   # Vertical strips
-  background_y = elem_list_rect(
-    fill = fills),
-  text_y = elem_list_text(size= 12,colour= "white",angle = 90,face="bold"),
+  background_y = elem_list_rect(fill = fills),
+  text_y = elem_list_text(size= 12,colour= fills,angle = 90,face="bold"),
+  text_x = elem_list_text(size= 11,colour= "black",angle = 0,face="bold",
+                          label= c("Diversified\npractices")),
   by_layer_y = FALSE
 )
 
-
-ggplot(data = importance_factors, aes(Term, pcc_factor_unit, fill = as.factor(colours), group="factor_sub_class"))+
-  geom_tile(color = "black")+
-  geom_text(aes(Term, pcc_factor_unit, label= round(Importance, 3)), color = "black", size = 6) +
-  scale_x_discrete(position = "top", expand=c(0,0)) +
-  scale_y_discrete( expand=c(0,0)) +
-  scale_fill_manual(values = c("Important" = "#ff9248","Not important"= "white","NA"="grey75"),
-                    name="Moderators\nimportance")+
-  facet_grid2(vars(factor_sub_class),
+importanceplot<- ggplot(data=importance_factors3, aes(y= factor_sub_class, x=analysis)) +
+  geom_tile(color = "black",aes(fill=Important))+
+  scale_fill_manual(values = c("white","green"))+
+  geom_text(data=importance_factors3,aes(label=paste(percentage,"%",sep=""),
+                                         x=analysis, y=factor_sub_class), 
+            vjust=0.5, hjust=0.5,size=4,
+            color="black",  family="sans",position = (position_dodge(width = -0.5)))+
+  facet_grid2(vars(factor_sub_class),vars(moderator),
               scales= "free", space='free_y', switch = "y",strip = overall_strips)+
-  theme(strip.placement.y = "outside",
+  scale_x_discrete(position = "top") +
+  theme(strip.placement.y = "inside",
+        strip.placement.x = "outside",
         legend.position = "bottom",
         axis.title = element_blank(),
-        plot.margin = unit(c(t=0.5,r=1,b=0.5,l=0.5), "cm"),
+        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=3.5), "cm"),
         legend.title =  element_text(color="black",size=14, family = "sans",face="bold"),
         legend.text = element_text(color="black",size=12, family = "sans"),
-        axis.text.y =element_text(color="black",size=12, family = "sans"),
-        axis.text.x =element_text(color="black",size=14, family = "sans",angle=45,
-                                  vjust = 0.5, hjust=0))
+        axis.text.y =element_blank(),
+        axis.text.x =element_text(color="black",size=11, family = "sans",face="bold"),
+        panel.background = element_blank(),
+        axis.ticks.y=element_blank())
+
+importanceplot  
+
+overall_distribution_strips <- strip_themed(
+  # Vertical strips
+  background_y = elem_list_rect(
+    fill = "white"),
+  text_y = elem_list_text(size= 0.1,colour= "white",angle = 90),
+  by_layer_y = FALSE
+)
+
+total<- ggplot(subset(importance_factors3, analysis=="AICc"), aes(y= factor_sub_class, x=analysis)) +
+  geom_tile(color = "black",fill="grey")+
+  geom_text(aes(label=total,x=analysis, y=factor_sub_class), 
+            vjust=0.5, hjust=0.5,size=4,
+            color="black",  family="sans",position = (position_dodge(width = -0.5)))+
+  facet_grid2(vars(factor_sub_class),
+              scales= "free", space='free_y', switch = "y",strip = overall_distribution_strips)+
+  scale_x_discrete(position = "top", label="Total number\nof factors") +
+  theme(strip.placement.y = "inside",
+        strip.placement.x = "outside",
+        legend.position = "bottom",
+        axis.title = element_blank(),
+        plot.margin = unit(c(t=1.2,r=1,b=1.8,l=0), "cm"),
+        legend.title =  element_text(color="black",size=14, family = "sans",face="bold"),
+        legend.text = element_text(color="black",size=12, family = "sans"),
+        axis.text.y =element_blank(),
+        axis.text.x =element_text(color="black",size=11, family = "sans",face="bold"),
+        panel.background = element_blank(),
+        axis.ticks.y=element_blank())
+total
+
+library(ggpubr)
+
+importance.total<-ggarrange(importanceplot,total,ncol = 2,widths = c(1, 0.10))
+
+importance.total
 
 
-
-############################################################################################################################################################################################
-###### MULTIVARIATE META-REGRESSION ANALYSIS
-############################################################################################################################################################################################
-sort(unique(pcc_data_3level$pcc_factor_unit))
-"Association member (1= yes)"
-
-association_member<- rma.mv(yi, vi, 
-           random = list(~ 1 | ES_ID, ~ 1 | article_id),
-           mods = ~m_education_years+m_intervention_system_components,
-           data = pcc_data_3level,
-           subset=pcc_factor_unit=="Association member (1= yes)",
-           method = "REML", 
-           test = "t", dfs = "contain")
-summary(association_member)
-
-sort(unique(m_pcc_data_2level$pcc_factor_unit))
-"Access to credit (1= yes)"
-"Relatives and friends (number)"
-"Extension frequency (number of contacts)" 
-
-credit <- rma.uni(yi, vi,
-                     mods =~  m_education_years*m_intervention_recla2+m_intervention_system_components,
-                     data = m_pcc_data_2level,
-                     subset=pcc_factor_unit=="Access to credit (1= yes)",
-                     method = "REML", 
-                     test = "knha")
-
-summary(credit)
-
-relatives_friends <- rma.uni(yi, vi,
-                  mods =~  m_intervention_recla2+m_mean_farm_size_ha,
-                  data = m_pcc_data_2level,
-                  subset=pcc_factor_unit=="Relatives and friends (number)",
-                  method = "REML",  test = "knha")
-
-summary(relatives_friends)
-
-extensionfrequency <- rma.uni(yi, vi,
-                             mods =~   m_education_years*m_intervention_recla2-1,
-                             data = m_pcc_data_2level,
-                             subset=pcc_factor_unit=="Extension frequency (number of contacts)",
-                             method = "REML",  test = "knha")
-
-summary(extensionfrequency)
-
-extensionfrequency <- rma.uni(yi, vi,
-                              mods =~   m_education_years*m_intervention_system_components-1,
-                              data = m_pcc_data_2level,
-                              subset=pcc_factor_unit=="Extension frequency (number of contacts)",
-                              method = "REML",  test = "knha")
-
-summary(extensionfrequency)
