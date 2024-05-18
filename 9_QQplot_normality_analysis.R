@@ -68,8 +68,15 @@ qqplot_3level(factor_metric_units3, pcc_data_3level)
 #### TWO-LEVEL DATA
 pcc_data_2level<- read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ",")%>%
   mutate(pcc_se = sqrt(fis.vi),
-         pcc_precision = (1/pcc_se))
+         pcc_precision = (1/pcc_se))%>%
+  filter(pcc_factor_unit==
+      
+         
+           
+            "Perceived erosion reduction benefit (1= yes, 0= others)" )
 
+sort(unique(pcc_data_2level$pcc_factor_unit))
+               
 qqplot_2level <- function(factor_units, pcc_data) {
   # Generate unique folder name based on current timestamp
   timestamp <- format(Sys.time(), "%Y%m%d%H%M%S")
