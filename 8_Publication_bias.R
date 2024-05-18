@@ -28,8 +28,15 @@ names(pcc_data_3level)
 pcc_data_2level<- read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ",")%>%
   mutate(pcc_se = sqrt(fis.vi),
          pcc_precision = (1/pcc_se))
+  filter(pcc_factor_unit==
+           "Deep soil (1= yes, 0= others)")
+           #"Negative attitude toward practice (1= yes, 0= others)")
+           #   "Perceived erosion reduction benefit (1= yes, 0= others)"  )             
 
-##--------- EGGER REGRESSION TEST
+  
+sort(unique(pcc_data_2level$pcc_factor_unit))
+
+##--------- EGGER REGRESSION TEST----
 # Define a function to extract and format model results
 extract_model_results <- function(result, unit, source) {
   data.frame(
@@ -129,9 +136,9 @@ egger_test<- rbind(egger_3level_results,egger_2level_results)%>%
 write.csv(egger_test,"results/egger_test.csv", row.names=FALSE)
 
 ##########################################################################################
-##--------- Funnel plot
+##--------- Funnel plot-----
 #https://rpubs.com/dylanjcraven/metaforr
-### THREE-LEVEL DATA
+### THREE-LEVEL DATA----
 funnel_3level <- function(factor_units, pcc_data) {
   # Generate unique folder name based on current timestamp
   timestamp <- format(Sys.time(), "%Y%m%d%H%M%S")
@@ -152,9 +159,9 @@ funnel_3level <- function(factor_units, pcc_data) {
                            method = "REML")
     summary(funnel.model, digits = 3)
     
-    trimandfill <- trimfill(funnel.model)
+    #trimandfill <- trimfill(funnel.model)
     
-    funnel.plots <- funnel(trimandfill, yaxis="seinv", refline=0 ,ylab="Precision (1/SE)" ,
+    funnel.plots <- funnel(funnel.model, yaxis="seinv", refline=0 ,ylab="Precision (1/SE)" ,
                            xlab="Residual value", main = paste(factor_unit),level= c(90,95,99),
                            shade=c("white", "gray", "darkgray"),back="white"
     )
@@ -175,8 +182,7 @@ factor_metric_units3 <- unique(pcc_data_3level$pcc_factor_unit)
 funnel_3level(factor_metric_units3, pcc_data_3level)
 
 
-
-### TWO-LEVEL DATA
+### TWO-LEVEL DATA-----
 funnel_2level <- function(factor_units, pcc_data) {
   # Generate unique folder name based on current timestamp
   timestamp <- format(Sys.time(), "%Y%m%d%H%M%S")
