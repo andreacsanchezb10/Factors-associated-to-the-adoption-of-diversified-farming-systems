@@ -68,7 +68,8 @@ overal_results<- overall_3level_results%>%
                                            if_else(factor_sub_class=="Land tenure","Political_3",
                                                    factor_sub_class))))%>%
   #mutate(significance1= if_else(pval>0.05&pval<=0.1,"†",""))%>%
-  mutate(pcc_factor_unit2= seq(67, 1 ))
+  mutate(pcc_factor_unit2= seq(67, 1 ))%>%
+  mutate(label= paste("(",n_articles,"|",n_ES,")",sep=""))
 
 overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in% "Deep soil (1= yes, 0= others)"] <- 65
 overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"High soil fertility (1= yes, 0= others)"] <- 64
@@ -97,6 +98,7 @@ overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived pe
 
 sort(unique(overal_results$factor_sub_class))
 sort(unique(overal_results$significance1))
+sort(unique(overal_results$label))
 
 #overal_results$factor_sub_class <- toupper(overal_results$factor_sub_class)
 
@@ -154,29 +156,36 @@ logor_overal_results<- logor_overall_3level_results%>%
                                            if_else(factor_sub_class=="Land tenure","Political_3",
                                                    factor_sub_class))))%>%
   #mutate(significance1= if_else(pval>0.05&pval<=0.1,"†",""))%>%
-  mutate(logor_factor_unit2= seq(72, 1 ))
+  mutate(logor_factor_unit2= seq(72, 1 ))%>%
+  mutate(label= paste("(",n_articles,"|",n_ES,")",sep=""))
 
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in% "Deep soil (1= yes, 0= others)"] <- 65
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"High soil fertility (1= yes, 0= others)"] <- 64
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Moderate soil fertility (1= yes, 0= others)"] <-63
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Poor soil fertility (1= yes, 0= others)"] <-62
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Moderate slope (1= yes, 0= others)"] <-61
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Flat slope (1= yes, 0= others)"] <-60
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Steep slope (1= yes, 0= others)"] <-59
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Precipitation (mm/year)"] <-58
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Temperature (Celsius)"] <-57
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Negative attitude toward practice (1= yes, 0= others)"]<-55
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived environmental benefit (1= yes, 0= others)"]<-54
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived financial benefit (1= yes, 0= others)"]<-53
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived soil fertility benefit (1= yes, 0= others)"]<-52
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived erosion reduction benefit (1= yes, 0= others)"]<-51
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Awareness of practice (1= yes, 0= no)"]<-50
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Awareness of climate change (1= yes, 0= no)"]<-49
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived financial constraint (1= yes, 0= others)"]<-48
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Risk-aversion (1= yes, 0= others)"]<-47
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived soil fertility as production constraint (1= yes, 0= others)"]<-46
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived drought as production constraint (1= yes, 0= others)"]<-45
-logor_overal_results$pcc_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived pest as production constraint (1= yes, 0= others)"]<-44
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in% "Deep soil (1= yes, 0= others)"] <- 65
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"High soil fertility (1= yes, 0= others)"] <- 64
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Moderate soil fertility (1= yes, 0= others)"] <-63
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Poor soil fertility (1= yes, 0= others)"] <-62
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Moderate slope (1= yes, 0= others)"] <-61
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Flat slope (1= yes, 0= others)"] <-60
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Steep slope (1= yes, 0= others)"] <-59
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Precipitation (mm/year)"] <-58
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Temperature (Celsius)"] <-57
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Negative attitude toward practice (1= yes, 0= others)"]<-55
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived environmental benefit (1= yes, 0= others)"]<-54
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived financial benefit (1= yes, 0= others)"]<-53
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived soil fertility benefit (1= yes, 0= others)"]<-52
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived erosion reduction benefit (1= yes, 0= others)"]<-51
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Awareness of practice (1= yes, 0= no)"]<-50
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Awareness of climate change (1= yes, 0= no)"]<-49
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived financial constraint (1= yes, 0= others)"]<-48
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Risk-aversion (1= yes, 0= others)"]<-47
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived soil fertility as production constraint (1= yes, 0= others)"]<-46
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived drought as production constraint (1= yes, 0= others)"]<-45
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived pest as production constraint (1= yes, 0= others)"]<-44
+
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Association member (1= yes, 0= no)"]<-4
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Communicate with other farmers (1= yes, 0= no)"]<-3
+
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Extension frequency (number of contacts)"]<-23
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Access to training (1= yes, 0= no)"]<-20
 
 sort(unique(logor_overal_results$factor_sub_class))
 sort(unique(logor_overal_results$significance1))
@@ -332,10 +341,63 @@ grid.draw(overall_distribution_legend)
 pcc_factor_unit2
 
 # Compare PCC results vs Log-OR results
-logor_overall_effect
+overall_effect<-
+  ggplot(overal_results, 
+         #aes(y=pcc_factor_unit,x=pcc.beta,
+         aes(y=reorder(pcc_factor_unit, pcc_factor_unit2),x=pcc.beta,
+             xmin=pcc.ci.lb, xmax=pcc.ci.ub,
+             colour = factor(factor_sub_class) ))+
+  geom_vline(xintercept=0, colour = "grey30",linetype = 1, linewidth=0.5)+
+  geom_errorbar(width=0,size=1, position = (position_dodge(width = -0.2)),
+                show.legend = F)+
+  geom_point(size = 3, position = (position_dodge(width = -0.2)),show.legend = F)+
+  geom_text(aes(label=significance, x=pcc.ci.ub+0.01, group=pcc_factor_unit), 
+            vjust=0.7, hjust=-0.005,size=7,
+            color="black",  family="sans",position = (position_dodge(width = -0.5)))+
+   geom_text(aes(label=label, x=pcc.ci.ub+0.08, group=pcc_factor_unit,fontface = "bold"), 
+            vjust=0.5, hjust=-0.005,size=3, 
+           color="black",  family="sans",position = (position_dodge(width = -0.5)))+
+  geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   yend = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   x=pcc.beta, xend = pcc.ci.lb_l),show.legend = F,size=1,
+               arrow = arrow(length = unit(0.2, "cm")))+
+  geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   yend = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   x=pcc.beta, xend = pcc.ci.ub_l),show.legend = F,size=1,
+               arrow = arrow(length = unit(0.2, "cm")))+
+  geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   yend = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   x=pcc.beta, xend = pcc.ci.ub_l1),show.legend = F,size=1)+
+  geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   yend = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   x=pcc.beta, xend = pcc.ci.lb_l1),show.legend = F,size=1)+
+  scale_colour_manual(values = fills)+
+  facet_grid2(vars(factor_sub_class),
+              scales= "free", space='free_y', switch = "y",
+              strip = overall_strips)+
+  scale_x_continuous(limit = c(-0.27,0.75),expand = c(0.05, 0.05),
+                     breaks = c(-0.50,-0.25,0,0.25,0.50,0.75),
+                     labels = c("-0.50","-0.25","0","0.25","0.50","0.75"))+
+  xlab("")+
+  #xlab(bquote(bold("Partial correlation coefficient (" *italic(r)[p]*")")))+
+  theme_overall+
+  theme(strip.placement.y = "outside",
+        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=3.5), "cm"),
+        axis.text.y =element_text(color="black",size=12, family = "sans"))
+overall_effect
+
+
+logor_overall_strips<- strip_themed(
+  # Vertical strips
+  background_y = elem_list_rect(
+    fill = "white"),
+  text_y = elem_list_text(size= 1,colour= "white",angle = 90),
+  by_layer_y = FALSE
+)
+
 logor_overall_effect
 
-  ggplot(logor_overal_results, 
+ggplot(logor_overal_results, 
          #aes(y=pcc_factor_unit,x=pcc.beta,
          aes(y=reorder(logor_factor_unit, logor_factor_unit2),x=or.beta,
              xmin=or.ci.lb, xmax=or.ci.ub,
@@ -347,9 +409,9 @@ logor_overall_effect
   geom_text(aes(label=significance, x=or.ci.ub+0.01, group=logor_factor_unit), 
             vjust=0.7, hjust=-0.005,size=7,
             color="black",  family="sans",position = (position_dodge(width = -0.5)))+
-  # geom_text(aes(label=significance1, x=pcc.ci.ub+0.01, group=pcc_factor_unit,fontface = "bold"), 
-  #          vjust=0.35, hjust=-0.005,size=3, 
-  #         color="black",  family="sans",position = (position_dodge(width = -0.5)))+
+   geom_text(aes(label=label, x=or.ci.ub+0.08, group=logor_factor_unit,fontface = "bold"), 
+            vjust=0.35, hjust=-0.005,size=3, 
+           color="black",  family="sans",position = (position_dodge(width = -0.5)))+
   #geom_segment(aes(y = reorder(logor_factor_unit, logor_factor_unit2),
    #                yend = reorder(logor_factor_unit, logor_factor_unit2),
     #               x=or.beta, xend = or.ci.lb_l),show.legend = F,size=1,
@@ -367,16 +429,19 @@ logor_overall_effect
   scale_colour_manual(values = fills)+
   facet_grid2(vars(factor_sub_class),
               scales= "free", space='free_y', switch = "y",
-              strip = overall_strips)+
+              strip = logor_overall_strips)+
   #scale_x_continuous(limit = c(-0.27,0.75),expand = c(0.05, 0.05),
   #              breaks = c(-0.50,-0.25,0,0.25,0.50,0.75),
   #             labels = c("-0.50","-0.25","0","0.25","0.50","0.75"))+
   xlab("")+
-    scale_y_discrete(position = "right")
+    scale_y_discrete(position = "right")+
     
   #xlab(bquote(bold("Partial correlation coefficient (" *italic(r)[p]*")")))+
   theme_overall+
   theme(strip.placement.y = "outside",
-        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=3.5), "cm"),
+        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=0), "cm"),
         axis.text.y =element_text(color="black",size=12, family = "sans"))
-overall_effect
+
+
+
+logor_overall_effect
