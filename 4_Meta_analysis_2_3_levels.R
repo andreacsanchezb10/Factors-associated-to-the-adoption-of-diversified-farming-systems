@@ -261,6 +261,7 @@ for (unit in factor_metric_units) {
 
 # Combine overall results into one table
 logor_overall_3level_results_list<- do.call(rbind, logor_overall_3level_list)
+class(logor_overall_3level_results)
 
 logor_overall_3level_results <- as.data.frame(logor_overall_3level_results_list)%>%
   rownames_to_column(., var = "logor_factor_unit")%>%
@@ -283,7 +284,7 @@ logor_overall_3level_results <- as.data.frame(logor_overall_3level_results_list)
   mutate(n_articles= as.numeric(str_extract(s.nlevels, "(?<=, ).*")))%>%
   mutate_at(2:7, as.numeric)%>%
   mutate_at(8:9,as.character)%>%
-  mutate_at(11:12, as.numeric)%>%
+  mutate_at(10:12, as.numeric)%>%
   mutate_at(15:17, as.numeric)%>%
   #mutate(across(where(is.numeric), ~ round(., 3)))%>%
   mutate(QEp= as.character(QEp))%>%
@@ -294,8 +295,10 @@ logor_overall_3level_results <- as.data.frame(logor_overall_3level_results_list)
   mutate(or.ci.lb= exp(ci.lb))%>%
   mutate(or.ci.ub= exp(ci.ub))
 
+sapply(logor_overall_3level_results, class)
 
-write.csv(logor_overall_3level_results_list,"results/logor_overall_results_3levels.csv", row.names=FALSE)
+write.csv(logor_overall_3level_results,"results/logor_overall_results_3levels.csv", row.names=FALSE)
+  
 
 ######## TWO-LEVEL META-ANALYSIS -------------- 
 logor_data_2level<- pcc_data%>%
@@ -339,7 +342,8 @@ for (unit in factor_metric_units) {
 
 # Combine overall results into one table
 logor_overall_2level_results_list<- do.call(rbind, logor_overall_2level_list)
-names
+sapply(logor_overall_2level_results, class)
+
 logor_overall_2level_results <- as.data.frame(logor_overall_2level_results_list)%>%
   tibble::rownames_to_column(., var = "logor_factor_unit")%>%
   mutate(ci.lb = sapply(ci.lb, as.numeric),
@@ -366,3 +370,4 @@ logor_overall_2level_results <- as.data.frame(logor_overall_2level_results_list)
   mutate(or.ci.ub= exp(ci.ub))
 
 write.csv(logor_overall_2level_results,"results/logor_overall_results_2levels.csv", row.names=FALSE)
+
