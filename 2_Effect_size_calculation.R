@@ -6,8 +6,9 @@ library(readxl)
 factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
                                       sheet = "FACTORS_metric_assessed")
 
-factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
-                                                 " (",factors_metric_assessed$pcc_unit,")", sep="")
+factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$pcc_unit,")", sep="")
+factors_metric_assessed$logor_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$logor_unit,")", sep="")
+
 data<-read.csv("data/binary_adoption_clean_data.csv",header = TRUE, sep = ",")%>%
   select( "article_id","model_id", "main_crop" ,"country",                        
           "intervention_recla","intervention_recla_detail_1" ,   
@@ -88,7 +89,15 @@ fis_data<- pcc_data%>%
   mutate(fis.vi= (1/(n_samples_num-3-(n_predictors_num-1))))%>%
   filter(pcc_factor_unit!="Attitude toward practice (positive continuous)")
 
-write.csv(fis_data, "data/pcc_data.csv", row.names=FALSE)
 
 sort(unique(fis_data$pcc_factor_unit))
+sort(unique(fis_data$logor_factor_unit))
 
+######### Log-odds ratio ---------------------------------
+# Calculate log-odds ratio variance from standard error
+logor_data<- fis_data%>%
+  mutate(v_logOR= (se_logOR*sqrt(n_samples_num))^2)
+
+names(fis_data)
+
+write.csv(logor_data, "data/pcc_data.csv", row.names=FALSE)
