@@ -95,8 +95,9 @@ sort(unique(fis_data$logor_factor_unit))
 
 ######### Log-odds ratio ---------------------------------
 # Calculate log-odds ratio variance from standard error
+#Borenstain et al (2009) 37p
 logor_data<- fis_data%>%
-  mutate(v_logOR= (se_logOR*sqrt(n_samples_num))^2)
+  mutate(v_logOR= (se_logOR)^2)
 
 names(fis_data)
 
