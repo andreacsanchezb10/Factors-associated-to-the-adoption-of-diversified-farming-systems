@@ -237,6 +237,7 @@ importance_factors_3levels <- do.call(rbind, lapply(importance_list3, as.data.fr
 
 sort(unique(importance_factors_3levels$pcc_factor_unit))
 
+write.csv(importance_factors_3levels,"results/moderators_importance_akaike_3levels.csv", row.names=FALSE)
 
 
 ##################################################################
