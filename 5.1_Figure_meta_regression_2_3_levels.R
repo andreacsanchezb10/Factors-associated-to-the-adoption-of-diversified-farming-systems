@@ -42,7 +42,11 @@ meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",
                                   ifelse(estimate >= 0.17, "moderate",
                                          ifelse(estimate > -0.17, "small",
                                                 ifelse(estimate >= -0.33, "moderate", "large")))))%>%
-  mutate(estimate2_significance2= paste(estimate2,significance2,sep = "_"))
+  mutate(estimate2_significance2= paste(estimate2,significance2,sep = "_"))%>%
+  mutate(significance3 = if_else(pval <=0.001,"***",
+                                if_else(pval>0.001&pval<0.01,"**",
+                                        if_else(pval>0.01&pval<=0.05,"*",""))))
+                                             
 
 sort(unique(meta_regression$factor_sub_class))
 sort(unique(meta_regression$estimate2_significance2))
@@ -61,6 +65,12 @@ write.xlsx(m_intervention_system_components, "results/meta_regression_interventi
 
 
 #Moderator: farm size------
+m_farm_size_distribution<-pcc_data%>%
+  filter(!is.na(m_mean_farm_size_ha))%>%
+  group_by( pcc_factor_unit)%>%
+  dplyr::summarise(n_articles = n_distinct(article_id),
+                   n_ES = n_distinct(ES_ID))
+
 m_farm_size<- meta_regression%>%
   filter(moderator== "m_mean_farm_size_ha")%>%
   mutate(moderator_class= if_else(moderator_class=="","Farm size (ha)","Intercept"))%>%
@@ -70,16 +80,24 @@ m_farm_size<- meta_regression%>%
 
 write.xlsx(m_farm_size, "results/meta_regression_farm_size.xlsx", 
            sheetName = "farm_size", col.names = TRUE, row.names = TRUE, append = FALSE)
-m_farm_size<-m_farm_size%>%
-  filter(moderator_class=="Farm size (ha)")%>%
-  group_by(factor_sub_class)%>%
-  group_modify(~.x %>%
-                 arrange(factor(pcc_factor_unit, levels = c(sort(pcc_factor_unit), 
-                                   decreasing = TRUE))))
 
-m_farm_size$ID <- as.numeric(seq(1, 35, by = 1))
+m_farm_size<- meta_regression%>%
+  filter(moderator== "m_mean_farm_size_ha")%>%
+  filter(moderator_class!="intrcpt")%>%
+  
+  left_join(m_farm_size_distribution, by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
+  mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))
+
+#m_farm_size$ID <- as.numeric(seq(1, 35, by = 1))
 
 #Moderator: education------
+m_education_distribution<-pcc_data%>%
+  filter(!is.na(m_education_years))%>%
+  group_by( pcc_factor_unit)%>%
+  dplyr::summarise(n_articles = n_distinct(article_id),
+                   n_ES = n_distinct(ES_ID))
+
+
 m_education<- meta_regression%>%
   filter(moderator== "m_education_years")%>%
   mutate(moderator_class= if_else(moderator_class=="","Education (years)","Intercept"))%>%
@@ -90,7 +108,13 @@ m_education<- meta_regression%>%
 write.xlsx(m_education, "results/meta_regression_education.xlsx", 
            sheetName = "education", col.names = TRUE, row.names = TRUE, append = FALSE)
 
-  
+m_education<- meta_regression%>%
+  filter(moderator== "m_education_years")%>%
+  filter(moderator_class!="intrcpt")%>%
+
+  left_join(m_education_distribution, by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
+  mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))
+
 #Moderator: methodological characteristics------
 sort(unique(meta_regression$moderator))
 m_methods<- meta_regression%>%
@@ -145,6 +169,22 @@ m_region<- meta_regression%>%
 
 sort(unique(m_region$moderator_class))
   
+#Moderator: Region------
+m_subregion_distribution<-pcc_data%>%
+  group_by( pcc_factor_unit, m_sub_region)%>%
+  dplyr::summarise(n_articles = n_distinct(article_id),
+                   n_ES = n_distinct(ES_ID))%>%
+  dplyr::rename("moderator_class"="m_sub_region")
+sort(unique())
+m_subregion<- meta_regression%>%
+  filter(moderator== "m_sub_region")%>%
+  left_join(m_subregion_distribution, by=c("pcc_factor_unit"="pcc_factor_unit",
+                                        "moderator_class"="moderator_class"))%>%
+  mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))
+
+
+sort(unique(m_subregion$moderator_class))
+
 
 #https://stackoverflow.com/questions/15420621/reproduce-table-and-plot-from-journal -----
 ## SYNTHESIZE SOME PLOT DATA 
@@ -262,3 +302,182 @@ regression.plot
 #19x23
 
 #18x20
+m_subregion$ID <- overall$ID[match(m_subregion$pcc_factor_unit, overall$pcc_factor_unit)]
+sort(unique(m_subregion$estimate2_significance2))
+sort(unique(m_subregion$moderator_class))
+
+subregion<-ggplot(m_subregion, aes(x=moderator_class,y=reorder(pcc_factor_unit,ID,decreasing=T))) +
+  geom_tile(aes(fill=factor(estimate2_significance2)),color= "grey45",lwd = 0.5,fill = "white") +
+  geom_point(aes(size = factor(icon_n_es), fill=factor(estimate2_significance2),
+                 colour= factor(estimate2_significance2)), shape = 21,show.legend=F) +
+  scale_fill_manual(values = c("#8F1D1E","#D3D3D3","#184620",
+                               "#FF4933","#D3D3D3","#329244",
+                               "#D3D3D3","#BAF2C4"))+
+  scale_colour_manual(values = c("#8F1D1E","#D3D3D3","#184620",
+                                 "#FF4933","#D3D3D3","#329244",
+                                 "#D3D3D3","#BAF2C4"))+
+  scale_size_manual(values=c(5,11))+
+  
+  facet_grid2(vars(factor_sub_class),
+              scales= "free", space='free_y', switch = "y",
+              strip = overall_strips)+
+  scale_x_discrete(expand =c(0,0),position = "top")+
+  scale_y_discrete(expand =c(0,0))+
+  theme_overall+
+  theme(strip.placement.y = "outside",
+        plot.margin = unit(c(t=0.5,r=0.1,b=0.5,l=1.5), "cm"),
+        axis.text.y =element_text(color="black",size=11, family = "sans"))
+
+subregion 
+
+
+m_education$ID <- overall$ID[match(m_education$pcc_factor_unit, overall$pcc_factor_unit)]
+sort(unique(m_education$estimate2_significance2))
+sort(unique(m_education$moderator_class))
+
+education<-ggplot(m_education, aes(x=moderator_class,y=reorder(pcc_factor_unit,ID,decreasing=T))) +
+  geom_tile(aes(fill=factor(estimate2_significance2)),color= "grey45",lwd = 0.5,fill = "white") +
+  geom_point(aes(size = factor(icon_n_es), fill=factor(estimate2_significance2),
+                 colour= factor(estimate2_significance2)), shape = 21,show.legend=F) +
+  scale_fill_manual(values = c("#F7ADA4","#D3D3D3","#BAF2C4"))+
+  scale_colour_manual(values = c("#F7ADA4","#D3D3D3","#BAF2C4"))+
+  scale_size_manual(values=c(5,11))+
+  
+  facet_grid2(vars(factor_sub_class),
+              scales= "free", space='free_y', switch = "y",
+              strip = overall_strips)+
+  scale_x_discrete(expand =c(0,0),position = "top")+
+  scale_y_discrete(expand =c(0,0))+
+  theme_overall+
+  theme(strip.placement.y = "outside",
+        plot.margin = unit(c(t=0.5,r=0.1,b=0.5,l=1.5), "cm"),
+        axis.text.y =element_text(color="black",size=11, family = "sans"))
+
+education 
+
+
+m_farm_size$ID <- overall$ID[match(m_farm_size$pcc_factor_unit, overall$pcc_factor_unit)]
+sort(unique(m_farm_size$estimate2_significance2))
+sort(unique(m_farm_size$moderator_class))
+
+farm_size<-ggplot(m_farm_size, aes(x=moderator_class,y=reorder(pcc_factor_unit,ID,decreasing=T))) +
+  geom_tile(aes(fill=factor(estimate2_significance2)),color= "grey45",lwd = 0.5,fill = "white") +
+  geom_point(aes(size = factor(icon_n_es), fill=factor(estimate2_significance2),
+                 colour= factor(estimate2_significance2)), shape = 21,show.legend=F) +
+  scale_fill_manual(values = c("#D3D3D3",
+                               "#F7ADA4", "#D3D3D3","#BAF2C4"))+
+  scale_colour_manual(values = c("#D3D3D3",
+                                 "#F7ADA4", "#D3D3D3","#BAF2C4"))+
+  scale_size_manual(values=c(11))+
+  
+  facet_grid2(vars(factor_sub_class),
+              scales= "free", space='free_y', switch = "y",
+              strip = overall_strips)+
+  scale_x_discrete(expand =c(0,0),position = "top")+
+  scale_y_discrete(expand =c(0,0))+
+  theme_overall+
+  theme(strip.placement.y = "outside",
+        plot.margin = unit(c(t=0.5,r=0.1,b=0.5,l=1.5), "cm"),
+        axis.text.y =element_text(color="black",size=11, family = "sans"))
+
+farm_size 
+regression.plot<-ggarrange(education,farm_size,ncol = 2,widths = c(1, 1))
+regression.plot
+
+
+
+## Figures main paper
+#Diversified practices
+library(stringr)
+
+m_dfs_significant<- m_dfs%>%
+  filter(!str_detect(estimate2_significance2,"non_significant"))%>%
+  arrange(estimate,desc(estimate))%>%
+  mutate(ID= seq(1, 33 ))
+m_dfs_significant$ID[m_dfs_significant$pcc_factor_unit %in%"Household size (continuous)"] <- 27
+m_dfs_significant$ID[m_dfs_significant$pcc_factor_unit %in%"Non-farm income (continuous)"] <-30
+#m_dfs_significant$ID <- overall$ID[match(m_dfs_significant$pcc_factor_unit, overall$pcc_factor_unit)]
+
+overall_strips <- strip_themed(
+  # Vertical strips
+  background_y = elem_list_rect(
+    fill = "grey30"),
+  text_y = elem_list_text(size= 1,colour= "grey30",angle = 90),
+  by_layer_y = FALSE
+)
+
+theme_overall<-theme(
+  axis.title.y = element_blank(),
+  axis.title.x = element_text(color="black",size=13, family = "sans", face = "bold",vjust = -1),
+  axis.text.x =element_text(color="black",size=12, family = "sans"),
+  plot.background = element_rect(fill = "White", color = "White"),
+  panel.background = element_blank(),
+  panel.grid.major  = element_line(color = "grey85",size = 0.6),
+  axis.line = element_line(colour = "black"))
+
+dfs_significant<-
+ggplot(m_dfs_significant, 
+         #aes(y=pcc_factor_unit,x=pcc.beta,
+         aes(y=reorder(pcc_factor_unit, ID),x=estimate,
+             xmin=ci.lb, xmax=ci.ub,
+             colour = factor(factor_sub_class) ))+
+  geom_vline(xintercept=0, colour = "grey30",linetype = 1, linewidth=0.5)+
+  geom_errorbar(width=0,size=1, position = (position_dodge(width = -0.2)),
+                show.legend = F)+
+  geom_point(size = 3.5, position = (position_dodge(width = -0.2)),show.legend = F)+
+  geom_text(aes(label=significance3, x=ci.ub+0.01, group=pcc_factor_unit), 
+            vjust=0.7, hjust=-0.005,size=7,
+            color="black",  family="sans",position = (position_dodge(width = -0.5)))+
+  # geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
+  #             yend = reorder(pcc_factor_unit, pcc_factor_unit2),
+  #          x=pcc.beta, xend = pcc.ci.ub_l1),show.legend = F,size=1)+
+  #geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
+  #               yend = reorder(pcc_factor_unit, pcc_factor_unit2),
+  #              x=pcc.beta, xend = pcc.ci.lb_l1),show.legend = F,size=1)+
+  scale_colour_manual(values = fills)+
+  facet_grid2(vars(moderator_class),
+             scales= "free", space='free_y', switch = "y",
+              strip = overall_strips)+
+  scale_x_continuous(limit = c(-2.5,3),expand = c(0.05, 0.1),
+                     breaks = c(-2,-1,0,1,2,3),
+                     labels = c("-2","-1","0","1","2","3"))+
+  xlab("")+
+  #xlab(bquote(bold("Partial correlation coefficient (" *italic(r)[p]*")")))+
+  theme_overall+
+  theme(strip.placement.y = "outside",
+        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=2.5), "cm"),
+        axis.text.y =element_text(color="black",size=12, family = "sans"))
+
+dfs_significant
+dfs_significant_distribution<-
+  ggplot(m_dfs_significant, 
+         aes(x=n_articles, y=reorder(pcc_factor_unit, estimate),
+             fill = factor(factor_sub_class))) +
+  geom_bar(stat="identity",show.legend = F)+
+  geom_errorbar(aes(xmin=0, xmax=n_ES), 
+                width=0, position = position_dodge(width = 0.9),size = 0.7,
+                show.legend = F)+ 
+  geom_point(aes(x=n_ES, y=reorder(pcc_factor_unit, estimate),
+                 fill = factor(factor_sub_class)),
+             shape=18,size=2, position = (position_dodge(width = -0.2)),
+             show.legend = F)+
+  scale_fill_manual(values = fills)+
+  facet_grid2(vars(moderator_class),
+              scales= "free", space='free_y', switch = "x", strip=overall_distribution_strips)+
+  xlab("")+
+  #xlab("Number")+
+  theme_overall+
+  theme(strip.placement.y = "outside",
+        axis.text.y =element_blank(),
+        axis.line.y = element_line(colour = "black"),
+        axis.ticks.y=element_line(colour = "grey"),
+        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=0), "cm"))+
+  scale_x_continuous(
+    limit = c(0,40),expand = c(0,0),
+    breaks = c(0,10,20,30,40,50),
+    labels= c("0","10","20","30","40","50"))
+dfs_significant_distribution
+overall.plot<-ggarrange(dfs_significant,dfs_significant_distribution,ncol = 2,widths = c(1, 0.2))
+
+overall.plot
+#1000 1500
