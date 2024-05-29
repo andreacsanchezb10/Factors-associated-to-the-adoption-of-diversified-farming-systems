@@ -28,14 +28,9 @@ names(pcc_data_3level)
 pcc_data_2level<- read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ",")%>%
   mutate(pcc_se = sqrt(fis.vi),
          pcc_precision = (1/pcc_se))
-  filter(pcc_factor_unit==
-           "Deep soil (1= yes, 0= others)")
-           #"Negative attitude toward practice (1= yes, 0= others)")
-           #   "Perceived erosion reduction benefit (1= yes, 0= others)"  )             
-
   
 sort(unique(pcc_data_2level$pcc_factor_unit))
-
+names(pcc_data_2level)
 ##--------- EGGER REGRESSION TEST----
 # Define a function to extract and format model results
 extract_model_results <- function(result, unit, source) {
@@ -50,7 +45,7 @@ extract_model_results <- function(result, unit, source) {
   )
 }
 
-#### THREE-LEVEL DATA
+#### THREE-LEVEL DATA----
 # Vector of factor_metric_unit levels
 factor_metric_units <- unique(pcc_data_3level$pcc_factor_unit)
 
@@ -80,7 +75,7 @@ egger_3level_list <- lapply(factor_metric_units, function(unit) {
 egger_3level_results <- do.call(rbind, egger_3level_list)
 
 
-#### TWO-LEVEL DATA
+#### TWO-LEVEL DATA----
 unit_counts <- pcc_data_2level %>%
   group_by(pcc_factor_unit) %>%
   summarize(n = n())
@@ -222,5 +217,63 @@ funnel_2level <- function(factor_units, pcc_data) {
 factor_metric_units2 <- unique(pcc_data_2level$pcc_factor_unit)
 
 funnel_2level(factor_metric_units2, pcc_data_2level)
-
 850x580
+
+##--------- TRIM AND FILL METHOD ----
+### TWO-LEVEL DATA-----
+trimfill_data<-pcc_data_2level%>%
+  filter(pcc_factor_unit=="Access to irrigation (1= yes, 0= others)"|
+           pcc_factor_unit=="Association member (1= yes, 0= no)"|
+           pcc_factor_unit==  "Awareness of climate change (1= yes, 0= no)"|
+           pcc_factor_unit=="Farming experience (continuous)"|
+           pcc_factor_unit=="Flat slope (1= yes, 0= others)"|
+           pcc_factor_unit=="Hired labour (continuous)"|
+           pcc_factor_unit=="Land tenure security (continuous)"|
+           pcc_factor_unit=="Post-secondary education (1= yes, 0= no)"|
+           pcc_factor_unit=="Positive attitude toward practice (1= yes, 0= others)"|
+           pcc_factor_unit=="Total income (continuous)"|
+           pcc_factor_unit=="Access to training (1= yes, 0= no)"|
+           pcc_factor_unit=="Communicate with other farmers (1= yes, 0= no)"|
+           pcc_factor_unit=="Relatives and friends (continuous)")
+         
+trimfill_2level <- function(data, metric_unit) {
+  overal_model <- rma(fis.yi, fis.vi, 
+                      data = data,
+                      method = "REML", 
+                      test = "knha",
+                      subset = (pcc_factor_unit == metric_unit))
+  
+
+  return(trimfill(overal_model))
+  
+}
+
+# Vector of factor_metric_unit levels
+factor_metric_units <- unique(trimfill_data$pcc_factor_unit)
+
+# List to store the results of all models
+trimfill_2level_list <- list()
+
+# Loop over all factor_metric_unit levels and run the models
+for (unit in factor_metric_units) {
+  result <- trimfill_2level(data = trimfill_data, metric_unit = unit)
+  trimfill_2level_list[[unit]] <- result
+}
+
+# Combine overall results into one table
+trimfill_2level_results_list<- do.call(rbind, trimfill_2level_list)
+
+trimfill_2level_results <- as.data.frame(trimfill_2level_results_list)%>%
+  rownames_to_column(., var = "pcc_factor_unit")%>%
+  mutate_at(2:8, as.numeric)%>%
+  mutate(across(where(is.numeric), ~ round(., 3)))%>%
+  mutate(significance = if_else(pval <=0.001,"***",
+                                if_else(pval>0.001&pval<0.01,"**",
+                                        if_else(pval>0.01&pval<=0.05,"*",
+                                                if_else(pval>0.05&pval>=0.1,"","",
+                                                        "")))))%>%
+  mutate(results= paste(b, " [",ci.lb,", ", ci.ub,"]",significance, sep=""))%>%
+  select(pcc_factor_unit,results)
+  
+write.csv(trimfill_2level_results,"results/trimfill_2level_results.csv", row.names=FALSE)
+
