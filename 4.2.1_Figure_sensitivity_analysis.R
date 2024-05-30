@@ -82,12 +82,10 @@ overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Precipitatio
 overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Temperature (Celsius)"] <-57
 
 overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Negative attitude toward practice (1= yes, 0= others)"]<-55
-
 overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived environmental benefit (1= yes, 0= others)"]<-54
 overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived financial benefit (1= yes, 0= others)"]<-53
 overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived soil fertility benefit (1= yes, 0= others)"]<-52
 overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived erosion reduction benefit (1= yes, 0= others)"]<-51
-
 overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Awareness of practice (1= yes, 0= no)"]<-50
 overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Awareness of climate change (1= yes, 0= no)"]<-49
 overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived financial constraint (1= yes, 0= others)"]<-48
@@ -144,34 +142,88 @@ logor_overal_results<- logor_overall_3level_results%>%
                                  if_else(or.beta <0 & pval <=0.05, "significant_negative",
                                          if_else(or.beta>0&pval>0.05,"no_significant_positive",
                                                  "no_significant_negative"))))%>%
+  mutate(or.ci.lb_l = ifelse(or.ci.ub > 3, or.ci.lb, NA),
+         or.ci.ub_l = ifelse(or.ci.ub > 3.5, 3.5, NA))%>%
+  mutate(or.beta_l= ifelse(logor_factor_unit=="Positive attitude toward practice (1= yes, 0= others)", 3.3,
+                              ifelse(logor_factor_unit=="Awareness of practice (1= yes, 0= no)",3.2,NA)))%>%
   mutate(factor_sub_class= if_else(factor_sub_class=="Financial risk-mechanisms","Political_1",
                                    if_else(factor_sub_class=="Knowledge access","Political_2",
                                            if_else(factor_sub_class=="Land tenure","Political_3",
                                                    factor_sub_class))))%>%
   mutate(logor_factor_unit2= seq(72, 1 ))%>%
-  mutate(label= paste("(",n_articles,"|",n_ES,")",sep=""))
+  mutate(label= paste("(",n_articles,"|",n_ES,")",sep=""),
+         label2= ifelse(or.ci.ub > 3.5, label, NA),
+         significance3= ifelse(or.ci.ub > 3.5, significance, NA))%>%
+  mutate(logor_factor_unit3= if_else(factor_sub_class=="Biophysical context"|
+                                       factor_sub_class=="Farmers behaviour"|
+                                       factor_sub_class=="Political_1"|
+                                       factor_sub_class=="Political_2"|
+                                       factor_sub_class=="Social capital","",logor_factor_unit ))
 
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in% "Deep soil (1= yes, 0= others)"] <- 65
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"High soil fertility (1= yes, 0= others)"] <- 64
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Moderate soil fertility (1= yes, 0= others)"] <-63
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Poor soil fertility (1= yes, 0= others)"] <-62
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Moderate slope (1= yes, 0= others)"] <-61
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Flat slope (1= yes, 0= others)"] <-60
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Steep slope (1= yes, 0= others)"] <-59
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Precipitation (mm/year)"] <-58
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Temperature (Celsius)"] <-57
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Negative attitude toward practice (1= yes, 0= others)"]<-55
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived environmental benefit (1= yes, 0= others)"]<-54
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived financial benefit (1= yes, 0= others)"]<-53
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived soil fertility benefit (1= yes, 0= others)"]<-52
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived erosion reduction benefit (1= yes, 0= others)"]<-51
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Awareness of practice (1= yes, 0= no)"]<-50
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Awareness of climate change (1= yes, 0= no)"]<-49
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived financial constraint (1= yes, 0= others)"]<-48
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Risk-aversion (1= yes, 0= others)"]<-47
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived soil fertility as production constraint (1= yes, 0= others)"]<-46
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived drought as production constraint (1= yes, 0= others)"]<-45
-logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived pest as production constraint (1= yes, 0= others)"]<-44
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in% "Deep soil (1= yes, 0= others)"] <- 70
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"High soil fertility (1= yes, 0= others)"] <- 69
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Moderate soil fertility (1= yes, 0= others)"] <-68
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Poor soil fertility (1= yes, 0= others)"] <-67
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Moderate slope (1= yes, 0= others)"] <-66
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Flat slope (1= yes, 0= others)"] <-65
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Steep slope (1= yes, 0= others)"] <-64
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Precipitation (mm/year)"] <-63
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Temperature (Celsius)"] <-62
+
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Positive attitude toward practice (1= yes, 0= others)"]<-61
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Negative attitude toward practice (1= yes, 0= others)"]<-59
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived environmental benefit (1= yes, 0= others)"]<-58
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived financial benefit (1= yes, 0= others)"]<-57
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived soil fertility benefit (1= yes, 0= others)"]<-56
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived erosion reduction benefit (1= yes, 0= others)"]<-55
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Awareness of practice (1= yes, 0= no)"]<-54
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Awareness of climate change (1= yes, 0= no)"]<-53
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived financial constraint (1= yes, 0= others)"]<-52
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Risk-aversion (1= yes, 0= others)"]<-51
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived soil fertility as production constraint (1= yes, 0= others)"]<-50
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived drought as production constraint (1= yes, 0= others)"]<-49
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Perceived pest as production constraint (1= yes, 0= others)"]<-48
+
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Non-farm income (USD)"]<-47
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"On-farm income (percentage)"]<-46
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"On-farm income (USD)"]<-45
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Total income (USD)"]<-44
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Access to non-farm income (1= yes, 0= no)"]<-43
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Livestock units (TLU)"]<-42
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Livestock owned (1= yes, 0= no)"]<-41
+
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Farming experience (years)"]<-40
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Education (years)"]<-39
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Adults in household (number of people)"]<-38
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Household size (number of people)"]<-37
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Literate farmer (1= literate, 0= illiterate)"]<-36
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Primary education (1= yes, 0= no)"]<-35
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Hired labour (number of people)"]<-34
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Post-secondary education (1= yes, 0= no)"]<-33
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Age (years)"]<-32
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Non-hired labour (number of people)"]<-31
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Married (1= yes, 0= others)"]<-30
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Household is native (1= yes, 0= no)"]<-29
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"High school education (1= yes, 0= no)"]<-28
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Gender (1= male, 0= female)"]<-27
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Hired labour (1= yes, 0= no)"]<-26
+
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Plot size (ha)"]<-25
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Farm size (ha)"]<-24
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Number of plots (number)"]<-23
+
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Distance to market (km)"]<-22
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Distance to market (minutes)"]<-21
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Distance to output market (minutes)"]<-20
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Distance to road (km)"]<-19
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Distance to road (minutes)"]<-18
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Distance to input market (km)"]<-17
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Distance to input market (minutes)"]<-16
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Distance to farm-house (km)"]<-15
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Distance to farm-house (minutes)"]<-14
+logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Access to irrigation (1= yes, 0= others)"]<-13
+
+
 
 logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Association member (1= yes, 0= no)"]<-4
 logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Communicate with other farmers (1= yes, 0= no)"]<-3
@@ -182,16 +234,16 @@ logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %
 sort(unique(logor_overal_results$factor_sub_class))
 sort(unique(logor_overal_results$significance1))
 
-#overal_results$factor_sub_class <- toupper(overal_results$factor_sub_class)
 
-logor_overal_results$ID <- as.numeric(seq(72, 1, by = -1)) #add a new column with the effect size ID number
+#logor_overal_results$ID <- as.numeric(seq(72, 1, by = -1)) #add a new column with the effect size ID number
 
 ########################################################################################################
 ############# OVERALL RESULTS ONLY  ########################################################################################################
 ########################################################################################################
 ## Overall results for the most studied factors
-fills <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#92c46d","#92c46d","#297d7d")
+fills <- c("#f0c602", "#ea6044","#6a57b8",  "#87CEEB",  "#92c46d", "#92c46d","#92c46d","#297d7d")
 
+fills <- c("#d896ff", "#496491")
 
 overall_strips <- strip_themed(
   # Vertical strips
@@ -220,7 +272,12 @@ theme_overall<-theme(
 
 # Compare PCC results vs Log-OR results
 overall_effect<-
-  ggplot(subset(overal_results, factor_sub_class %in% c("Biophysical context","Farmers behaviour")),
+  ggplot(subset(overal_results, factor_sub_class %in%
+                  # c("Biophysical context","Farmers behaviour",
+                  #"Human capital","Natural capital","Political_1",
+                  #"Political_2","Political_3" ,"Social capital"   )),
+         c("Financial capital","Physical capital")),
+         
          aes(y=reorder(pcc_factor_unit, pcc_factor_unit2),x=pcc.beta,
              xmin=pcc.ci.lb, xmax=pcc.ci.ub,
              colour = factor(factor_sub_class) ))+
@@ -255,6 +312,10 @@ overall_effect<-
   scale_x_continuous(limit = c(-0.27,0.75),expand = c(0.05, 0.05),
                      breaks = c(-0.50,-0.25,0,0.25,0.50,0.75),
                      labels = c("-0.50","-0.25","0","0.25","0.50","0.75"))+
+  geom_text(aes(label=label, x=pcc.ci.ub+0.08, group=pcc_factor_unit,fontface = "bold"), 
+            vjust=0.5, hjust=-0.005,size=4, 
+            color="black",  family="sans",position = (position_dodge(width = -0.5)))+
+  
   xlab("")+
   #xlab(bquote(bold("Partial correlation coefficient (" *italic(r)[p]*")")))+
   theme_overall+
@@ -264,7 +325,8 @@ overall_effect<-
         #axis.line.x = element_blank())
         axis.text.y =element_text(color="black",size=12, family = "sans"))
 overall_effect
-
+#1000 1600
+#1000 500
 
 logor_overall_strips<- strip_themed(
   # Vertical strips
@@ -274,12 +336,14 @@ logor_overall_strips<- strip_themed(
   by_layer_y = FALSE
 )
 
-logor_overall_effect<-
 
-ggplot(#logor_overal_results,
-       subset(logor_overal_results, factor_sub_class %in% c("Biophysical context","Farmers behaviour"
-                
-              )),
+sort(unique(logor_overal_results$factor_sub_class))
+logor_overall_effect<-
+ggplot(subset(logor_overal_results, factor_sub_class %in%  
+                #  c("Biophysical context","Farmers behaviour",
+                #  "Human capital" ,"Natural capital","Political_1",
+              #  "Political_2","Political_3","Social capital")),
+                c("Financial capital","Physical capital")),
        aes(y=reorder(logor_factor_unit, logor_factor_unit2),x=or.beta,
            xmin=or.ci.lb, xmax=or.ci.ub,
            colour = factor(factor_sub_class) ))+
@@ -293,37 +357,54 @@ ggplot(#logor_overal_results,
   geom_text(aes(label=label, x=or.ci.ub+0.2, group=logor_factor_unit,fontface = "bold"), 
             vjust=0.35, hjust=-0.005,size=4, 
             color="black",  family="sans",position = (position_dodge(width = -0.5)))+
-  #geom_segment(aes(y = reorder(logor_factor_unit, logor_factor_unit2),
-  #                yend = reorder(logor_factor_unit, logor_factor_unit2),
-  #               x=or.beta, xend = or.ci.lb_l),show.legend = F,size=1,
-  #          arrow = arrow(length = unit(0.2, "cm")))
-  #geom_segment(aes(y = reorder(logor_factor_unit, logor_factor_unit2),
-  #            yend = reorder(logor_factor_unit,logor_factor_unit2),
-  #            x=or.beta, xend = or.ci.ub_l),show.legend = F,size=1,
-  #       arrow = arrow(length = unit(0.2, "cm")))+
+  geom_segment(aes(y = reorder(logor_factor_unit, logor_factor_unit2),
+                   yend = reorder(logor_factor_unit, logor_factor_unit2),
+                   x=or.beta, xend = or.ci.ub_l),show.legend = F,size=1,
+               arrow = arrow(length = unit(0.2, "cm")))+
+  geom_segment(aes(y = reorder(logor_factor_unit, logor_factor_unit2),
+                              yend = reorder(logor_factor_unit, logor_factor_unit2),
+                              x=or.beta, xend = or.ci.lb),show.legend = F,size=1)+
+  geom_point(aes(y=reorder(logor_factor_unit, logor_factor_unit2),x=or.beta_l),
+                 size = 3, position = (position_dodge(width = -0.2)),show.legend = F)+
+  geom_segment(aes(y = reorder(logor_factor_unit, logor_factor_unit2),
+                   yend = reorder(logor_factor_unit, logor_factor_unit2),
+                   x=or.beta_l, xend = or.ci.ub_l),show.legend = F,size=1,
+               arrow = arrow(length = unit(0.2, "cm")))+
+  geom_segment(aes(y = reorder(logor_factor_unit, logor_factor_unit2),
+                   yend = reorder(logor_factor_unit, logor_factor_unit2),
+                   x=or.beta_l, xend = or.ci.lb),show.legend = F,size=1)+
+  
+  geom_text(aes(label=significance3, x=or.ci.ub_l+0.01, group=logor_factor_unit), 
+            vjust=0.7, hjust=-0.005,size=7,
+            color="black",  family="sans",position = (position_dodge(width = -0.5)))+
+  
+  geom_text(aes(label=label2, x=or.ci.ub_l+0.25, group=logor_factor_unit,fontface = "bold"), 
+            vjust=0.35, hjust=-0.005,size=4, 
+            color="black",  family="sans",position = (position_dodge(width = -0.5)))+
+  
 scale_colour_manual(values = fills)+
   facet_grid2(vars(factor_sub_class),
               scales= "free", space='free_y', switch = "y",
               strip = logor_overall_strips)+
-  scale_x_continuous(limit = c(0,3),expand = c(0.05, 0.05),
-               breaks = c(0, 0.5,1,1.5,2,2.5,3),
-               labels = c("0","0.5","1","1.5","2","2.5","3"))+
+  scale_x_continuous(limit = c(0,3.8),expand = c(0.05,0.16),
+             breaks = c(0, 0.5,1,1.5,2,2.5,3,3.5),
+            labels = c("0","0.5","1","1.5","2","2.5","3","3.5"))+
   xlab("")+
   scale_y_discrete(position = "right")+
   theme_overall+
   theme(strip.placement.y = "outside",
-        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=0), "cm"),
-       axis.text.y =element_blank(),
+        plot.margin = unit(c(t=0.5,r=0.5,b=0.5,l=0), "cm"),
+       #axis.text.y =element_blank(),
        # axis.text.x =element_blank(),
        #axis.line.x = element_blank(),
        #axis.ticks = element_blank(),
        
-       # axis.text.y =element_text(color="black",size=12, family = "sans")
+        axis.text.y =element_text(color="black",size=12, family = "sans")
         )
-
 logor_overall_effect
 
-
+#1050 1600
+#1050 500
 sensitivity.plot<-ggarrange(overall_effect,logor_overall_effect,ncol = 2,widths = c(1, 0.5))
 
 sensitivity.plot
