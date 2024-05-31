@@ -88,7 +88,7 @@ m_farm_size<- meta_regression%>%
   left_join(m_farm_size_distribution, by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
   mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))
 
-#m_farm_size$ID <- as.numeric(seq(1, 35, by = 1))
+m_farm_size$ID <- as.numeric(seq(1, 35, by = 1))
 
 #Moderator: education------
 m_education_distribution<-pcc_data%>%
@@ -182,7 +182,6 @@ m_subregion<- meta_regression%>%
                                         "moderator_class"="moderator_class"))%>%
   mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))
 
-
 sort(unique(m_subregion$moderator_class))
 
 
@@ -258,8 +257,6 @@ dfs<- ggplot(m_dfs, aes(x=moderator_class ,y=reorder(pcc_factor_unit,ID,decreasi
         axis.text.y =element_text(color="black",size=11, family = "sans"))
 dfs
   
-
-
 overall_distribution_strips <- strip_themed(
   # Vertical strips
   background_y = elem_list_rect(
@@ -355,7 +352,6 @@ education<-ggplot(m_education, aes(x=moderator_class,y=reorder(pcc_factor_unit,I
 
 education 
 
-
 m_farm_size$ID <- overall$ID[match(m_farm_size$pcc_factor_unit, overall$pcc_factor_unit)]
 sort(unique(m_farm_size$estimate2_significance2))
 sort(unique(m_farm_size$moderator_class))
@@ -385,24 +381,36 @@ regression.plot<-ggarrange(education,farm_size,ncol = 2,widths = c(1, 1))
 regression.plot
 
 
-
 ## Figures main paper
 #Diversified practices
 library(stringr)
 
 m_dfs_significant<- m_dfs%>%
   filter(!str_detect(estimate2_significance2,"non_significant"))%>%
-  arrange(estimate,desc(estimate))%>%
-  mutate(ID= seq(1, 33 ))
-m_dfs_significant$ID[m_dfs_significant$pcc_factor_unit %in%"Household size (continuous)"] <- 27
-m_dfs_significant$ID[m_dfs_significant$pcc_factor_unit %in%"Non-farm income (continuous)"] <-30
+  mutate(ci.ub_l = ifelse(ci.ub > 3, 3, NA),
+         ci.lb_l=ifelse(ci.ub > 3, ci.lb, NA))
+m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Cover crops"] <-"1_Cover crops"
+m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Agroforestry"] <-"2_Agroforestry"
+m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Intercropping"] <-"3_Intercropping"
+m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Embedded seminatural habitats"] <-"4_Embedded seminatural"
+m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Crop rotation"] <-"5_Crop rotation"
+m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Fallow"] <-"6_Fallow"
+m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Combined systems"] <-"7_Combined systems"
+
+m_dfs_significant<-m_dfs_significant%>%
+  arrange(moderator_class, factor_sub_class, desc(estimate))%>%
+  mutate(ID= seq(1, 33 ))%>%
+  mutate(pcc_factor_unit= paste(ID,pcc_factor_unit,sep = "  "))
+  
+  
+  
 #m_dfs_significant$ID <- overall$ID[match(m_dfs_significant$pcc_factor_unit, overall$pcc_factor_unit)]
 
 overall_strips <- strip_themed(
   # Vertical strips
   background_y = elem_list_rect(
-    fill = "grey30"),
-  text_y = elem_list_text(size= 1,colour= "grey30",angle = 90),
+    fill = "white"),
+  text_y = elem_list_text(size= 6,colour= "white",angle = 90),
   by_layer_y = FALSE
 )
 
@@ -417,9 +425,8 @@ theme_overall<-theme(
 
 dfs_significant<-
 ggplot(m_dfs_significant, 
-         #aes(y=pcc_factor_unit,x=pcc.beta,
-         aes(y=reorder(pcc_factor_unit, ID),x=estimate,
-             xmin=ci.lb, xmax=ci.ub,
+         aes(y=reorder(pcc_factor_unit, desc(ID)),x=estimate,
+             xmin=ci.lb, xmax=ci.ub,group=pcc_factor_unit,
              colour = factor(factor_sub_class) ))+
   geom_vline(xintercept=0, colour = "grey30",linetype = 1, linewidth=0.5)+
   geom_errorbar(width=0,size=1, position = (position_dodge(width = -0.2)),
@@ -428,30 +435,27 @@ ggplot(m_dfs_significant,
   geom_text(aes(label=significance3, x=ci.ub+0.01, group=pcc_factor_unit), 
             vjust=0.7, hjust=-0.005,size=7,
             color="black",  family="sans",position = (position_dodge(width = -0.5)))+
-  # geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
-  #             yend = reorder(pcc_factor_unit, pcc_factor_unit2),
-  #          x=pcc.beta, xend = pcc.ci.ub_l1),show.legend = F,size=1)+
-  #geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
-  #               yend = reorder(pcc_factor_unit, pcc_factor_unit2),
-  #              x=pcc.beta, xend = pcc.ci.lb_l1),show.legend = F,size=1)+
+  
   scale_colour_manual(values = fills)+
   facet_grid2(vars(moderator_class),
              scales= "free", space='free_y', switch = "y",
               strip = overall_strips)+
-  scale_x_continuous(limit = c(-2.5,3),expand = c(0.05, 0.1),
+  scale_x_continuous(limit = c(-2.5,3.5),expand = c(0.01, 0.01),
                      breaks = c(-2,-1,0,1,2,3),
                      labels = c("-2","-1","0","1","2","3"))+
   xlab("")+
   #xlab(bquote(bold("Partial correlation coefficient (" *italic(r)[p]*")")))+
   theme_overall+
   theme(strip.placement.y = "outside",
-        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=2.5), "cm"),
+        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=0.5), "cm"),
         axis.text.y =element_text(color="black",size=12, family = "sans"))
 
 dfs_significant
+
+
 dfs_significant_distribution<-
   ggplot(m_dfs_significant, 
-         aes(x=n_articles, y=reorder(pcc_factor_unit, estimate),
+         aes(x=n_articles, y=reorder(pcc_factor_unit, desc(ID)),
              fill = factor(factor_sub_class))) +
   geom_bar(stat="identity",show.legend = F)+
   geom_errorbar(aes(xmin=0, xmax=n_ES), 
@@ -478,6 +482,5 @@ dfs_significant_distribution<-
     labels= c("0","10","20","30","40","50"))
 dfs_significant_distribution
 overall.plot<-ggarrange(dfs_significant,dfs_significant_distribution,ncol = 2,widths = c(1, 0.2))
-
 overall.plot
 #1000 1500
