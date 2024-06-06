@@ -420,11 +420,12 @@ theme_overall<-theme(
   axis.text.x =element_text(color="black",size=12, family = "sans"),
   plot.background = element_rect(fill = "White", color = "White"),
   panel.background = element_blank(),
-  panel.grid.major  = element_line(color = "grey85",size = 0.6),
+  #panel.grid.major  = element_line(color = "grey85",size = 0.6),
   axis.line = element_line(colour = "black"))
 
 dfs_significant<-
-ggplot(m_dfs_significant, 
+  ggplot(subset(m_dfs_significant,moderator_class=="5_Crop rotation"),
+         #   ggplot(m_dfs_significant, 
          aes(y=reorder(pcc_factor_unit, desc(ID)),x=estimate,
              xmin=ci.lb, xmax=ci.ub,group=pcc_factor_unit,
              colour = factor(factor_sub_class) ))+
@@ -454,7 +455,8 @@ dfs_significant
 
 
 dfs_significant_distribution<-
-  ggplot(m_dfs_significant, 
+ ggplot(subset(m_dfs_significant,moderator_class=="5_Crop rotation"),
+        #ggplot(m_dfs_significant, 
          aes(x=n_articles, y=reorder(pcc_factor_unit, desc(ID)),
              fill = factor(factor_sub_class))) +
   geom_bar(stat="identity",show.legend = F)+
@@ -475,7 +477,7 @@ dfs_significant_distribution<-
         axis.text.y =element_blank(),
         axis.line.y = element_line(colour = "black"),
         axis.ticks.y=element_line(colour = "grey"),
-        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=0), "cm"))+
+        plot.margin = unit(c(t=0.5,r=0.5,b=0.5,l=0.5), "cm"))+
   scale_x_continuous(
     limit = c(0,40),expand = c(0,0),
     breaks = c(0,10,20,30,40,50),
@@ -483,4 +485,5 @@ dfs_significant_distribution<-
 dfs_significant_distribution
 overall.plot<-ggarrange(dfs_significant,dfs_significant_distribution,ncol = 2,widths = c(1, 0.2))
 overall.plot
+#19x23
 #1000 1500
