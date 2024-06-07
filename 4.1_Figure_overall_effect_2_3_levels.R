@@ -294,3 +294,82 @@ overall_effect<-
         plot.margin = unit(c(t=0.5,r=0,b=0.5,l=3.5), "cm"),
         axis.text.y =element_text(color="black",size=12, family = "sans"))
 overall_effect
+
+
+## PRESENTATION
+fills <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#92c46d","#92c46d","#297d7d")
+
+
+overall_strips <- strip_themed(
+  # Vertical strips
+  background_y = elem_list_rect(
+    fill = "white"),
+  text_y = elem_list_text(size= 1,colour= "#ea6044",angle = 90),
+  by_layer_y = FALSE
+)
+
+overall_distribution_strips <- strip_themed(
+  # Vertical strips
+  background_y = elem_list_rect(
+    fill = "white"),
+  text_y = elem_list_text(size= 0.1,colour= "white",angle = 90),
+  by_layer_y = FALSE
+)
+theme_overall<-theme(
+  axis.title.y = element_blank(),
+  axis.title.x = element_text(color="black",size=13, family = "sans", face = "bold",vjust = -1),
+  axis.text.x =element_text(color="black",size=16, family = "sans"),
+  plot.background = element_rect(fill = "White", color = "White"),
+  panel.background = element_blank(),
+  panel.grid.major  = element_blank(),
+  axis.line = element_line(colour = "black"))
+
+presentation_overall_effect<-
+  ggplot(subset(overal_results,#factor_sub_class=="Social capital"&
+                  pcc_factor_unit=="Literate farmer (1= literate, 0= illiterate)"|
+                  pcc_factor_unit=="Total income (continuous)"|
+                  pcc_factor_unit=="Land tenure security (continuous)"),
+   #ggplot(overal_results, 
+         #aes(y=pcc_factor_unit,x=pcc.beta,
+         aes(y=reorder(pcc_factor_unit, pcc_factor_unit2),x=pcc.beta,
+             xmin=pcc.ci.lb, xmax=pcc.ci.ub,
+             colour = factor(significance2) ))+
+  geom_vline(xintercept=0, colour = "black",linetype = 1, linewidth=1)+
+  geom_errorbar(width=0,size=3, position = (position_dodge(width = -0.2)),
+                show.legend = F)+
+  geom_point(size = 6, position = (position_dodge(width = -0.2)),show.legend = F)+
+  geom_text(aes(label=significance, x=pcc.ci.ub+0.01, group=pcc_factor_unit), 
+            vjust=0.7, hjust=-0.005,size=10,
+            color="black",  family="sans",position = (position_dodge(width = -0.5)))+
+  # geom_text(aes(label=significance1, x=pcc.ci.ub+0.01, group=pcc_factor_unit,fontface = "bold"), 
+  #          vjust=0.35, hjust=-0.005,size=3, 
+  #         color="black",  family="sans",position = (position_dodge(width = -0.5)))+
+  geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   yend = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   x=pcc.beta, xend = pcc.ci.lb_l),show.legend = F,size=1,
+               arrow = arrow(length = unit(0.2, "cm")))+
+  geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   yend = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   x=pcc.beta, xend = pcc.ci.ub_l),show.legend = F,size=1,
+               arrow = arrow(length = unit(0.2, "cm")))+
+  geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   yend = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   x=pcc.beta, xend = pcc.ci.ub_l1),show.legend = F,size=1)+
+  geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   yend = reorder(pcc_factor_unit, pcc_factor_unit2),
+                   x=pcc.beta, xend = pcc.ci.lb_l1),show.legend = F,size=1)+
+  scale_colour_manual(values = c("#92c46d"))+
+ # facet_grid2(vars(factor_sub_class),
+    #          scales= "free", space='free_y', switch = "y",
+     #         strip = overall_strips)+
+  scale_x_continuous(limit = c(-0.27,0.75),expand = c(0.05, 0.05),
+                     breaks = c(-0.50,-0.25,0,0.25,0.50,0.75),
+                     labels = c("-0.50","-0.25","0","0.25","0.50","0.75"))+
+  xlab("")+
+  theme_overall+
+  theme(strip.placement.y = "outside",
+        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=3.5), "cm"),
+        axis.text.y =element_text(color="black",size=12, family = "sans"))
+presentation_overall_effect
+
+
