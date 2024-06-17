@@ -4,7 +4,7 @@ library(readxl)
 
 ####### FACTORS -------
 factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
-                                      sheet = "FACTORS_metric_assessed")
+                                      sheet = "FACTORS_metric_assessed_2")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$pcc_unit,")", sep="")
 factors_metric_assessed$logor_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$logor_unit,")", sep="")
@@ -29,7 +29,9 @@ data<-read.csv("data/binary_adoption_clean_data.csv",header = TRUE, sep = ",")%>
         "m_endogeneity_correction","m_exposure_correction")%>%
   left_join(factors_metric_assessed, by= c("factor_metric"))
 
+sort(unique(data$pcc_factor_unit))
 sort(unique(data$factor_metric))
+
 names(data)    
 data$ES_ID <- as.numeric(1:nrow(data)) #add a new column with the effect size ID number
 
@@ -37,8 +39,8 @@ data$ES_ID <- as.numeric(1:nrow(data)) #add a new column with the effect size ID
 names(data)
 length(unique(data$article_id)) #153 articles for PCC analysis
 sort(unique(data$article_id))  
-sort(unique(data$pcc_factor_unit))  #66
-length(unique(data$pcc_factor_unit)) #68
+sort(unique(data$pcc_factor_unit))  #64
+length(unique(data$pcc_factor_unit)) #65
 
 length(unique(data$m_intervention_recla2)) #10 systems
 sort(unique(data$country)) #44
@@ -102,3 +104,4 @@ logor_data<- fis_data%>%
 names(fis_data)
 
 write.csv(logor_data, "data/pcc_data.csv", row.names=FALSE)
+

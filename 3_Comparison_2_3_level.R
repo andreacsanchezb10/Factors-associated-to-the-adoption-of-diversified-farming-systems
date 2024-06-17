@@ -6,7 +6,7 @@ library(tidyr)
 library(metafor)
 
 factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
-                                      sheet = "FACTORS_metric_assessed")
+                                      sheet = "FACTORS_metric_assessed_2")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
                                                  " (",factors_metric_assessed$pcc_unit,")", sep="")
@@ -14,7 +14,7 @@ factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metri
 pcc_data<-read.csv( "data/pcc_data.csv", header = TRUE, sep = ",")%>%
   mutate(pcc_factor_unit= as.factor(pcc_factor_unit))
 
-levels(pcc_data$pcc_factor_unit) #70
+levels(pcc_data$pcc_factor_unit) #64
 names(pcc_data)
 ######## COMPARISON between 2-level and 3-level model structure -------------- 
 
@@ -79,7 +79,7 @@ modelnovar2_results<-as.data.frame(modelnovar2_results_list)%>%
          "AIC.f" , "AIC.r",
          "LRT" ,"pval")%>%
   mutate_all(~ gsub("AIC = ", "", .))%>%
-  rename("AIC.three_level" = "AIC.f",
+  dplyr::rename("AIC.three_level" = "AIC.f",
          "AIC.within" = "AIC.r",
          "LRT.within" = "LRT",
          "pval.within"= "pval")%>%
@@ -142,7 +142,7 @@ modelnovar3_results <- as.data.frame(modelnovar3_results_list)%>%
          "AIC.r",
          "LRT" ,"pval")%>%
   mutate_all(~ gsub("AIC = ", "", .))%>%
-  rename("AIC.between" = "AIC.r",
+  dplyr::rename("AIC.between" = "AIC.r",
          "LRT.between" = "LRT",
          "pval.between"= "pval")%>%
   mutate_at(2:4, as.numeric)%>%

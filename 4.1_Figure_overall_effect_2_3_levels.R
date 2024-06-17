@@ -9,14 +9,14 @@ library(plyr)
 library(forcats)
 
 factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
-                                      sheet = "FACTORS_metric_assessed")
+                                      sheet = "FACTORS_metric_assessed_2")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$pcc_unit,")", sep="")
 factors_metric_assessed$logor_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$logor_unit,")", sep="")
-
+names(factors_metric_assessed)
 #### PCC data ----
 pcc_factor_class_unit<-factors_metric_assessed%>%
-  select(factor_sub_class,pcc_factor_unit)
+  select(factor_sub_class,pcc_factor_unit,x_metric_recla2,pcc_unit)
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 pcc_data<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
@@ -50,7 +50,6 @@ sort(unique(overall_3level_results$pcc_factor_unit))
 overal_results<- overall_3level_results%>%
   rbind(overall_2level_results)%>%
   left_join(pcc_factor_class_unit, by="pcc_factor_unit")%>%
-  arrange(factor_sub_class,desc(pcc.beta))%>%
   mutate_at(vars("n_ES","n_articles"),as.numeric)%>%
   mutate(significance2 = if_else(pcc.beta >0 & pval <=0.05, "significant_positive",
                                 if_else(pcc.beta <0 & pval <=0.05, "significant_negative",
@@ -58,8 +57,8 @@ overal_results<- overall_3level_results%>%
                                                 "no_significant_negative"))))%>%
   mutate(pcc.ci.lb_l = ifelse(pcc.ci.lb < -0.27, -0.27, NA),
          pcc.ci.ub_l = ifelse(pcc.ci.ub > 0.75, 0.75, NA))%>%
-  mutate(pcc.ci.ub_l1= ifelse(pcc_factor_unit=="Steep slope (1= yes, 0= others)", pcc.ci.ub,
-                                     ifelse(pcc_factor_unit=="Perceived erosion reduction benefit (1= yes, 0= others)",pcc.ci.ub,
+  mutate(pcc.ci.ub_l1= ifelse(pcc_factor_unit=="Soil slope (Steep)", pcc.ci.ub,
+                                     ifelse(pcc_factor_unit=="Perceived benefit from practice (Erosion reduction)",pcc.ci.ub,
                                             ifelse(pcc_factor_unit=="Plot size (continuous)",pcc.ci.ub,
                                                    ifelse(pcc_factor_unit=="Access to irrigation (1= yes, 0= others)",pcc.ci.ub,NA)))))%>%
   mutate(pcc.ci.lb_l1= ifelse(pcc_factor_unit=="Plot size (continuous)", pcc.ci.lb,NA))%>%
@@ -68,33 +67,45 @@ overal_results<- overall_3level_results%>%
                                            if_else(factor_sub_class=="Land tenure","Political_3",
                                                    factor_sub_class))))%>%
   #mutate(significance1= if_else(pval>0.05&pval<=0.1,"†",""))%>%
-  mutate(pcc_factor_unit2= seq(67, 1 ))%>%
+  arrange(desc(pcc.beta))%>%
+  mutate(pcc_factor_unit2= seq(65, 1 ))%>%
   mutate(label= paste("(",n_articles,"|",n_ES,")",sep=""))
 
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in% "Deep soil (1= yes, 0= others)"] <- 65
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"High soil fertility (1= yes, 0= others)"] <- 64
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Moderate soil fertility (1= yes, 0= others)"] <-63
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Poor soil fertility (1= yes, 0= others)"] <-62
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Moderate slope (1= yes, 0= others)"] <-61
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Flat slope (1= yes, 0= others)"] <-60
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Steep slope (1= yes, 0= others)"] <-59
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Precipitation (mm/year)"] <-58
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Temperature (Celsius)"] <-57
+sort(unique(overal_results$x_metric_recla2))
+names(overal_results)
+overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Political_2"] <- "1Political_2"
 
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Negative attitude toward practice (1= yes, 0= others)"]<-55
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Extension services"] <- "1Extension services"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Access to information"] <- "2Access to information"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Access to training"] <- "3Access to training"
 
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived environmental benefit (1= yes, 0= others)"]<-54
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived financial benefit (1= yes, 0= others)"]<-53
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived soil fertility benefit (1= yes, 0= others)"]<-52
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived erosion reduction benefit (1= yes, 0= others)"]<-51
+overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Farmers behaviour"] <- "2Farmers behaviour"
 
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Awareness of practice (1= yes, 0= no)"]<-50
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Awareness of climate change (1= yes, 0= no)"]<-49
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived financial constraint (1= yes, 0= others)"]<-48
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Risk-aversion (1= yes, 0= others)"]<-47
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived soil fertility as production constraint (1= yes, 0= others)"]<-46
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived drought as production constraint (1= yes, 0= others)"]<-45
-overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%"Perceived pest as production constraint (1= yes, 0= others)"]<-44
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Attitude toward practice"] <- "4Attitude toward practice"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Attitude to risk"] <- "5Attitude to risk"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived production constraint"] <- "6Perceived production constraint"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Awareness"] <- "7Awareness"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived benefit from practice"] <- "8Perceived benefit from practice"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived constraint from practice"] <- "91Perceived constraint from practice"
+
+overal_results$pcc_unit[overal_results$pcc_factor_unit %in%"Perceived benefit from practice (Environmental)"]<-"54Evironmental"
+overal_results$pcc_unit[overal_results$pcc_factor_unit %in%"Perceived benefit from practice (Financial)"]<-"53Financial"
+overal_results$pcc_unit[overal_results$pcc_factor_unit %in%"Perceived benefit from practice (Soil fertility)"]<-"52Soil fertility"
+overal_results$pcc_unit[overal_results$pcc_factor_unit %in%"Perceived benefit from practice (Erosion reduction)"]<-"51Erosion reduction"
+
+overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Social capital"] <- "3Social capital"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Association membership"] <- "921Association\nmembership"
+overal_results$pcc_unit[overal_results$pcc_unit %in% "Communicate with other farmers"] <- "Communicate with\n other farmers"
+sort(unique(overal_results$pcc_unit))
+overal_results$pcc_unit[overal_results$pcc_unit %in% "Trust in extension services"] <- "Trust in extension\nservices"
+
+overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Political_3"] <- "1Political_3"
+overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Biophysical context"] <- "2Biophysical context"
+overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Natural capital"] <- "3Natural capital"
+
+
+
+
 
 sort(unique(overal_results$factor_sub_class))
 sort(unique(overal_results$significance1))
@@ -102,7 +113,7 @@ sort(unique(overal_results$label))
 
 #overal_results$factor_sub_class <- toupper(overal_results$factor_sub_class)
 
-overal_results$ID <- as.numeric(seq(67, 1, by = -1)) #add a new column with the effect size ID number
+overal_results$ID <- as.numeric(seq(64, 1, by = -1)) #add a new column with the effect size ID number
 
 ########################################################################################################
 ############# OVERALL RESULTS ONLY  ########################################################################################################
@@ -114,8 +125,11 @@ fills <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92
 overall_strips <- strip_themed(
   # Vertical strips
   background_y = elem_list_rect(
-    fill = fills),
-  text_y = elem_list_text(size= 1,colour= fills,angle = 90),
+    fill = 
+      c("black")),
+  text_y = elem_list_text(size= 0.0005,colour= 
+                            c("black"),
+                          angle = 90),
   by_layer_y = FALSE
 )
 
@@ -133,41 +147,39 @@ theme_overall<-theme(
   axis.text.x =element_text(color="black",size=12, family = "sans"),
   plot.background = element_rect(fill = "White", color = "White"),
   panel.background = element_blank(),
-  panel.grid.major  = element_line(color = "grey85",size = 0.6),
+  panel.grid.major.x  = element_line(color = "grey85",size = 0.6),
   axis.line = element_line(colour = "black"))
 
 overall_effect<-
-  ggplot(overal_results, 
-         #aes(y=pcc_factor_unit,x=pcc.beta,
-         aes(y=reorder(pcc_factor_unit, pcc_factor_unit2),x=pcc.beta,
+ggplot(
+  subset(overal_results,factor_sub_class%in%
+           c("Farmers behaviour" )),#, "1Political_2", "Social capital")),
+         aes(y=reorder(pcc_unit, pcc_factor_unit2),x=pcc.beta,
              xmin=pcc.ci.lb, xmax=pcc.ci.ub,
              colour = factor(factor_sub_class) ))+
   geom_vline(xintercept=0, colour = "grey30",linetype = 1, linewidth=0.5)+
   geom_errorbar(width=0,size=1, position = (position_dodge(width = -0.2)),
                 show.legend = F)+
   geom_point(size = 3, position = (position_dodge(width = -0.2)),show.legend = F)+
-  geom_text(aes(label=significance, x=pcc.ci.ub+0.01, group=pcc_factor_unit), 
+  geom_text(aes(label=significance, x=pcc.ci.ub+0.01, group=pcc_unit), 
             vjust=0.7, hjust=-0.005,size=7,
             color="black",  family="sans",position = (position_dodge(width = -0.5)))+
- # geom_text(aes(label=significance1, x=pcc.ci.ub+0.01, group=pcc_factor_unit,fontface = "bold"), 
-  #          vjust=0.35, hjust=-0.005,size=3, 
-   #         color="black",  family="sans",position = (position_dodge(width = -0.5)))+
-    geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
-                     yend = reorder(pcc_factor_unit, pcc_factor_unit2),
+    geom_segment(aes(y = reorder(pcc_unit, pcc_factor_unit2),
+                     yend = reorder(pcc_unit, pcc_factor_unit2),
                      x=pcc.beta, xend = pcc.ci.lb_l),show.legend = F,size=1,
                  arrow = arrow(length = unit(0.2, "cm")))+
-    geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
-                     yend = reorder(pcc_factor_unit, pcc_factor_unit2),
+    geom_segment(aes(y = reorder(pcc_unit, pcc_factor_unit2),
+                     yend = reorder(pcc_unit, pcc_factor_unit2),
                      x=pcc.beta, xend = pcc.ci.ub_l),show.legend = F,size=1,
                  arrow = arrow(length = unit(0.2, "cm")))+
-    geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
-                     yend = reorder(pcc_factor_unit, pcc_factor_unit2),
+    geom_segment(aes(y = reorder(pcc_unit, pcc_factor_unit2),
+                     yend = reorder(pcc_unit, pcc_factor_unit2),
                      x=pcc.beta, xend = pcc.ci.ub_l1),show.legend = F,size=1)+
-  geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
-                   yend = reorder(pcc_factor_unit, pcc_factor_unit2),
+  geom_segment(aes(y = reorder(pcc_unit, pcc_factor_unit2),
+                   yend = reorder(pcc_unit, pcc_factor_unit2),
                    x=pcc.beta, xend = pcc.ci.lb_l1),show.legend = F,size=1)+
-  scale_colour_manual(values = fills)+
-  facet_grid2(vars(factor_sub_class),
+  scale_colour_manual(values = c("#ea6044"))+
+  facet_grid2(vars(x_metric_recla2),
               scales= "free", space='free_y', switch = "y",
               strip = overall_strips)+
   scale_x_continuous(limit = c(-0.27,0.75),expand = c(0.05, 0.05),
@@ -176,24 +188,25 @@ overall_effect<-
   xlab("")+
   theme_overall+
   theme(strip.placement.y = "outside",
-        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=3.5), "cm"),
+        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=0.5), "cm"),
         axis.text.y =element_text(color="black",size=12, family = "sans"))
 overall_effect
 
-overall_distribution<-
-  ggplot(overal_results, 
-         aes(x=n_articles, y=reorder(pcc_factor_unit, pcc_factor_unit2),
+overall_distribution<-ggplot(
+  subset(overal_results,factor_sub_class%in%
+           c("Farmers behaviour" )),#, "1Political_2", "Social capital")),
+         aes(x=n_articles, y=reorder(pcc_unit, pcc_factor_unit2),
                                   fill = factor(factor_sub_class))) +
   geom_bar(stat="identity",show.legend = F)+
   geom_errorbar(aes(xmin=0, xmax=n_ES), 
                 width=0, position = position_dodge(width = 0.9),size = 0.7,
                 show.legend = F) +
-    geom_point(aes(x=n_ES, y=reorder(pcc_factor_unit, pcc_factor_unit2),
+    geom_point(aes(x=n_ES, y=reorder(pcc_unit, pcc_factor_unit2),
                    fill = factor(factor_sub_class)),
                shape=18,size=2, position = (position_dodge(width = -0.2)),
                show.legend = F)+
-  scale_fill_manual(values = fills)+
-  facet_grid2(vars(factor_sub_class),
+  scale_fill_manual(values = "#ea6044")+
+  facet_grid2(vars(x_metric_recla2),
               scales= "free", space='free_y', switch = "x", strip=overall_distribution_strips)+
   xlab("")+
   #xlab("Number")+

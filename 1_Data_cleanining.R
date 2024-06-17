@@ -28,7 +28,7 @@ adoption<- data%>%
 length(sort(unique(adoption$article_id))) # Number of articles 174
 table(adoption$y_metric_recla) #Number of rows 4678
 sort(unique(adoption$country)) #Countries 47
-length(sort(unique(adoption$x_metric_recla))) # Unique factors 164
+length(sort(unique(adoption$x_metric_recla))) # Unique factors 163
 
 names(adoption)
 ### Select only necessary columns ----
@@ -552,7 +552,7 @@ data_adoption_binary<-adoption_binary%>%
   x_metric_recla=="hh age"|
   x_metric_recla=="hh education"|
   x_metric_recla=="hh gender"|
-  x_metric_recla=="hh is native"|
+  #x_metric_recla=="hh is native"|
   x_metric_recla=="hh marital status"|
   x_metric_recla=="farm labour force (non-hired)"|
   x_metric_recla=="farm labour force (hired)"|
@@ -649,11 +649,14 @@ factors_assessed <- read_excel(data_path, sheet = "FACTORS_metric_assessed")
 factors<-data_adoption_binary%>%
   mutate(factor_metric=paste(x_metric_recla," (",x_metric_unit_recla,")",sep=""))%>%
   left_join(factors_assessed, by="factor_metric")%>%
+  #mutate(x_metric_recla3= paste(x_metric_recla2,pcc_unit,sep="_"))%>%
   filter(limitation_of_use_obs== "no limitation")%>%
   group_by(factor_sub_class, x_metric_recla2 ) %>%
-  summarise(n_articles = n_distinct(article_id))
+  summarise(n_articles = n_distinct(article_id))%>%
+  ungroup()
   
-
+sort(unique(factors$factor_metric))
+  
 sort(unique(factors$factor_sub_class))
 
 
@@ -728,9 +731,9 @@ sort(unique(pcc_data_adoption_binary$m_av_year_assessment)) # 1988 - 2023
 sort(unique(pcc_data_adoption_binary$m_sampling_unit)) # 
 
 length(unique(pcc_data_adoption_binary$article_id)) #153 articles for PCC analysis
-sort(unique(pcc_data_adoption_binary$article_id)) #113 articles 
+sort(unique(pcc_data_adoption_binary$article_id)) #153 articles 
 length(unique(pcc_data_adoption_binary$m_intervention_recla2)) #10 systems
-length(unique(pcc_data_adoption_binary$x_metric_recla)) #48
+length(unique(pcc_data_adoption_binary$x_metric_recla)) #47
 sort(unique(pcc_data_adoption_binary$country)) #44
 sort(unique(pcc_data_adoption_binary$limitation_of_use_obs)) 
 
