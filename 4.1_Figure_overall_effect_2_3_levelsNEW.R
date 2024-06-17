@@ -50,9 +50,6 @@ figure2<-
   geom_segment(aes(y = reorder(pcc_unit, pcc_factor_unit2),
                    yend = reorder(pcc_unit, pcc_factor_unit2),
                    x=pcc.beta, xend = pcc.ci.ub_l1),show.legend = F,size=1)+
-  geom_segment(aes(y = reorder(pcc_unit, pcc_factor_unit2),
-                   yend = reorder(pcc_unit, pcc_factor_unit2),
-                   x=pcc.beta, xend = pcc.ci.lb_l1),show.legend = F,size=1)+
   scale_colour_manual(values = c( "#92c46d","#ea6044","#297d7d"))+
   facet_grid2(vars(x_metric_recla2),
               scales= "free", space='free_y', switch = "y",
@@ -102,7 +99,6 @@ figure2_distribution.plot
 16x12
 
 #Figure 3
-figure3
 figure3<-
   ggplot(
     subset(overal_results,factor_sub_class%in%
@@ -133,7 +129,7 @@ figure3<-
                    x=pcc.beta, xend = pcc.ci.ub_l1),show.legend = F,size=1)+
   geom_segment(aes(y = reorder(pcc_unit, pcc_factor_unit2),
                    yend = reorder(pcc_unit, pcc_factor_unit2),
-                   x=pcc.beta, xend = pcc.ci.lb_l1),show.legend = F,size=1)
+                   x=pcc.beta, xend = pcc.ci.lb_l1),show.legend = F,size=1)+
   scale_colour_manual(values = c( "#92c46d","#f0c602", "#87CEEB"))+
   
   facet_grid2(vars(x_metric_recla2),
@@ -163,6 +159,7 @@ figure3_distribution<-ggplot(
                  fill = factor(factor_sub_class)),
              shape=18,size=2, position = (position_dodge(width = -0.2)),
              show.legend = F)+
+  
   scale_fill_manual(values ="#ea6044")+
   facet_grid2(vars(x_metric_recla2),
               scales= "free", space='free_y', switch = "x", strip=overall_distribution_strips)+

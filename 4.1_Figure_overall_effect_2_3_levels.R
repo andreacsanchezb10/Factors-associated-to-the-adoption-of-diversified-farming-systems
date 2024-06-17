@@ -59,9 +59,9 @@ overal_results<- overall_3level_results%>%
          pcc.ci.ub_l = ifelse(pcc.ci.ub > 0.75, 0.75, NA))%>%
   mutate(pcc.ci.ub_l1= ifelse(pcc_factor_unit=="Soil slope (Steep)", pcc.ci.ub,
                                      ifelse(pcc_factor_unit=="Perceived benefit from practice (Erosion reduction)",pcc.ci.ub,
-                                            ifelse(pcc_factor_unit=="Plot size (continuous)",pcc.ci.ub,
+                                            ifelse(pcc_factor_unit=="Plot size (Plot size)",pcc.ci.ub,
                                                    ifelse(pcc_factor_unit=="Access to irrigation (1= yes, 0= others)",pcc.ci.ub,NA)))))%>%
-  mutate(pcc.ci.lb_l1= ifelse(pcc_factor_unit=="Plot size (continuous)", pcc.ci.lb,NA))%>%
+  mutate(pcc.ci.lb_l1= ifelse(pcc_factor_unit=="Plot size (Plot size)", pcc.ci.lb,NA))%>%
   mutate(factor_sub_class= if_else(factor_sub_class=="Financial risk-mechanisms","Political_1",
                                    if_else(factor_sub_class=="Knowledge access","Political_2",
                                            if_else(factor_sub_class=="Land tenure","Political_3",
@@ -100,8 +100,18 @@ sort(unique(overal_results$pcc_unit))
 overal_results$pcc_unit[overal_results$pcc_unit %in% "Trust in extension services"] <- "Trust in extension\nservices"
 
 overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Political_3"] <- "1Political_3"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Land tenure security"] <- "1Land tenure security"
+
+
+
 overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Biophysical context"] <- "2Biophysical context"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Soil depth"] <- "3Soil depth"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Soil fertility"] <- "4Soil fertility"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Soil slope"] <- "5Soil slope"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Climate"] <- "6Climate"
+
 overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Natural capital"] <- "3Natural capital"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Plot size"] <- "7Climate"
 
 
 
