@@ -60,7 +60,7 @@ overal_results<- overall_3level_results%>%
   mutate(pcc.ci.ub_l1= ifelse(pcc_factor_unit=="Soil slope (Steep)", pcc.ci.ub,
                                      ifelse(pcc_factor_unit=="Perceived benefit from practice (Erosion reduction)",pcc.ci.ub,
                                             ifelse(pcc_factor_unit=="Plot size (Plot size)",pcc.ci.ub,
-                                                   ifelse(pcc_factor_unit=="Access to irrigation (1= yes, 0= others)",pcc.ci.ub,NA)))))%>%
+                                                   ifelse(pcc_factor_unit=="Access to irrigation (Access to irrigation)",pcc.ci.ub,NA)))))%>%
   mutate(pcc.ci.lb_l1= ifelse(pcc_factor_unit=="Plot size (Plot size)", pcc.ci.lb,NA))%>%
   mutate(factor_sub_class= if_else(factor_sub_class=="Financial risk-mechanisms","Political_1",
                                    if_else(factor_sub_class=="Knowledge access","Political_2",
@@ -68,7 +68,7 @@ overal_results<- overall_3level_results%>%
                                                    factor_sub_class))))%>%
   #mutate(significance1= if_else(pval>0.05&pval<=0.1,"†",""))%>%
   arrange(desc(pcc.beta))%>%
-  mutate(pcc_factor_unit2= seq(65, 1 ))%>%
+  mutate(pcc_factor_unit2= seq(66, 1 ))%>%
   mutate(label= paste("(",n_articles,"|",n_ES,")",sep=""))
 
 sort(unique(overal_results$x_metric_recla2))
@@ -102,8 +102,6 @@ overal_results$pcc_unit[overal_results$pcc_unit %in% "Trust in extension service
 overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Political_3"] <- "1Political_3"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Land tenure security"] <- "1Land tenure security"
 
-
-
 overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Biophysical context"] <- "2Biophysical context"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Soil depth"] <- "3Soil depth"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Soil fertility"] <- "4Soil fertility"
@@ -113,7 +111,30 @@ overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Climate"] <-
 overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Natural capital"] <- "3Natural capital"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Plot size"] <- "7Climate"
 
+overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Human capital"] <- "1Human capital"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Household head"] <- "1Household head"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Household"] <- "2Household"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Hired labour"] <- "3Hired labour"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Farm labour"] <- "4Farm labour"
 
+"Farm labour"
+overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Financial capital"] <- "2Financial capital"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Non-farm income"] <- "5Non-farm income"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "On-farm income"] <- "6On-farm income"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Total income"] <- "7Total income"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Livestock"] <- "8Livestock"
+
+
+overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Political_1"] <- "3Political_1"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Receive incentive for conservation"] <- "90Receive incentive for conservation"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Access to credit is a constraint"] <- "91Access to credit is a constraint"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Access to credit"] <- "92Access to credit"
+
+overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Physical capital"] <- "4Physical capital"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Distance to market"] <- "93Distance to market"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Distance to road"] <- "94Distance to road"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Distance to farm-house"] <- "95Distance to farm-house"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Access to irrigation"] <- "96Access to irrigation"
 
 
 
@@ -129,7 +150,7 @@ overal_results$ID <- as.numeric(seq(64, 1, by = -1)) #add a new column with the 
 ############# OVERALL RESULTS ONLY  ########################################################################################################
 ########################################################################################################
 ## Overall results for the most studied factors
-fills <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#92c46d","#92c46d","#297d7d")
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                fills <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#92c46d","#92c46d","#297d7d")
 
   
 overall_strips <- strip_themed(
