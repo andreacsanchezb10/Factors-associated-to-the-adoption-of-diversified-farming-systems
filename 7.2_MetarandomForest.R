@@ -6,7 +6,7 @@ pcc_data_3level<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")
   mutate_at(vars(m_mean_farm_size_ha,n_samples_num,n_predictors_num,m_education_years ), as.numeric)%>%
   group_by( pcc_factor_unit)%>%
   dplyr::mutate(n_articles = n_distinct(article_id))%>%
-  filter(pcc_factor_unit== "Education (continuous)")%>%
+  filter(pcc_factor_unit== "Household head (Education)")%>%
   select("ES_ID",pcc_factor_unit,fis.yi, "fis.vi" ,
          "m_intervention_recla2",
          "m_region", "m_sub_region",
@@ -198,3 +198,4 @@ meta_regression_3levels_df <- bind_rows(results_list)%>%
   mutate(pcc.estimate= transf.ztor(estimate))%>%
   mutate(pcc.ci.lb= transf.ztor(ci.lb))%>%
   mutate(pcc.ci.ub= transf.ztor(ci.ub))
+

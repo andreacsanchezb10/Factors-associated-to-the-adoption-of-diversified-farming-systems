@@ -171,11 +171,14 @@ comparison<- modelnovar2_results%>%
   select("factor_sub_class","pcc_factor_unit",
          "AIC.three_level", "AIC.within",   "AIC.between",
          "LRT.pval.within", "LRT.pval.between",
-         "best_model")
+         "best_model")%>%
+  filter(pcc_factor_unit!= "Post-secondary education (1= yes, 0= no)")%>%
+  filter(pcc_factor_unit!= "Primary education (1= yes, 0= no)")%>%
+  filter(pcc_factor_unit!="High school education (1= yes, 0= no)")
 
 length((comparison$best_model[comparison$best_model %in% "Three-level"])) #13
 length((comparison$best_model[comparison$best_model %in% "Two-level"])) #54
-
+sort(unique(comparison$pcc_factor_unit))
 
 write.csv(comparison, "results/comparison_best_model.csv", row.names=FALSE)
 
