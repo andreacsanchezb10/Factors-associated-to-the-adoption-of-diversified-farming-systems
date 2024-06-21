@@ -201,6 +201,7 @@ region<- pcc_data%>%
          percentage_articles= (n_articles/sum(n_articles))*100)
 
 sum(region$percentage_ES)
+sum(region$n_ES)
 
 ## Data distribution by pcc_factor_sub_class 
 factor_sub_class<- pcc_data%>%
