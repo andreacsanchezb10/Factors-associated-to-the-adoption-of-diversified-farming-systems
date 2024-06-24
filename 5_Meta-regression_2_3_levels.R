@@ -8,7 +8,7 @@ library(stringr)
 ################# META-REGRESSION ----------------
 factors_metric_assessed <- read_excel(
   "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
-                                      sheet = "FACTORS_metric_assessed")
+                                      sheet = "FACTORS_metric_assessed_2")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
                                                  " (",factors_metric_assessed$pcc_unit,")", sep="")
