@@ -421,7 +421,7 @@ theme_overall<-theme(
   axis.text.x =element_text(color="black",size=12, family = "sans"),
   plot.background = element_rect(fill = "White", color = "White"),
   panel.background = element_blank(),
-  #panel.grid.major  = element_line(color = "grey85",size = 0.6),
+  panel.grid.major  = element_line(color = "grey85",size = 0.6),
   axis.line = element_line(colour = "black"))
 
 dfs_significant<-
@@ -458,7 +458,7 @@ dfs_significant_distribution<-
         ggplot(m_dfs_significant, 
          aes(x=n_articles, y=reorder(pcc_factor_unit, desc(ID)),
              fill = factor(factor_sub_class))) +
-  geom_bar(stat="identity",show.legend = F)
+  geom_bar(stat="identity",show.legend = F)+
   geom_errorbar(aes(xmin=0, xmax=n_ES), 
                 width=0, position = position_dodge(width = 0.9),size = 0.7,
                 show.legend = F)+ 
@@ -475,7 +475,6 @@ dfs_significant_distribution<-
   theme(strip.placement.y = "outside",
         axis.text.y =element_blank(),
         axis.line.y = element_line(colour = "black"),
-        axis.ticks.y=element_line(colour = "grey"),
         plot.margin = unit(c(t=0.5,r=0.5,b=0.5,l=0.5), "cm"))+
   scale_x_continuous(
     limit = c(0,40),expand = c(0,0),
@@ -493,7 +492,9 @@ m_region_significant<- m_region%>%
  mutate(estimate = as.numeric(estimate),
         ci.lb = as.numeric(ci.lb),
         ci.ub = as.numeric(ci.ub),
-        factor_sub_class = as.factor(factor_sub_class))%>%
+        factor_sub_class = as.factor(factor_sub_class),
+        n_articles = as.numeric(n_articles),
+        n_ES = as.numeric(n_ES) )%>%
   arrange(moderator_class, factor_sub_class, desc(estimate))%>%
   mutate(ID= seq(1, 9 ))%>%
   mutate(pcc_factor_unit= paste(ID,pcc_factor_unit,sep = "  "))
@@ -513,6 +514,10 @@ theme_overall<-theme(
   axis.title.x = element_text(color="black",size=13, family = "sans", face = "bold",vjust = -1),
   axis.text.x =element_text(color="black",size=12, family = "sans"),
   plot.background = element_rect(fill = "White", color = "White"),
+  panel.grid.major.x  = element_line(color = "grey85",size = 0.6),
+  
+  axis.ticks.y=element_line(colour = "grey"),
+  
   panel.background = element_blank(),
   axis.line = element_line(colour = "black"))
 
@@ -522,6 +527,7 @@ region_significant<-
              xmin=ci.lb, xmax=ci.ub,group=pcc_factor_unit,
              colour = factor(factor_sub_class) ))+
   geom_vline(xintercept=0, colour = "grey30",linetype = 1, linewidth=0.5)+
+  
   geom_errorbar(width=0,size=1, position = (position_dodge(width = -0.2)),
                 show.legend = F)+
   geom_point(size = 3.5, position = (position_dodge(width = -0.2)),show.legend = F)+
@@ -533,9 +539,9 @@ region_significant<-
   facet_grid2(vars(moderator_class),
               scales= "free", space='free_y', switch = "y",
               strip = overall_strips)+
-  scale_x_continuous(limit = c(-2.5,2),expand = c(0.01, 0.01),
-                     breaks = c(-2,-1,0,1,2,3),
-                     labels = c("-2","-1","0","1","2","3"))+
+  scale_x_continuous(limit = c(-0.7,2),expand = c(0.01, 0.01),
+                     breaks = c(-0.5,0,0.5,1,1.5,2),
+                     labels = c("-0.5","0","0.5","1","1.5","2"))+
   xlab("")+
   theme_overall+
   theme(strip.placement.y = "outside",
@@ -544,7 +550,7 @@ region_significant<-
 
 region_significant
 
-region_significant_distribution
+region_significant_distribution<-
 ggplot(m_region_significant, 
        aes(x=n_articles, y=reorder(pcc_factor_unit, desc(ID)),
            fill = factor(factor_sub_class))) +
@@ -554,9 +560,9 @@ ggplot(m_region_significant,
                 show.legend = F)+
   geom_point(aes(x=n_ES, y=reorder(pcc_factor_unit, estimate),
                  fill = factor(factor_sub_class)),
-             shape=18,size=2, position = (position_dodge(width = -0.2)),
+             shape=15,size=2, position = (position_dodge(width = -0.2)),
              show.legend = F)+
-  scale_fill_manual(values = fills)
+  scale_fill_manual(values = fills)+
   facet_grid2(vars(moderator_class),
               scales= "free", space='free_y', switch = "x", strip=overall_distribution_strips)+
   xlab("")+
@@ -572,7 +578,7 @@ ggplot(m_region_significant,
     breaks = c(0,10,20,30,40,50),
     labels= c("0","10","20","30","40","50"))
 region_significant_distribution
-overall.plot<-ggarrange(dfs_significant,dfs_significant_distribution,ncol = 2,widths = c(1, 0.2))
-overall.plot
-#19x23
+overall.region.plot<-ggarrange(region_significant,region_significant_distribution,ncol = 2,widths = c(1, 0.2))
+overall.region.plot
+#15x6
 #1000 1500
