@@ -1,3 +1,5 @@
+library(readxl)
+library(dplyr)
 #-----------------------------------------------------------
 #######################################################
 ########## SENSITIVITY ANALYSIS #######################
@@ -170,3 +172,7 @@ logor_overall_2level_results <- as.data.frame(logor_overall_2level_results_list)
   mutate(or.ci.ub= exp(ci.ub))
 
 write.csv(logor_overall_2level_results,"results/logor_overall_results_2levels.csv", row.names=FALSE)
+
+
+logor_data<- rbind(logor_data_3level, logor_data_2level)
+length(unique(logor_data$article_id))
