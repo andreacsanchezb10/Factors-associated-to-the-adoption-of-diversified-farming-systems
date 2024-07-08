@@ -21,7 +21,7 @@ table(data$y_metric_recla_2)
 table(data$y_metric_recla, data$y_metric_recla_2)
 names(data)
 
-### ---- Filter Adoption papers ----
+### ---- Filter Adoption studies ----
 adoption<- data%>%
   dplyr::filter(y_metric_recla_2=="adoption")
 
@@ -34,14 +34,14 @@ names(adoption)
 ### Select only necessary columns ----
 adoption_clean<- adoption%>%
   #Convert to numeric the necessary columns
-  mutate(coefficient_num= as.numeric(coefficient),
-         variance_value_num = as.numeric(variance_value),
-         variance_ci_l_num = as.numeric(variance_ci_l),
-         variance_ci_u_num = as.numeric(variance_ci_u),
-         z_t_value_num= as.numeric(z_t_value),
-         p_value_num = as.numeric(p_value),
-         n_predictors_num= as.numeric(n_predictors),
-         n_samples_num= as.numeric(n_samples),
+  mutate(coefficient_value= as.numeric(coefficient_value),
+         variance_value = as.numeric(variance_value),
+         variance_ci_l = as.numeric(variance_ci_l),
+         variance_ci_u = as.numeric(variance_ci_u),
+         z_t_value= as.numeric(z_t_value),
+         p_value = as.numeric(p_value),
+         n_factors= as.numeric(n_factors),
+         n_samples= as.numeric(n_samples),
          x_mean_value_num =as.numeric(x_mean_value),
          transformation_coefficient_num = as.numeric(transformation_coefficient),
          transformation_variance_num = as.numeric(transformation_variance),
@@ -59,17 +59,14 @@ adoption_clean<- adoption%>%
                 transformation_variance_num,
                 x_mean_value,x_mean_value_num,
                 model_analysis_raw,model_method,coefficient_type, 
-                coefficient, coefficient_num,
-                variance_metric,variance_value,variance_value_num,
-                variance_ci_l, 
-                variance_ci_l_num,	
-                variance_ci_u,
-                variance_ci_u_num,
-                z_t_value,z_t_value_num, p_value, p_value_num, df_original, n_predictors,n_predictors_num,
-                n_samples,n_samples_num, 
+                coefficient_value,
+                variance_metric,variance_value,
+                variance_ci_l,  variance_ci_u,
+                z_t_value, p_value, df_original, n_factors,
+                n_samples, 
                 limitation_of_use_obs,m_exact_variance_value,m_random_sample, m_mean_farm_size_ha, 
-                sampling_unit,type_data, m_endogeneity_correction, m_exposure_correction,
-                m_intervention_system_components,x_sample_yes_dummy_binary3,x_sample_no_dummy_binary4)%>%
+                sampling_unit,type_data, endogeneity_correction, exposure_correction,
+                x_sample_yes_dummy_binary3,x_sample_no_dummy_binary4)%>%
   
   mutate(factor_metric= paste(x_metric_recla, " (", x_metric_unit_recla, ")", sep=""))
 
@@ -129,9 +126,9 @@ SD_SE <- function (sd,n) {
   return(result)
 }
 
-adoption_clean$variance_value_num[adoption_clean$variance_metric %in% c("standard deviation")] <-  
-  SD_SE(adoption_clean$variance_value_num[adoption_clean$variance_metric %in% c("standard deviation")],
-        adoption_clean$n_samples_num[adoption_clean$variance_metric %in% c("standard deviation")])
+adoption_clean$variance_value[adoption_clean$variance_metric %in% c("standard deviation")] <-  
+  SD_SE(adoption_clean$variance_value[adoption_clean$variance_metric %in% c("standard deviation")],
+        adoption_clean$n_samples[adoption_clean$variance_metric %in% c("standard deviation")])
 
 ## Simplify the name of variance_metric
 sort(unique(adoption_clean$variance_metric))
@@ -158,9 +155,9 @@ CI90_SE <- function (or,ci_l) {
   return(result)
 }
 
-adoption_clean$variance_value_num[adoption_clean$variance_metric %in% c("90% CI")] <-  
-  CI90_SE(adoption_clean$coefficient_num[adoption_clean$variance_metric %in% c("90% CI")],
-          adoption_clean$variance_ci_l_num[adoption_clean$variance_metric %in% c("90% CI")])
+adoption_clean$variance_value[adoption_clean$variance_metric %in% c("90% CI")] <-  
+  CI90_SE(adoption_clean$coefficient_value[adoption_clean$variance_metric %in% c("90% CI")],
+          adoption_clean$variance_ci_l[adoption_clean$variance_metric %in% c("90% CI")])
 
 ## Transform 95% conﬁdence intervals to SE(b)
 #coefficient_type == "OR"
@@ -170,9 +167,9 @@ CI95_SE <- function (or,ci_u) {
   return(result)
 }
 
-adoption_clean$variance_value_num[adoption_clean$variance_metric %in% c("95% CI")] <-  
-  CI95_SE(adoption_clean$coefficient_num[adoption_clean$variance_metric %in% c("95% CI")],
-          adoption_clean$variance_ci_u_num[adoption_clean$variance_metric %in% c("95% CI")])
+adoption_clean$variance_value[adoption_clean$variance_metric %in% c("95% CI")] <-  
+  CI95_SE(adoption_clean$coefficient_value[adoption_clean$variance_metric %in% c("95% CI")],
+          adoption_clean$variance_ci_u[adoption_clean$variance_metric %in% c("95% CI")])
 
 ## Transform OR to B
 #coefficient_type == "OR"
@@ -183,8 +180,8 @@ OR_CI90_95_B <- function (or) {
   return(result)
 }
 
-adoption_clean$coefficient_num[adoption_clean$variance_metric %in% c("90% CI", "95% CI")] <-  
-  OR_CI90_95_B(adoption_clean$coefficient_num[adoption_clean$variance_metric %in% c("90% CI","95% CI")])
+adoption_clean$coefficient_value[adoption_clean$variance_metric %in% c("90% CI", "95% CI")] <-  
+  OR_CI90_95_B(adoption_clean$coefficient_value[adoption_clean$variance_metric %in% c("90% CI","95% CI")])
 
 adoption_clean$coefficient_type[adoption_clean$variance_metric %in% c("90% CI","95% CI")] <- "B"
 
@@ -204,7 +201,7 @@ table(adoption_clean$coefficient_variance_type,adoption_clean$model_method)
 
 ## ATTENTION: I need to contact the authors of these articles to ask for SE or t-z value
 contact_authors_1<- adoption_clean%>%
-  filter(is.na(variance_value_num))%>%
+  filter(is.na(variance_value))%>%
   filter(y_metric_recla=="diversity adoption (1=yes, 0=no)")
 
 length(unique(contact_authors_1$article_id)) #23 articles
@@ -217,12 +214,12 @@ sort(unique(contact_authors_1$y_metric_recla))
 # Stanley and Doucouliagos recommend to use 0.1 OR 0.5
 # Greenberg et al. (2003). A meta-analysis of government-sponsored training programs. use 0.3, as this is the midpoint between 0.10 and 0.5
 #Stanley and Doucouliagos said that the best thing to do is to omit these results.
-adoption_clean$variance_value_num<- ifelse(adoption_clean$variance_metric %in% "P" &
-                                                is.na(adoption_clean$variance_value_num),0.3,adoption_clean$variance_value_num)
+adoption_clean$variance_value<- ifelse(adoption_clean$variance_metric %in% "P" &
+                                                is.na(adoption_clean$variance_value),0.3,adoption_clean$variance_value)
 
 # Replace SE == 0 by 0.0001
-adoption_clean$variance_value_num<- ifelse(adoption_clean$variance_metric %in% "SE" &
-                                             adoption_clean$variance_value_num %in% 0 ,0.0001,adoption_clean$variance_value_num)
+adoption_clean$variance_value<- ifelse(adoption_clean$variance_metric %in% "SE" &
+                                             adoption_clean$variance_value %in% 0 ,0.0001,adoption_clean$variance_value)
 
 
 ####### Calculate t value or z value -------
@@ -245,8 +242,8 @@ t_z_B_SE <- function (b, se) {
 }
 
 adoption_clean$t_value_pcc[adoption_clean$coefficient_variance_type %in% c("B_SE","ME_SE","AME_SE")] <-  
-  t_z_B_SE(adoption_clean$coefficient_num[adoption_clean$coefficient_variance_type %in% c("B_SE","ME_SE","AME_SE")],
-           adoption_clean$variance_value_num[adoption_clean$coefficient_variance_type %in% c("B_SE","ME_SE","AME_SE")])
+  t_z_B_SE(adoption_clean$coefficient_value[adoption_clean$coefficient_variance_type %in% c("B_SE","ME_SE","AME_SE")],
+           adoption_clean$variance_value[adoption_clean$coefficient_variance_type %in% c("B_SE","ME_SE","AME_SE")])
 
 # model_method == "logit" and "probit"
 # coefficient_variance_type == c("B_P", "ME_P")
@@ -259,8 +256,8 @@ t_z_probit_logit_B_P <- function (b,p) {
 }
 
 adoption_clean$t_value_pcc[adoption_clean$model_coefficient_variance_type %in% c("logit_B_P","probit_B_P","logit_ME_P","probit_ME_P" )] <- 
-  t_z_probit_logit_B_P(adoption_clean$coefficient_num[adoption_clean$model_coefficient_variance_type %in%c("logit_B_P","probit_B_P","logit_ME_P","probit_ME_P")],
-                       adoption_clean$variance_value_num[adoption_clean$model_coefficient_variance_type %in%c("logit_B_P","probit_B_P","logit_ME_P","probit_ME_P")])
+  t_z_probit_logit_B_P(adoption_clean$coefficient_value[adoption_clean$model_coefficient_variance_type %in%c("logit_B_P","probit_B_P","logit_ME_P","probit_ME_P")],
+                       adoption_clean$variance_value[adoption_clean$model_coefficient_variance_type %in%c("logit_B_P","probit_B_P","logit_ME_P","probit_ME_P")])
 
 # model_coefficient_variance_type == c("probit_B_X2", "logit_B_WS")
 # z=  sqrt(X2)
@@ -272,8 +269,8 @@ t_z_probit_logit_B_X<- function (b,x) {
 }
 
 adoption_clean$t_value_pcc[adoption_clean$model_coefficient_variance_type %in%  c("probit_B_X2", "logit_B_WS")] <- 
-  t_z_probit_logit_B_X(adoption_clean$coefficient_num[adoption_clean$model_coefficient_variance_type %in% c("probit_B_X2", "logit_B_WS")],
-                       adoption_clean$variance_value_num[adoption_clean$model_coefficient_variance_type %in% c("probit_B_X2", "logit_B_WS")])
+  t_z_probit_logit_B_X(adoption_clean$coefficient_value[adoption_clean$model_coefficient_variance_type %in% c("probit_B_X2", "logit_B_WS")],
+                       adoption_clean$variance_value[adoption_clean$model_coefficient_variance_type %in% c("probit_B_X2", "logit_B_WS")])
   
 
 # model_method == c("logit")
@@ -289,8 +286,8 @@ t_z_logit_OR_SE<- function (or, se) {
 }
 
 adoption_clean$t_value_pcc[adoption_clean$model_coefficient_variance_type %in% c("logit_OR_SE")] <- 
-  t_z_logit_OR_SE(adoption_clean$coefficient_num[adoption_clean$model_coefficient_variance_type %in%c("logit_OR_SE")],
-                       adoption_clean$variance_value_num[adoption_clean$model_coefficient_variance_type %in%c("logit_OR_SE")])
+  t_z_logit_OR_SE(adoption_clean$coefficient_value[adoption_clean$model_coefficient_variance_type %in%c("logit_OR_SE")],
+                       adoption_clean$variance_value[adoption_clean$model_coefficient_variance_type %in%c("logit_OR_SE")])
 
 # model_method == "logit" 
 # coefficient_variance_type == c("OR_P")
@@ -303,15 +300,15 @@ t_z_probit_logit_OR_P <- function (or,p) {
 }
 
 adoption_clean$t_value_pcc[adoption_clean$model_coefficient_variance_type %in% c("logit_OR_P")] <- 
-  t_z_probit_logit_OR_P(adoption_clean$coefficient_num[adoption_clean$model_coefficient_variance_type %in%c("logit_OR_P")],
-                       adoption_clean$variance_value_num[adoption_clean$model_coefficient_variance_type %in%c("logit_OR_P")])
+  t_z_probit_logit_OR_P(adoption_clean$coefficient_value[adoption_clean$model_coefficient_variance_type %in%c("logit_OR_P")],
+                       adoption_clean$variance_value[adoption_clean$model_coefficient_variance_type %in%c("logit_OR_P")])
 
 # TO CHECK: I need to verify this formula
 # model_method == c("OLS", "tobit")
 # coefficient_variance_type == c("B_P", "ME_P")
 #Formula from Ruzzante et al supp info
 # t_z= t = Ft^−1 (p/2, df) ∗ sign(b)
-# coefficient_num > 0
+# coefficient_value > 0
 table(adoption_clean$coefficient_variance_type,adoption_clean$model_method )
 t_z_tobit_OLS_B_P <- function(p,n,k) {
   t <- qt(p/2, (n-k-1))
@@ -319,9 +316,9 @@ t_z_tobit_OLS_B_P <- function(p,n,k) {
 }
 
 adoption_clean$t_value_pcc[adoption_clean$model_coefficient_variance_type %in%  c("tobit_B_P","OLS_B_P","tobit_ME_P")] <- 
-  t_z_tobit_OLS_B_P(adoption_clean$variance_value_num[adoption_clean$model_coefficient_variance_type %in%  c("tobit_B_P","OLS_B_P","tobit_ME_P")],
-                    adoption_clean$n_samples_num[adoption_clean$model_coefficient_variance_type %in%  c("tobit_B_P","OLS_B_P","tobit_ME_P")],
-                    adoption_clean$n_predictors_num[adoption_clean$model_coefficient_variance_type %in%  c("tobit_B_P","OLS_B_P","tobit_ME_P")])
+  t_z_tobit_OLS_B_P(adoption_clean$variance_value[adoption_clean$model_coefficient_variance_type %in%  c("tobit_B_P","OLS_B_P","tobit_ME_P")],
+                    adoption_clean$n_samples[adoption_clean$model_coefficient_variance_type %in%  c("tobit_B_P","OLS_B_P","tobit_ME_P")],
+                    adoption_clean$n_factors[adoption_clean$model_coefficient_variance_type %in%  c("tobit_B_P","OLS_B_P","tobit_ME_P")])
 
 
 # model_method == any model
@@ -335,7 +332,7 @@ t_z_ANY <- function (t_z) {
 }
 
 adoption_clean$t_value_pcc[adoption_clean$coefficient_variance_type %in%  c("B_T", "B_Z","ME_T", "ME_Z","OR_Z")] <- 
-  t_z_ANY(adoption_clean$variance_value_num[adoption_clean$coefficient_variance_type %in%  c("B_T", "B_Z","ME_T", "ME_Z","OR_Z")])
+  t_z_ANY(adoption_clean$variance_value[adoption_clean$coefficient_variance_type %in%  c("B_T", "B_Z","ME_T", "ME_Z","OR_Z")])
 
 
 ## ATTENTION: I need to contact the authors of these articles to ask for SE or t-z value
@@ -350,7 +347,7 @@ table(contact_authors_2$coefficient_variance_type,contact_authors_2$model_method
 # Formula to get t value from other_B_P
 # Formula to get t value from nd_ME_P
 # Check if #737 should be included, it reports negative SE values.
-# Check if z_t_value_recal has the same sign than coefficient_num
+# Check if z_t_value_recal has the same sign than coefficient_value
 
 ####### DEPENDENT ADOPTION INTENSITY -------
 adoption_intensity<-adoption_clean%>%
@@ -389,7 +386,7 @@ B_logit_OR <- function(or) {
   return(b)
 }
 adoption_binary$b_logOR[adoption_binary$model_method %in% c("logit") & adoption_binary$coefficient_type %in%c("OR")]<- 
-  B_logit_OR(adoption_binary$coefficient_num[adoption_binary$model_method %in% c("logit") &
+  B_logit_OR(adoption_binary$coefficient_value[adoption_binary$model_method %in% c("logit") &
                                                adoption_binary$coefficient_type %in%c("OR")])
 
 
@@ -403,7 +400,7 @@ B_logit_B <- function (b) {
 
 adoption_binary$b_logOR[adoption_binary$model_method %in% c("logit") & 
                           adoption_binary$coefficient_type %in%c("B")] <- 
-  B_logit_B(adoption_binary$coefficient_num[adoption_binary$model_method %in% c("logit") & 
+  B_logit_B(adoption_binary$coefficient_value[adoption_binary$model_method %in% c("logit") & 
                                               adoption_binary$coefficient_type %in%c("B")])
 
 #model_method == ("probit")
@@ -416,7 +413,7 @@ B_probit_B <- function (b) {
 
 adoption_binary$b_logOR[adoption_binary$model_method %in% c("probit") & 
                           adoption_binary$coefficient_type %in%c("B")] <- 
-  B_probit_B(adoption_binary$coefficient_num[adoption_binary$model_method %in% c("probit") & 
+  B_probit_B(adoption_binary$coefficient_value[adoption_binary$model_method %in% c("probit") & 
                                               adoption_binary$coefficient_type %in%c("B")])
 
 
@@ -429,8 +426,8 @@ OR_SE_logit_SE <- function (or, se) {
 }
 
 adoption_binary$se_logOR[adoption_binary$model_coefficient_variance_type %in%c("logit_OR_SE")] <- 
-  OR_SE_logit_SE(adoption_binary$coefficient_num[adoption_binary$model_coefficient_variance_type %in% c("logit_OR_SE")],
-                 adoption_binary$variance_value_num[adoption_binary$model_coefficient_variance_type %in% c("logit_OR_SE")])
+  OR_SE_logit_SE(adoption_binary$coefficient_value[adoption_binary$model_coefficient_variance_type %in% c("logit_OR_SE")],
+                 adoption_binary$variance_value[adoption_binary$model_coefficient_variance_type %in% c("logit_OR_SE")])
 
 #model_coefficient_variance_type == ("logit_B_SE")
 table(adoption_binary$coefficient_variance_type,adoption_binary$model_method )
@@ -440,7 +437,7 @@ B_SE_logit_SE <- function (se) {
 }
 
 adoption_binary$se_logOR[adoption_binary$model_coefficient_variance_type %in%c("logit_B_SE")] <- 
-  B_SE_logit_SE(adoption_binary$variance_value_num[adoption_binary$model_coefficient_variance_type %in% c("logit_B_SE")])
+  B_SE_logit_SE(adoption_binary$variance_value[adoption_binary$model_coefficient_variance_type %in% c("logit_B_SE")])
 
 
 
@@ -467,7 +464,7 @@ B_SE_probit_SE <- function (se) {
 }
 
 adoption_binary$se_logOR[adoption_binary$model_coefficient_variance_type %in%c("probit_B_SE")] <- 
-  B_SE_probit_SE(adoption_binary$variance_value_num[adoption_binary$model_coefficient_variance_type %in% c("probit_B_SE")])
+  B_SE_probit_SE(adoption_binary$variance_value[adoption_binary$model_coefficient_variance_type %in% c("probit_B_SE")])
 
 
 #model_coefficient_variance_type == ("probit_B_P","probit_B_T","probit_B_X2","probit_B_Z")
@@ -478,7 +475,7 @@ B_T_probit_SE <- function (b,t) {
 }
 
 adoption_binary$se_logOR[adoption_binary$model_coefficient_variance_type %in%c("probit_B_P","probit_B_T","probit_B_X2","probit_B_Z")] <- 
-  B_T_probit_SE(adoption_binary$coefficient_num[adoption_binary$model_coefficient_variance_type %in% c("probit_B_P","probit_B_T","probit_B_X2","probit_B_Z")],
+  B_T_probit_SE(adoption_binary$coefficient_value[adoption_binary$model_coefficient_variance_type %in% c("probit_B_P","probit_B_T","probit_B_X2","probit_B_Z")],
                  adoption_binary$t_value_pcc[adoption_binary$model_coefficient_variance_type %in% c("probit_B_P","probit_B_T","probit_B_X2","probit_B_Z")])
 
 ### Check 
@@ -612,8 +609,8 @@ UN_region <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/m
                                                                                        if_else(Country_Name == "Niger (The)","Niger",
                                                                                Country_Name)))))))))))%>%
   dplyr::select(Country_Name, UN_Regions, UN_sub_region,Developed_Developing)%>%
-  dplyr::rename("m_region"="UN_Regions",
-                "m_sub_region"="UN_sub_region")
+  dplyr::rename("un_region"="UN_Regions",
+                "un_subregion"="UN_sub_region")
 
 sort(unique(UN_region$Country_Name))
 
@@ -621,23 +618,23 @@ data_adoption_binary<- data_adoption_binary%>%
   left_join(UN_region, by=c("country" ="Country_Name"))
 names(data_adoption_binary)
 
-data_adoption_binary$m_region[data_adoption_binary$country %in% "Vietnam, Thailand"] <-"Asia"
-data_adoption_binary$m_sub_region[data_adoption_binary$country %in% "Vietnam, Thailand"] <-"South-eastern Asia"
-data_adoption_binary$m_region[
+data_adoption_binary$un_region[data_adoption_binary$country %in% "Vietnam, Thailand"] <-"Asia"
+data_adoption_binary$un_subregion[data_adoption_binary$country %in% "Vietnam, Thailand"] <-"South-eastern Asia"
+data_adoption_binary$un_region[
   data_adoption_binary$country %in% "Ethiopia, Ghana, Kenya, Malawi,  Mozambique, Nigeria, Tanzania, Uganda,  Zambia"] <-"Africa"
 
 
-sort(unique(data_adoption_binary$country[is.na(data_adoption_binary$m_sub_region)])) #1
+sort(unique(data_adoption_binary$country[is.na(data_adoption_binary$un_subregion)])) #1
 sort(unique(data_adoption_binary$country)) #44
-sort(unique(data_adoption_binary$m_region)) #5
-sort(unique(data_adoption_binary$m_sub_region)) #14
+sort(unique(data_adoption_binary$un_region)) #5
+sort(unique(data_adoption_binary$un_subregion)) #14
 
-table(data_adoption_binary$country,data_adoption_binary$m_region)
+table(data_adoption_binary$country,data_adoption_binary$un_region)
 length(unique(data_adoption_binary$article_id)) #154 articles 
 sort(unique(data_adoption_binary$article_id))
-sort(unique(data_adoption_binary$country[data_adoption_binary$m_sub_region %in% c("Central America")]))
+sort(unique(data_adoption_binary$country[data_adoption_binary$un_subregion %in% c("Central America")]))
 
-table(data_adoption_binary$country,data_adoption_binary$m_sub_region)
+table(data_adoption_binary$country,data_adoption_binary$un_subregion)
 
 
 ####### Factors classification -------
