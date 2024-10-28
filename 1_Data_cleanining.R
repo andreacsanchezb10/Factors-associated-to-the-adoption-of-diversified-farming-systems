@@ -487,7 +487,8 @@ adoption_binary_clean<-adoption_binary%>%
     x_metric_recla=="hh perceive benefits of SFP or DFS"| #to check
     x_metric_recla=="hh risk attitude"| #to check
     x_metric_recla=="limitations to implement SFT or DFS"| #to check
-    x_metric_recla=="production constraints"| #to check
+    x_metric_recla=="production constraints"| #to check |
+      x_metric_recla=="awareness of climate change" |
     #  x_metric_recla=="hh perception of precipitation"|
       
       # Financial capital
@@ -527,7 +528,7 @@ adoption_binary_clean<-adoption_binary%>%
   x_metric_recla=="family members and friends living in and out the community"|
   x_metric_recla=="hh association member" |
   x_metric_recla=="hh comunicate with other farmers"|
-  x_metric_recla=="hh perception of extension services"|
+  x_metric_recla=="trust in extension services"|
   
 
 # Political and institutional context
@@ -541,8 +542,8 @@ adoption_binary_clean<-adoption_binary%>%
   
   x_metric_recla=="receive incentive for conservation"|
   x_metric_recla=="access to credit"|  
-  x_metric_recla=="access to credit is a constraint"  |
-  x_metric_recla=="hh perception of climate change" ) # to check
+  x_metric_recla=="access to credit is a constraint"  
+   ) # to check
 
 
 length(sort(unique(adoption_binary_clean$study_id))) #156

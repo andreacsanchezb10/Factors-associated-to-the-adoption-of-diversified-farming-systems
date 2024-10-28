@@ -3,7 +3,7 @@ library(readxl)
 
 
 ####### FACTORS -------
-factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
+factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx",
                                       sheet = "FACTORS_metric_assessed")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$pcc_unit,")", sep="")
@@ -57,7 +57,7 @@ sort(unique(data$limitation_of_use_obs))
 #######  Included FACTORS -------
 length(unique(data$x_metric_recla)) #45
 sort(unique(data$x_metric_recla))
-length(unique(data$x_metric_recla2))#63
+length(unique(data$x_metric_recla2))#39
 
 str(data)
 sort(unique(data$factor_metric))
@@ -68,7 +68,7 @@ factors_metric_unit<-data%>%
   summarise(n_articles = n_distinct(study_id),
             n_ES = n_distinct(ES_ID))
 
-sort(unique(factors_metric_unit$pcc_factor_unit)) # 64 factor_metric
+sort(unique(factors_metric_unit$pcc_factor_unit)) # 66 factor_metric
 
 write.csv(factors_metric_unit, "data/pcc_factors_metric_unit_articles.csv", row.names=FALSE)
 

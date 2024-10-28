@@ -5,8 +5,8 @@ library(dplyr)
 library(tidyr)
 library(metafor)
 
-factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
-                                      sheet = "FACTORS_metric_assessed_2")
+factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx",
+                                      sheet = "FACTORS_metric_assessed")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
                                                  " (",factors_metric_assessed$pcc_unit,")", sep="")
@@ -25,7 +25,7 @@ names(pcc_data)
 
 modelnovar2_model <- function(data, metric_unit) {
   overal_model <- rma.mv(fis.yi, fis.vi, 
-                         random = list(~ 1 | ES_ID, ~ 1 | article_id),
+                         random = list(~ 1 | ES_ID, ~ 1 | study_id),
                          data = data,
                          method = "REML", 
                          test = "t",
@@ -35,7 +35,7 @@ modelnovar2_model <- function(data, metric_unit) {
   summary(overal_model, digits = 3)
   
   modelnovar2 <- rma.mv(fis.yi, fis.vi, 
-                        random = list(~ 1 | ES_ID, ~ 1 | article_id),
+                        random = list(~ 1 | ES_ID, ~ 1 | study_id),
                         data = data,
                         method = "REML", 
                         test = "t",
@@ -94,7 +94,7 @@ modelnovar2_results<-as.data.frame(modelnovar2_results_list)%>%
 #anova(overall,modelnovar3)
 modelnovar3_model <- function(data, metric_unit) {
     overal_model <- rma.mv(fis.yi, fis.vi, 
-                           random = list(~ 1 | ES_ID, ~ 1 | article_id),
+                           random = list(~ 1 | ES_ID, ~ 1 | study_id),
                            data = data,
                            method = "REML", 
                            test = "t",
@@ -104,7 +104,7 @@ modelnovar3_model <- function(data, metric_unit) {
     summary(overal_model, digits = 3)
     
     modelnovar3 <- rma.mv(fis.yi, fis.vi, 
-                          random = list(~ 1 | ES_ID, ~ 1 | article_id),
+                          random = list(~ 1 | ES_ID, ~ 1 | study_id),
                           data = data,
                           method = "REML", 
                           test = "t",
@@ -177,7 +177,7 @@ comparison<- modelnovar2_results%>%
   filter(pcc_factor_unit!="High school education (1= yes, 0= no)")
 
 length((comparison$best_model[comparison$best_model %in% "Three-level"])) #13
-length((comparison$best_model[comparison$best_model %in% "Two-level"])) #54
+length((comparison$best_model[comparison$best_model %in% "Two-level"])) #50
 sort(unique(comparison$pcc_factor_unit))
 
 write.csv(comparison, "results/comparison_best_model.csv", row.names=FALSE)
