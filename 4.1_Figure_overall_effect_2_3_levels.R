@@ -144,7 +144,7 @@ sort(unique(overal_results$label))
 
 #overal_results$factor_sub_class <- toupper(overal_results$factor_sub_class)
 
-overal_results$ID <- as.numeric(seq(64, 1, by = -1)) #add a new column with the effect size ID number
+overal_results$ID <- as.numeric(seq(66, 1, by = -1)) #add a new column with the effect size ID number
 
 ########################################################################################################
 ############# OVERALL RESULTS ONLY  ########################################################################################################
@@ -369,10 +369,12 @@ theme_overall<-theme(
   axis.line = element_line(colour = "black"))
 
 presentation_overall_effect<-
-  ggplot(subset(overal_results,#factor_sub_class=="Social capital"&
-                  pcc_factor_unit=="Literate farmer (1= literate, 0= illiterate)"|
-                  pcc_factor_unit=="Total income (continuous)"|
-                  pcc_factor_unit=="Land tenure security (continuous)"),
+  ggplot(subset(overal_results,#factor_sub_class=="2Financial capital"
+                  factor_sub_class=="3Political_1"
+                  #pcc_factor_unit=="Soil depth (Shallow)" |
+                #pcc_factor_unit=="Soil slope (Moderate)" #|
+                #pcc_factor_unit=="Land tenure security (continuous)"
+                ),
    #ggplot(overal_results, 
          #aes(y=pcc_factor_unit,x=pcc.beta,
          aes(y=reorder(pcc_factor_unit, pcc_factor_unit2),x=pcc.beta,
@@ -402,7 +404,7 @@ presentation_overall_effect<-
   geom_segment(aes(y = reorder(pcc_factor_unit, pcc_factor_unit2),
                    yend = reorder(pcc_factor_unit, pcc_factor_unit2),
                    x=pcc.beta, xend = pcc.ci.lb_l1),show.legend = F,size=1)+
-  scale_colour_manual(values = c("#92c46d"))+
+  scale_colour_manual(values = c("grey60","grey60","#92c46d"))+
  # facet_grid2(vars(factor_sub_class),
     #          scales= "free", space='free_y', switch = "y",
      #         strip = overall_strips)+

@@ -3,15 +3,15 @@ library(readxl)
 library(dplyr)
 
 # Set the file path and name of the .xlsx file -------
-data_path <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx"
+data_path <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx"
 
 # Use the read_excel() function to read the data into a data frame
 data <- read_excel(data_path, sheet = "meta_PCC")
 data <- data[-1,]
 data <- data[-1,]
 
-length(sort(unique(data$article_id))) # Number of articles 183
-sort(unique(data$y_metric_recla)) #23
+length(sort(unique(data$study_id))) # Number of articles 194
+sort(unique(data$y_metric_recla)) #28
 sort(unique(data$y_metric_recla_2))
 sort(unique(data$limitation_of_use_obs))
 
@@ -25,10 +25,10 @@ names(data)
 adoption<- data%>%
   dplyr::filter(y_metric_recla_2=="adoption")
 
-length(sort(unique(adoption$article_id))) # Number of articles 174
-table(adoption$y_metric_recla) #Number of rows 4678
-sort(unique(adoption$country)) #Countries 47
-length(sort(unique(adoption$x_metric_recla))) # Unique factors 163
+length(sort(unique(adoption$study_id))) # Number of articles 160
+table(adoption$y_metric_recla) #Number of rows 3975
+sort(unique(adoption$country)) #Countries 46
+length(sort(unique(adoption$x_metric_recla))) # Unique factors 206
 
 names(adoption)
 ### Select only necessary columns ----
@@ -47,18 +47,18 @@ adoption_clean<- adoption%>%
          transformation_variance_num = as.numeric(transformation_variance),
          country = as.character(country))%>%
   #Select only the columns that we are going to use
-  dplyr::select(article_id,model_id,main_crop, country, 
+  dplyr::select(study_id,model_id,main_crop, country, 
                 year_assessment_start, year_assessment_end,
                 intervention_recla,intervention_recla_detail_1,
                 intervention_recla_detail_2,intervention_recla_detail_3,
                 intervention_recla_detail_4,
                 y_metric_recla,x_metric_raw,x_metric_recla, x_metric_unit_raw,
-                x_metric_unit_recla,x_data_type,
+                x_metric_unit_recla,x_type,
                 transformation_coefficient,	transformation_coefficient_num,
                 transformation_variance,
                 transformation_variance_num,
                 x_mean_value,x_mean_value_num,
-                model_analysis_raw,model_method,coefficient_type, 
+                model_method_raw,model_method_recla,coefficient_type, 
                 coefficient_value,
                 variance_metric,variance_value,
                 variance_ci_l,  variance_ci_u,
@@ -71,8 +71,8 @@ adoption_clean<- adoption%>%
   mutate(factor_metric= paste(x_metric_recla, " (", x_metric_unit_recla, ")", sep=""))
 
 
-length(sort(unique(adoption_clean$article_id))) # Number of articles 174
-sort(unique(adoption_clean$article_id))
+length(sort(unique(adoption_clean$study_id))) # Number of articles 160
+sort(unique(adoption_clean$study_id))
 sort(unique(adoption_clean$limitation_of_use_obs))
 sort(unique(adoption_clean$factor_metric))
 
@@ -106,7 +106,7 @@ sort(unique(adoption_clean$m_intervention_system_components))
 
 table(adoption_clean$intervention_recla, adoption_clean$m_intervention_system_components)
 
-sort(unique(prueba$article_id))
+sort(unique(prueba$study_id))
 
 
 ####### Prepare data for the analysis -------
@@ -145,11 +145,11 @@ adoption_clean$variance_metric[adoption_clean$variance_metric %in% c("z value")]
 
 sort(unique(adoption_clean$variance_metric))
 
-table(adoption_clean$variance_metric,adoption_clean$model_method )
+table(adoption_clean$variance_metric,adoption_clean$model_method_recla )
 
 ## Transform 90% conﬁdence intervals to SE(b)
 #coefficient_type == "OR"
-#model_method == "logit"
+#model_method_recla == "logit"
 CI90_SE <- function (or,ci_l) {  
   result<- (log(or)-log(ci_l))/(1.645)
   return(result)
@@ -161,7 +161,7 @@ adoption_clean$variance_value[adoption_clean$variance_metric %in% c("90% CI")] <
 
 ## Transform 95% conﬁdence intervals to SE(b)
 #coefficient_type == "OR"
-#model_method == "logit"
+#model_method_recla == "logit"
 CI95_SE <- function (or,ci_u) {  
   result<- (log(or)+log(ci_u))/(1.96)
   return(result)
@@ -173,7 +173,7 @@ adoption_clean$variance_value[adoption_clean$variance_metric %in% c("95% CI")] <
 
 ## Transform OR to B
 #coefficient_type == "OR"
-#model_method == "logit"
+#model_method_recla == "logit"
 #variance_metric == c("90% CI", "95% CI")
 OR_CI90_95_B <- function (or) {  
   result<- log(or)
@@ -194,18 +194,18 @@ adoption_clean$coefficient_variance_type<- paste(adoption_clean$coefficient_type
 sort(unique(adoption_clean$coefficient_variance_type))
 
 # Combine model type, coefficient type and variance metric
-adoption_clean$model_coefficient_variance_type<-paste(adoption_clean$model_method, adoption_clean$coefficient_variance_type,sep = "_")
+adoption_clean$model_coefficient_variance_type<-paste(adoption_clean$model_method_recla, adoption_clean$coefficient_variance_type,sep = "_")
 
 sort(unique(adoption_clean$model_coefficient_variance_type))
-table(adoption_clean$coefficient_variance_type,adoption_clean$model_method)
+table(adoption_clean$coefficient_variance_type,adoption_clean$model_method_recla)
 
 ## ATTENTION: I need to contact the authors of these articles to ask for SE or t-z value
 contact_authors_1<- adoption_clean%>%
   filter(is.na(variance_value))%>%
   filter(y_metric_recla=="diversity adoption (1=yes, 0=no)")
 
-length(unique(contact_authors_1$article_id)) #23 articles
-sort(unique(contact_authors_1$article_id))
+length(unique(contact_authors_1$study_id)) #23 articles
+sort(unique(contact_authors_1$study_id))
 sort(unique(contact_authors_1$y_metric_recla))
 
 
@@ -224,18 +224,18 @@ adoption_clean$variance_value<- ifelse(adoption_clean$variance_metric %in% "SE" 
 
 ####### Calculate t value or z value -------
 sort(unique(adoption_clean$coefficient_variance_type))
-sort(unique(adoption_clean$model_method))
+sort(unique(adoption_clean$model_method_recla))
 #[1] "logit"  "OLS"    "other"  "probit" "tobit" 
-table(adoption_clean$coefficient_variance_type,adoption_clean$model_method )
+table(adoption_clean$coefficient_variance_type,adoption_clean$model_method_recla )
 
-# model_method == any model
+# model_method_recla == any model
 # coefficient_variance_type == c("B_SE", "ME_SE", "AME_SE")
 # z= B/SE, t= B/SE
 # Cochrane 6.3.1 Obtaining standard errors from confidence intervals and P values: absolute (difference) measures#section-6-3-1
 #https://training.cochrane.org/handbook/archive/v6/chapter-06
 # and (2) From t statistic to standard error
 #https://training.cochrane.org/handbook/archive/v6/chapter-06#_Ref190821230
-table(adoption_clean$coefficient_variance_type,adoption_clean$model_method )
+table(adoption_clean$coefficient_variance_type,adoption_clean$model_method_recla )
 t_z_B_SE <- function (b, se) {  
   result<- (b/se)
   return(result)
@@ -245,11 +245,11 @@ adoption_clean$t_value_pcc[adoption_clean$coefficient_variance_type %in% c("B_SE
   t_z_B_SE(adoption_clean$coefficient_value[adoption_clean$coefficient_variance_type %in% c("B_SE","ME_SE","AME_SE")],
            adoption_clean$variance_value[adoption_clean$coefficient_variance_type %in% c("B_SE","ME_SE","AME_SE")])
 
-# model_method == "logit" and "probit"
+# model_method_recla == "logit" and "probit"
 # coefficient_variance_type == c("B_P", "ME_P")
 # CHECK: Ref available: Kleinbaum, D. G., & Klein, M. (2010). Logistic regression: a self-learning text (3rd ed.). Springer Science & Business Media.
 # SE = B/z; z=  Φ^−1(p/2) ∗ sign(B)
-table(adoption_clean$coefficient_variance_type,adoption_clean$model_method )
+table(adoption_clean$coefficient_variance_type,adoption_clean$model_method_recla )
 t_z_probit_logit_B_P <- function (b,p) {  
   result<- sign(b)* (abs(qnorm(p/2)))
   return(result)
@@ -261,7 +261,7 @@ adoption_clean$t_value_pcc[adoption_clean$model_coefficient_variance_type %in% c
 
 # model_coefficient_variance_type == c("probit_B_X2", "logit_B_WS")
 # z=  sqrt(X2)
-table(adoption_clean$coefficient_variance_type,adoption_clean$model_method )
+table(adoption_clean$coefficient_variance_type,adoption_clean$model_method_recla )
 
 t_z_probit_logit_B_X<- function (b,x) {  
   result<-   sign(b) * sqrt(abs(x))
@@ -273,12 +273,12 @@ adoption_clean$t_value_pcc[adoption_clean$model_coefficient_variance_type %in%  
                        adoption_clean$variance_value[adoption_clean$model_coefficient_variance_type %in% c("probit_B_X2", "logit_B_WS")])
   
 
-# model_method == c("logit")
+# model_method_recla == c("logit")
 # coefficient_variance_type == "OR_SE"
 # (log(OR)*OR)/SE
 #https://www.youtube.com/watch?v=RDY5MFVbRQE
 #https://libguides.princeton.edu/logit
-table(adoption_clean$coefficient_variance_type,adoption_clean$model_method )
+table(adoption_clean$coefficient_variance_type,adoption_clean$model_method_recla )
 
 t_z_logit_OR_SE<- function (or, se) {  
   result<-   (log(or)*or)/se
@@ -289,11 +289,11 @@ adoption_clean$t_value_pcc[adoption_clean$model_coefficient_variance_type %in% c
   t_z_logit_OR_SE(adoption_clean$coefficient_value[adoption_clean$model_coefficient_variance_type %in%c("logit_OR_SE")],
                        adoption_clean$variance_value[adoption_clean$model_coefficient_variance_type %in%c("logit_OR_SE")])
 
-# model_method == "logit" 
+# model_method_recla == "logit" 
 # coefficient_variance_type == c("OR_P")
 # CHECK: Ref available: Kleinbaum, D. G., & Klein, M. (2010). Logistic regression: a self-learning text (3rd ed.). Springer Science & Business Media.
 # SE = B/z; z=  Φ^−1(p/2) ∗ sign(OR)
-table(adoption_clean$coefficient_variance_type,adoption_clean$model_method )
+table(adoption_clean$coefficient_variance_type,adoption_clean$model_method_recla )
 t_z_probit_logit_OR_P <- function (or,p) {  
   result<- sign(log(or))* (abs(qnorm(p/2)))
   return(result)
@@ -304,12 +304,12 @@ adoption_clean$t_value_pcc[adoption_clean$model_coefficient_variance_type %in% c
                        adoption_clean$variance_value[adoption_clean$model_coefficient_variance_type %in%c("logit_OR_P")])
 
 # TO CHECK: I need to verify this formula
-# model_method == c("OLS", "tobit")
+# model_method_recla == c("OLS", "tobit")
 # coefficient_variance_type == c("B_P", "ME_P")
 #Formula from Ruzzante et al supp info
 # t_z= t = Ft^−1 (p/2, df) ∗ sign(b)
 # coefficient_value > 0
-table(adoption_clean$coefficient_variance_type,adoption_clean$model_method )
+table(adoption_clean$coefficient_variance_type,adoption_clean$model_method_recla )
 t_z_tobit_OLS_B_P <- function(p,n,k) {
   t <- qt(p/2, (n-k-1))
   return(t)
@@ -321,10 +321,10 @@ adoption_clean$t_value_pcc[adoption_clean$model_coefficient_variance_type %in%  
                     adoption_clean$n_factors[adoption_clean$model_coefficient_variance_type %in%  c("tobit_B_P","OLS_B_P","tobit_ME_P")])
 
 
-# model_method == any model
+# model_method_recla == any model
 # coefficient_variance_type == c("B_T", "B_Z","ME_T", "ME_Z","OR_Z")
 # t_z= t OR z
-table(adoption_clean$coefficient_variance_type,adoption_clean$model_method )
+table(adoption_clean$coefficient_variance_type,adoption_clean$model_method_recla )
 
 t_z_ANY <- function (t_z) {  
   result<- t_z
@@ -339,9 +339,9 @@ adoption_clean$t_value_pcc[adoption_clean$coefficient_variance_type %in%  c("B_T
 contact_authors_2<- adoption_clean%>%
   filter(is.na(t_value_pcc))
 
-length(unique(contact_authors_2$article_id)) #9 articles
-sort(unique(contact_authors_2$article_id))
-table(contact_authors_2$coefficient_variance_type,contact_authors_2$model_method )
+length(unique(contact_authors_2$study_id)) #9 articles
+sort(unique(contact_authors_2$study_id))
+table(contact_authors_2$coefficient_variance_type,contact_authors_2$model_method_recla )
 
 # Formula to get t value from GLM_B_P
 # Formula to get t value from other_B_P
@@ -353,11 +353,11 @@ table(contact_authors_2$coefficient_variance_type,contact_authors_2$model_method
 adoption_intensity<-adoption_clean%>%
   filter(y_metric_recla!="diversity adoption (1=yes, 0=no)")
 
-length(sort(unique(adoption_intensity$article_id))) # Number of articles 32
+length(sort(unique(adoption_intensity$study_id))) # Number of articles 32
 table(adoption_intensity$y_metric_recla) #Number of rows 755
 sort(unique(adoption_intensity$country)) #Countries 18
 length(sort(unique(adoption_intensity$x_metric_recla))) # Unique factors 99
-sort(unique(adoption_intensity$article_id))
+sort(unique(adoption_intensity$study_id))
 
 ####### DEPENDENT ADOPTION BINARY (1= yes, 0= no) -------
 adoption_binary<-adoption_clean%>%
@@ -367,43 +367,43 @@ adoption_binary<-adoption_clean%>%
 
 sort(unique(adoption_binary$model_coefficient_variance_type))
   
-length(sort(unique(adoption_binary$article_id))) # Number of articles 154
+length(sort(unique(adoption_binary$study_id))) # Number of articles 154
 table(adoption_binary$y_metric_recla) #Number of rows 3905
 sort(unique(adoption_binary$country)) #Countries 44
 length(sort(unique(adoption_binary$x_metric_recla))) # Unique factors 163
-sort(unique(adoption_binary$article_id))
+sort(unique(adoption_binary$study_id))
 
-table(adoption_binary$coefficient_variance_type,adoption_binary$model_method)
+table(adoption_binary$coefficient_variance_type,adoption_binary$model_method_recla)
 
 ### Calculate LOG-ODDS RATIO (for Logit and Probit models)---------
 
-#model_method == "logit"
+#model_method_recla == "logit"
 #coefficient_type == ("OR")
 ## Convert OR (odds ratio) to B (log-odds ratio)
-table(adoption_binary$coefficient_variance_type,adoption_binary$model_method )
+table(adoption_binary$coefficient_variance_type,adoption_binary$model_method_recla )
 B_logit_OR <- function(or) {
   b <- log(or)
   return(b)
 }
-adoption_binary$b_logOR[adoption_binary$model_method %in% c("logit") & adoption_binary$coefficient_type %in%c("OR")]<- 
-  B_logit_OR(adoption_binary$coefficient_value[adoption_binary$model_method %in% c("logit") &
+adoption_binary$b_logOR[adoption_binary$model_method_recla %in% c("logit") & adoption_binary$coefficient_type %in%c("OR")]<- 
+  B_logit_OR(adoption_binary$coefficient_value[adoption_binary$model_method_recla %in% c("logit") &
                                                adoption_binary$coefficient_type %in%c("OR")])
 
 
-#model_method == ("logit")
+#model_method_recla == ("logit")
 #coefficient_type== ("B")
-table(adoption_binary$coefficient_variance_type,adoption_binary$model_method )
+table(adoption_binary$coefficient_variance_type,adoption_binary$model_method_recla )
 B_logit_B <- function (b) {  
   result<- b
   return(result)
 }
 
-adoption_binary$b_logOR[adoption_binary$model_method %in% c("logit") & 
+adoption_binary$b_logOR[adoption_binary$model_method_recla %in% c("logit") & 
                           adoption_binary$coefficient_type %in%c("B")] <- 
-  B_logit_B(adoption_binary$coefficient_value[adoption_binary$model_method %in% c("logit") & 
+  B_logit_B(adoption_binary$coefficient_value[adoption_binary$model_method_recla %in% c("logit") & 
                                               adoption_binary$coefficient_type %in%c("B")])
 
-#model_method == ("probit")
+#model_method_recla == ("probit")
 #coefficient_type== ("B")
 #CHECK: Amemiya (1981) said multiply by 1.6 (used by Ruzzante)
 B_probit_B <- function (b) {  
@@ -411,15 +411,15 @@ B_probit_B <- function (b) {
   return(result)
 }
 
-adoption_binary$b_logOR[adoption_binary$model_method %in% c("probit") & 
+adoption_binary$b_logOR[adoption_binary$model_method_recla %in% c("probit") & 
                           adoption_binary$coefficient_type %in%c("B")] <- 
-  B_probit_B(adoption_binary$coefficient_value[adoption_binary$model_method %in% c("probit") & 
+  B_probit_B(adoption_binary$coefficient_value[adoption_binary$model_method_recla %in% c("probit") & 
                                               adoption_binary$coefficient_type %in%c("B")])
 
 
 ### Calculate SE of LOG-ODDS RATIO (for Logit and Probit models) ----------
 #model_coefficient_variance_type == ("logit_OR_SE")
-table(adoption_binary$coefficient_variance_type,adoption_binary$model_method )
+table(adoption_binary$coefficient_variance_type,adoption_binary$model_method_recla )
 OR_SE_logit_SE <- function (or, se) {  
   result<- or/se
   return(result)
@@ -430,7 +430,7 @@ adoption_binary$se_logOR[adoption_binary$model_coefficient_variance_type %in%c("
                  adoption_binary$variance_value[adoption_binary$model_coefficient_variance_type %in% c("logit_OR_SE")])
 
 #model_coefficient_variance_type == ("logit_B_SE")
-table(adoption_binary$coefficient_variance_type,adoption_binary$model_method )
+table(adoption_binary$coefficient_variance_type,adoption_binary$model_method_recla )
 B_SE_logit_SE <- function (se) {  
   result<- se
   return(result)
@@ -442,7 +442,7 @@ adoption_binary$se_logOR[adoption_binary$model_coefficient_variance_type %in%c("
 
 
 #model_coefficient_variance_type == ("logit_B_P","logit_B_T","logit_B_WS","logit_B_Z","logit_OR_P","logit_OR_Z")
-table(adoption_binary$coefficient_variance_type,adoption_binary$model_method )
+table(adoption_binary$coefficient_variance_type,adoption_binary$model_method_recla )
 OR_P_logit_SE <- function (b, t) {  
   result<- b/t
   return(result)
@@ -457,7 +457,7 @@ adoption_binary$se_logOR[adoption_binary$model_coefficient_variance_type %in%
 
 
 #model_coefficient_variance_type == ("probit_B_SE")
-table(adoption_binary$coefficient_variance_type,adoption_binary$model_method )
+table(adoption_binary$coefficient_variance_type,adoption_binary$model_method_recla )
 B_SE_probit_SE <- function (se) {  
   result<- se*1.6
   return(result)
@@ -468,7 +468,7 @@ adoption_binary$se_logOR[adoption_binary$model_coefficient_variance_type %in%c("
 
 
 #model_coefficient_variance_type == ("probit_B_P","probit_B_T","probit_B_X2","probit_B_Z")
-table(adoption_binary$coefficient_variance_type,adoption_binary$model_method )
+table(adoption_binary$coefficient_variance_type,adoption_binary$model_method_recla )
 B_T_probit_SE <- function (b,t) {  
   result<- (b/t)*1.6
   return(result)
@@ -483,9 +483,9 @@ check<-adoption_binary%>%
   filter(is.na(se_logOR))
 
 sort(unique(check$model_coefficient_variance_type))
-length(sort(unique(check$article_id))) # Number of articles 16
+length(sort(unique(check$study_id))) # Number of articles 16
 sort(unique(check$country)) #Countries 12
-sort(unique(check$article_id))
+sort(unique(check$study_id))
 
 ### Convert the coefficient and variance values to the same metric (e.g., acres, hours, miles, etc.)--------
 # Transforms the t_value_pcc
@@ -504,15 +504,15 @@ adoption_binary$se_logOR[!is.na(adoption_binary$transformation_variance_num)] <-
   adoption_binary$transformation_variance_num[!is.na(adoption_binary$transformation_variance_num)]   
 
 
-length(unique(adoption_binary$article_id)) # Number of PCC studies 154
-length(unique(adoption_binary$article_id[!is.na(adoption_binary$b_logOR)])) #137
+length(unique(adoption_binary$study_id)) # Number of PCC studies 154
+length(unique(adoption_binary$study_id[!is.na(adoption_binary$b_logOR)])) #137
 length(unique(adoption_binary$x_metric_recla)) #164 factors
-sort(unique(adoption_binary$article_id))
+sort(unique(adoption_binary$study_id))
 
 
 factors_articles_count <- adoption_binary %>%
   group_by(x_metric_recla,x_metric_unit_recla) %>%
-  summarise(n_articles = n_distinct(article_id))
+  summarise(n_articles = n_distinct(study_id))
 
 names(adoption_binary)
 
@@ -630,8 +630,8 @@ sort(unique(data_adoption_binary$un_region)) #5
 sort(unique(data_adoption_binary$un_subregion)) #14
 
 table(data_adoption_binary$country,data_adoption_binary$un_region)
-length(unique(data_adoption_binary$article_id)) #154 articles 
-sort(unique(data_adoption_binary$article_id))
+length(unique(data_adoption_binary$study_id)) #154 articles 
+sort(unique(data_adoption_binary$study_id))
 sort(unique(data_adoption_binary$country[data_adoption_binary$un_subregion %in% c("Central America")]))
 
 table(data_adoption_binary$country,data_adoption_binary$un_subregion)
@@ -649,7 +649,7 @@ factors<-data_adoption_binary%>%
   #mutate(x_metric_recla3= paste(x_metric_recla2,pcc_unit,sep="_"))%>%
   filter(limitation_of_use_obs== "no limitation")%>%
   group_by(factor_sub_class, x_metric_recla2 ) %>%
-  summarise(n_articles = n_distinct(article_id))%>%
+  summarise(n_articles = n_distinct(study_id))%>%
   ungroup()
   
 sort(unique(factors$factor_metric))
@@ -660,17 +660,17 @@ sort(unique(factors$factor_sub_class))
 ####### Remove !=no limitation data AND reclassify MODERATORS-------
 m_education_years<- data_adoption_binary%>%
   filter(factor_metric == "hh education (years)")%>%
-  select(article_id, model_id, x_mean_value)%>%
+  select(study_id, model_id, x_mean_value)%>%
   dplyr::rename("m_education_years"="x_mean_value")
 
 m_age_years<-data_adoption_binary%>%
   filter(factor_metric == "hh age (years)")%>%
-  select(article_id, model_id, x_mean_value)%>%
+  select(study_id, model_id, x_mean_value)%>%
   dplyr::rename("m_age_years"="x_mean_value")
 
 m_age_years<-data_adoption_binary%>%
   filter(factor_metric == "hh age (years)")%>%
-  select(article_id, model_id, x_mean_value)%>%
+  select(study_id, model_id, x_mean_value)%>%
   dplyr::rename("m_age_years"="x_mean_value")
 
 names(data_adoption_binary)
@@ -684,7 +684,7 @@ m_gender_percent<-data_adoption_binary%>%
   mutate_at(vars(x_sample_yes_dummy_binary3,x_sample_no_dummy_binary4),as.numeric)%>%
   mutate(m_male_percent= if_else(x_metric_unit_raw=="1= female, 0= male",
                                (100-x_sample_yes_dummy_binary3), x_sample_yes_dummy_binary3))%>%
-  select(article_id, model_id,m_male_percent)
+  select(study_id, model_id,m_male_percent)
     
 sort(unique(m_gender_percent$x_metric_unit_raw))
 
@@ -692,12 +692,12 @@ pcc_data_adoption_binary<- data_adoption_binary%>%
   filter(!is.na(t_value_pcc))%>%
   filter(limitation_of_use_obs== "no limitation")%>%
   # MODERATORS
-  dplyr::rename("m_model_method"= "model_method")%>%
-  left_join(m_education_years, by=c("article_id"="article_id",
+  dplyr::rename("m_model_method"= "model_method_raw")%>%
+  left_join(m_education_years, by=c("study_id"="study_id",
                                     "model_id"="model_id"))%>%
-  left_join(m_age_years, by=c("article_id"="article_id",
+  left_join(m_age_years, by=c("study_id"="study_id",
                                     "model_id"="model_id"))%>%
-  left_join(m_gender_percent,by=c("article_id"="article_id",
+  left_join(m_gender_percent,by=c("study_id"="study_id",
                                   "model_id"="model_id"))%>%
   
   mutate(m_sampling_unit= if_else(sampling_unit== "farmers" |
@@ -727,8 +727,8 @@ names(pcc_data_adoption_binary)
 sort(unique(pcc_data_adoption_binary$m_av_year_assessment)) # 1988 - 2023
 sort(unique(pcc_data_adoption_binary$m_sampling_unit)) # 
 
-length(unique(pcc_data_adoption_binary$article_id)) #153 articles for PCC analysis
-sort(unique(pcc_data_adoption_binary$article_id)) #153 articles 
+length(unique(pcc_data_adoption_binary$study_id)) #153 articles for PCC analysis
+sort(unique(pcc_data_adoption_binary$study_id)) #153 articles 
 length(unique(pcc_data_adoption_binary$m_intervention_recla2)) #10 systems
 length(unique(pcc_data_adoption_binary$x_metric_recla)) #47
 sort(unique(pcc_data_adoption_binary$country)) #44

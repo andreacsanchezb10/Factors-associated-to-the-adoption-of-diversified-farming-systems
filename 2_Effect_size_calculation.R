@@ -10,7 +10,9 @@ factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metri
 factors_metric_assessed$logor_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$logor_unit,")", sep="")
 
 data<-read.csv("data/binary_adoption_clean_data.csv",header = TRUE, sep = ",")%>%
-  select( "article_id","model_id", "main_crop" ,"country",                        
+  select( "article_id","model_id", "main_crop" ,"country",
+          "intervention_raw", "interverntion_details",
+          
           "intervention_recla","intervention_recla_detail_1" ,   
           "intervention_recla_detail_2", "intervention_recla_detail_3",    "intervention_recla_detail_4",     "y_metric_recla" ,                
           "x_metric_raw"   ,                 "x_metric_recla"         ,         "x_metric_unit_raw"   ,            "x_metric_unit_recla" ,           
@@ -94,6 +96,9 @@ fis_data<- pcc_data%>%
 
 sort(unique(fis_data$pcc_factor_unit))
 sort(unique(fis_data$logor_factor_unit))
+sort(unique(fis_data$article_id))
+sort(unique(fis_data$main_crop))
+sort(unique(fis_data$intervention_recla))
 
 ######### Log-odds ratio ---------------------------------
 # Calculate log-odds ratio variance from standard error
