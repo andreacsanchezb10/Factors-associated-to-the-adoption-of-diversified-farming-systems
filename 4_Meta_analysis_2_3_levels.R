@@ -6,8 +6,8 @@ library(metafor)
 library(tibble)
 
 
-factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
-                                      sheet = "FACTORS_metric_assessed_2")
+factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx",
+                                      sheet = "FACTORS_metric_assessed")
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$pcc_unit,")", sep="")
 factors_metric_assessed$logor_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$logor_unit,")", sep="")
 
@@ -34,7 +34,7 @@ write.csv(pcc_data_3level,"data/pcc_data_3levels.csv", row.names=FALSE)
 #### Estimate the overall effect by fitting an intercept-only model ----
 overall_3level <- function(data, metric_unit) {
   overal_model <- rma.mv(fis.yi, fis.vi, 
-                         random = list(~ 1 | ES_ID, ~ 1 | article_id),
+                         random = list(~ 1 | ES_ID, ~ 1 | study_id),
                          data = data,
                          method = "REML", 
                          test = "t",
@@ -78,7 +78,7 @@ overall_3level_results <- as.data.frame(overall_3level_results_list)%>%
   mutate(sigma2.2= as.numeric(str_extract(sigma2, "(?<=, ).*")))%>%
   mutate(s.nlevels=substr(s.nlevels, 3, nchar(s.nlevels) - 1))%>%
   mutate(n_ES= as.numeric(str_extract(s.nlevels, ".*(?=\\,)")))%>%
-  mutate(n_articles= as.numeric(str_extract(s.nlevels, "(?<=, ).*")))%>%
+  mutate(n_studies= as.numeric(str_extract(s.nlevels, "(?<=, ).*")))%>%
   mutate_at(2:7, as.numeric)%>%
   mutate_at(8:9,as.character)%>%
   mutate_at(11:12, as.numeric)%>%
@@ -86,7 +86,7 @@ overall_3level_results <- as.data.frame(overall_3level_results_list)%>%
   #mutate(across(where(is.numeric), ~ round(., 3)))%>%
   mutate(QEp= as.character(QEp))%>%
   mutate(QEp= if_else(QEp==0, "<0.001", QEp))%>%
-  select(pcc_factor_unit, beta,se, ci.lb, ci.ub,zval,pval,significance,significance1,n_ES, n_articles,sigma2.1,sigma2.2,QEdf,QE,QEp)%>%
+  select(pcc_factor_unit, beta,se, ci.lb, ci.ub,zval,pval,significance,significance1,n_ES, n_studies,sigma2.1,sigma2.2,QEdf,QE,QEp)%>%
   #Transform back fisher's z to PCC
   mutate(pcc.beta= transf.ztor(beta))%>%
   mutate(pcc.ci.lb= transf.ztor(ci.lb))%>%

@@ -542,7 +542,10 @@ adoption_binary_clean<-adoption_binary%>%
   
   x_metric_recla=="receive incentive for conservation"|
   x_metric_recla=="access to credit"|  
-  x_metric_recla=="access to credit is a constraint"  
+  x_metric_recla=="access to credit is a constraint"  |
+  
+  #Farm management
+  x_metric_recla=="organic fertilizer use"
    ) # to check
 
 
