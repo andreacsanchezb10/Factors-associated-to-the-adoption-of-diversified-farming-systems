@@ -12,7 +12,7 @@ names(data)
 data<-read.csv("data/binary_adoption_clean_data.csv",header = TRUE, sep = ",")%>%
   select( "study_id","model_id", "main_crop" ,
           "country","m_un_region"    ,"m_un_subregion",
-          "dp_raw", "dp_details",
+          "dp_raw", "dp_raw_details",
           "dp_recla","dp_detail_1" ,
           "y_metric_raw","y_metric_recla" ,
           "x_metric_raw"   ,"x_metric_recla",
@@ -45,17 +45,17 @@ data$ES_ID <- as.numeric(1:nrow(data)) #add a new column with the effect size ID
 
 
 names(data)
-length(unique(data$study_id)) #155 articles for PCC analysis
+length(unique(data$study_id)) #154 articles for PCC analysis
 sort(unique(data$study_id))  
-sort(unique(data$pcc_factor_unit))  #64
-length(unique(data$pcc_factor_unit)) #65
+sort(unique(data$pcc_factor_unit))  #69
+length(unique(data$pcc_factor_unit)) #70
 
 length(unique(data$m_dp_recla)) #10 systems
 sort(unique(data$country)) #45
 sort(unique(data$limitation_of_use_obs))
 
 #######  Included FACTORS -------
-length(unique(data$x_metric_recla)) #45
+length(unique(data$x_metric_recla)) #50
 sort(unique(data$x_metric_recla))
 length(unique(data$x_metric_recla2))#39
 

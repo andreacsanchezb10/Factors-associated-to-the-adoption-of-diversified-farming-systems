@@ -6,9 +6,9 @@ library(dplyr)
 data_path <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/"
 
 # Use the read.csv() function to read the clean meta-data into a data frame
-data <- read.csv(paste0(data_path,"meta_data_clean.csv"),header = TRUE, sep = ",")
+data <- read.csv(paste0(data_path,"evidence_map_data_clean.csv"),header = TRUE, sep = ",")
 
-length(sort(unique(data$study_id))) # Number of articles 194
+length(sort(unique(data$study_id))) # Number of articles 193
 sort(unique(data$y_metric_recla)) #28
 sort(unique(data$y_metric_recla_2)) #5 dependent variables
 sort(unique(data$limitation_of_use_obs))
@@ -25,9 +25,9 @@ names(data)
 adoption<- data%>%
   dplyr::filter(y_metric_recla_2=="adoption")
 
-length(sort(unique(adoption$study_id))) # 160 studies
-table(adoption$y_metric_recla) #Number of rows 3974
-sort(unique(adoption$country)) #Countries 46
+length(sort(unique(adoption$study_id))) # 159 studies
+table(adoption$y_metric_recla) #Number of rows 3944
+sort(unique(adoption$country)) #Countries 45
 length(sort(unique(adoption$x_metric_recla))) # Unique factors 205
 
 names(adoption)
@@ -51,7 +51,7 @@ adoption_binary<- adoption%>%
   #Select only the columns that we are going to use
   dplyr::select(study_id,model_id,main_crop, country, 
                 year_assessment_start, year_assessment_end,
-                dp_raw, dp_details,dp_recla,dp_detail_1,
+                dp_raw, dp_raw_details,dp_recla,dp_detail_1,
                 dp_detail_2,dp_detail_3,
                 dp_detail_4,y_metric_raw,
                 y_metric_recla,x_metric_raw,x_metric_recla, x_metric_unit_raw,
@@ -74,8 +74,8 @@ adoption_binary<- adoption%>%
   mutate(factor_metric= paste(x_metric_recla, " (", x_metric_unit_recla, ")", sep=""))
 
 sort(unique(adoption_binary$y_metric_recla))
-table(adoption_binary$y_metric_recla) #Number of rows 3949
-length(sort(unique(adoption_binary$study_id))) # 158 studies
+table(adoption_binary$y_metric_recla) #Number of rows 3944
+length(sort(unique(adoption_binary$study_id))) # 157 studies
 sort(unique(adoption_binary$study_id))
 sort(unique(adoption_binary$limitation_of_use_obs))
 sort(unique(adoption_binary$factor_metric))
@@ -321,9 +321,9 @@ adoption_binary<-adoption_binary%>%
   filter(!is.na(t_value_pcc))
 
   
-length(sort(unique(adoption_binary$study_id))) # Number of articles 156
-table(adoption_binary$y_metric_recla) #Number of rows 3932
-sort(unique(adoption_binary$country)) #Countries 45
+length(sort(unique(adoption_binary$study_id))) # Number of articles 155
+table(adoption_binary$y_metric_recla) #Number of rows 3927
+sort(unique(adoption_binary$country)) #Countries 44
 length(sort(unique(adoption_binary$x_metric_recla))) # Unique factors 205
 sort(unique(adoption_binary$study_id))
 sort(unique(adoption_binary$model_coefficient_variance_type))
@@ -440,6 +440,7 @@ sort(unique(check$model_coefficient_variance_type))
 length(sort(unique(check$study_id))) # Number of articles 16
 sort(unique(check$country)) #Countries 11
 sort(unique(check$study_id))
+#  190  348  638  674  709  895 1056 1124 1297 1328 1382 1435 1881 2005 2031 2177
 
 ### Convert the coefficient and variance values to the same metric (e.g., acres, hours, miles, etc.)--------
 # Transforms the t_value_pcc
@@ -458,16 +459,17 @@ adoption_binary$se_logOR[!is.na(adoption_binary$transformation_variance_num)] <-
   adoption_binary$transformation_variance_num[!is.na(adoption_binary$transformation_variance_num)]   
 
 
-length(unique(adoption_binary$study_id)) # Number of PCC studies 156
-length(unique(adoption_binary$study_id[!is.na(adoption_binary$b_logOR)])) #140
+length(unique(adoption_binary$study_id)) # Number of PCC studies 155
+length(unique(adoption_binary$study_id[!is.na(adoption_binary$b_logOR)])) #139
 length(unique(adoption_binary$x_metric_recla)) #205 factors
 sort(unique(adoption_binary$study_id))
 
 
 factors_articles_count <- adoption_binary %>%
-  group_by(x_metric_recla,x_metric_unit_recla) %>%
-  summarise(n_articles = n_distinct(study_id))
-
+  dplyr::group_by(x_metric_recla,x_metric_unit_recla) %>%
+  dplyr::summarise(n_articles = n_distinct(study_id))%>%
+  ungroup()
+head(factors_articles_count)
 names(adoption_binary)
 
 write.csv(factors_articles_count, "data/binary_adoption_factors_articles1.csv", row.names=FALSE)
@@ -483,18 +485,21 @@ adoption_binary_clean<-adoption_binary%>%
     x_metric_recla=="soil slope"|
     x_metric_recla=="temperature"|
     
-    # Farmers behaviour
-    x_metric_recla=="hh perceive benefits of SFP or DFS"| #to check
-    x_metric_recla=="hh risk attitude"| #to check
-    x_metric_recla=="limitations to implement SFT or DFS"| #to check
-    x_metric_recla=="production constraints"| #to check |
+    # Farmers' attitudes
+      x_metric_recla=="hh risk attitude"| 
+      x_metric_recla=="attitude toward practice"|
+      x_metric_recla=="environmental attitude"|
+      x_metric_recla=="productivist attitude"|
       x_metric_recla=="awareness of climate change" |
-    #  x_metric_recla=="hh perception of precipitation"|
-      
+      x_metric_recla== "awareness of SFP or DFS"| 
+      x_metric_recla=="hh perceive benefits of SFP or DFS"|
+      x_metric_recla=="limitations to implement SFT or DFS"| 
+      x_metric_recla=="production constraints"| #to check |
+
       # Financial capital
-  x_metric_recla=="access to off-farm income"|
+  x_metric_recla=="access to non-farm income"|
   x_metric_recla=="h income"|
-  x_metric_recla=="h off-farm income"| 
+  x_metric_recla=="h non-farm income"| 
   x_metric_recla=="h on-farm income"|
   x_metric_recla=="livestock owned"|
   x_metric_recla=="units of livestock"|
@@ -527,32 +532,35 @@ adoption_binary_clean<-adoption_binary%>%
   # Social capital
   x_metric_recla=="family members and friends living in and out the community"|
   x_metric_recla=="hh association member" |
-  x_metric_recla=="hh comunicate with other farmers"|
+  x_metric_recla=="hh communicate with other farmers"|
   x_metric_recla=="trust in extension services"|
   
 
-# Political and institutional context
+## Political and institutional context
+  #Land tenure
   x_metric_recla=="land tenure security"| 
+  x_metric_recla=="land tenure status"| 
   
+  #Knowledge access
   x_metric_recla== "access to agricultural extension"|
   x_metric_recla=="access to agricultural information"|
   x_metric_recla=="access to agricultural training"|
   x_metric_recla=="agricultural extension frequency"|
-  x_metric_recla== "awareness of SFP or DFS"| #to check
   
+  #Risk management strategies
   x_metric_recla=="receive incentive for conservation"|
   x_metric_recla=="access to credit"|  
   x_metric_recla=="access to credit is a constraint"  |
   
-  #Farm management
-  x_metric_recla=="organic fertilizer use"
-   ) # to check
+  #Farm management characteristics
+  x_metric_recla=="fertilizer use"
+   ) 
 
 
-length(sort(unique(adoption_binary_clean$study_id))) #156
+length(sort(unique(adoption_binary_clean$study_id))) #155
 sort(unique(adoption_binary_clean$limitation_of_use_obs))
 sort(unique(adoption_binary_clean$country[is.na(adoption_binary_clean$m_un_subregion)])) #1
-sort(unique(adoption_binary_clean$country)) #45
+sort(unique(adoption_binary_clean$country)) #44
 sort(unique(adoption_binary_clean$m_un_region)) #5 regions
 sort(unique(adoption_binary_clean$m_un_subregion)) #14 subregions
 sort(unique(adoption_binary_clean$country[adoption_binary_clean$m_un_subregion %in% c("Central America")]))
@@ -568,8 +576,8 @@ factors<-adoption_binary_clean%>%
   left_join(factors_assessed, by="factor_metric")%>%
   #mutate(x_metric_recla3= paste(x_metric_recla2,pcc_unit,sep="_"))%>%
   filter(limitation_of_use_obs== "no limitation")%>%
-  group_by(factor_sub_class, x_metric_recla2 ) %>%
-  summarise(n_articles = n_distinct(study_id))%>%
+  group_by(factor_sub_class, x_metric_recla2,factor_metric ) %>%
+  dplyr::summarise(n_articles = n_distinct(study_id))%>%
   ungroup()
   
 sort(unique(factors$factor_sub_class))
