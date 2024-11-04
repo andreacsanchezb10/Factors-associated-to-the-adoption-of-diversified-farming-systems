@@ -307,7 +307,7 @@ figure3<-
         plot.margin = unit(c(t=0.5,r=0,b=0.5,l=0.5), "cm"),
         axis.text.y =element_text(color="black",size=12, family = "sans"))
 figure3
-
+ 
 figure3_distribution<-
   ggplot(
     subset(overal_results,factor_sub_class%in%
