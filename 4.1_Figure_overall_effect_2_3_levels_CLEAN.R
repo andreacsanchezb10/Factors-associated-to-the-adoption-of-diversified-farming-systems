@@ -412,10 +412,8 @@ figure4_distribution.plot
 
 
 #######################################################################################
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               fills <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#92c46d","#92c46d","#297d7d")
-
-  
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+fills <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#92c46d","#92c46d","#297d7d")
 overall_strips <- strip_themed(
   # Vertical strips
   background_y = elem_list_rect(
