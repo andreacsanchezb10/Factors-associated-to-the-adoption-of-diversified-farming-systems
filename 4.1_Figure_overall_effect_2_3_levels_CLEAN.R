@@ -114,27 +114,23 @@ overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Climate"] <-
 overal_results$pcc_unit[overal_results$x_metric_recla2%in% "5Soil slope"& overal_results$pcc_unit%in% "Moderate"] <- "SSModerate"
 overal_results$pcc_unit[overal_results$x_metric_recla2%in% "3Soil depth"& overal_results$pcc_unit%in% "Moderate"] <- "SDModerate"
 
-names(overal_results)
 overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Natural capital"] <- "3Natural capital"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Plot size"] <- "7Plot size"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Farm size"] <- "8Farm size"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Number of plots"] <- "9Number of plots"
 
 #Figure 4----
-
 overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Human capital"] <- "1Human capital"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Household head"] <- "1Household head"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Household"] <- "2Household"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Hired labour"] <- "3Hired labour"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Farm labour"] <- "4Farm labour"
 
-"Farm labour"
 overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Financial capital"] <- "2Financial capital"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Non-farm income"] <- "5Non-farm income"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "On-farm income"] <- "6On-farm income"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Total income"] <- "7Total income"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Livestock"] <- "8Livestock"
-
 
 overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Political_1"] <- "3Political_1"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Receive incentive for conservation"] <- "90Receive incentive for conservation"
@@ -147,6 +143,8 @@ overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Distance to 
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Distance to farm-house"] <- "95Distance to farm-house"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Access to irrigation"] <- "96Access to irrigation"
 
+overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Farm management"] <- "5Farm management"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Fertilizer use"] <- "97Fertilizer use"
 
 
 sort(unique(overal_results$factor_sub_class))
@@ -338,8 +336,79 @@ figure3_distribution.plot<-ggarrange(figure3,figure3_distribution,ncol = 2,width
 figure3_distribution.plot
 16x12
 
+#Figure 4 ----
+figure4<-
+  ggplot(
+    subset(overal_results,factor_sub_class%in%
+             c("1Human capital", "2Financial capital",
+               "3Political_1", "4Physical capital","5Farm management")),
+    aes(y=reorder(pcc_unit, pcc_factor_unit2),x=pcc.beta,
+        xmin=pcc.ci.lb, xmax=pcc.ci.ub,
+        colour = factor(factor_sub_class) ))+
+  geom_vline(xintercept=0, colour = "grey30",linetype = 1, linewidth=0.5)+
+  geom_errorbar(width=0,size=1, position = (position_dodge(width = -0.2)),
+                show.legend = F)+
+  geom_point(size = 3, position = (position_dodge(width = -0.2)),show.legend = F)+
+  geom_text(aes(label=significance, x=pcc.ci.ub+0.01, group=pcc_unit), 
+            vjust=0.7, hjust=-0.005,size=7,
+            color="black",  family="sans",position = (position_dodge(width = -0.5)))+
+  geom_segment(aes(y = reorder(pcc_unit, pcc_factor_unit2),
+                   yend = reorder(pcc_unit, pcc_factor_unit2),
+                   x=pcc.beta, xend = pcc.ci.lb_l),show.legend = F,size=1,
+               arrow = arrow(length = unit(0.2, "cm")))+
+  geom_segment(aes(y = reorder(pcc_unit, pcc_factor_unit2),
+                   yend = reorder(pcc_unit, pcc_factor_unit2),
+                   x=pcc.beta, xend = pcc.ci.ub_l),show.legend = F,size=1,
+               arrow = arrow(length = unit(0.2, "cm")))+
+  geom_segment(aes(y = reorder(pcc_unit, pcc_factor_unit2),
+                   yend = reorder(pcc_unit, pcc_factor_unit2),
+                   x=pcc.beta, xend = pcc.ci.ub_l1),show.legend = F,size=1)+
+  scale_colour_manual(values = c( "#6a57b8","#d896ff", "#92c46d", "#496491","#F09319"))+
+  facet_grid2(vars(x_metric_recla2),
+              scales= "free", space='free_y', switch = "y",
+              strip = overall_strips)+
+  scale_x_continuous(limit = c(-0.27,0.75),expand = c(0.05, 0.05),
+                     breaks = c(-0.50,-0.25,0,0.25,0.50,0.75),
+                     labels = c("-0.50","-0.25","0","0.25","0.50","0.75"))+
+  xlab("")+
+  theme_overall+
+  theme(strip.placement.y = "outside",
+        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=0.5), "cm"),
+        axis.text.y =element_text(color="black",size=14, family = "sans"))
 
+figure4
 
+figure4_distribution<-
+  ggplot(
+  subset(overal_results,factor_sub_class%in%
+           c("1Human capital", "2Financial capital",
+             "3Political_1", "4Physical capital","5Farm management")),
+  aes(x=n_studies, y=reorder(pcc_unit, pcc_factor_unit2),
+      fill = factor(factor_sub_class))) +
+  geom_bar(stat="identity",show.legend = F)+
+    geom_errorbar(aes(xmin=0, xmax=n_ES), 
+                  width=0, position = position_dodge(width = 0.9),size = 4,
+                  show.legend = F, colour="black", alpha=0.6) +
+  scale_fill_manual(values = c( "#6a57b8","#d896ff", "#92c46d", "#496491","#F09319"))+
+  facet_grid2(vars(x_metric_recla2),
+              scales= "free", space='free_y', switch = "x", strip=overall_distribution_strips)+
+  xlab("")+
+  theme_overall+
+  theme(strip.placement.y = "outside",
+        axis.text.y =element_blank(),
+        axis.line.y = element_line(colour = "black"),
+        axis.ticks.y=element_line(colour = "grey"),
+        plot.margin = unit(c(t=0.5,r=0,b=0.5,l=0), "cm"))+
+  scale_x_continuous(
+    limit = c(0,175),expand = c(0,0),
+    breaks = c(0,25,50,75,100,125,150,175),
+    labels= c("0","25","50","75","100","125","150","175"))+
+  theme(        plot.margin = unit(c(t=0.5,r=0.5,b=0.5,l=0), "cm"))
+figure4_distribution
+
+figure4_distribution.plot<-ggarrange(figure4,figure4_distribution,ncol = 2,widths = c(1, 0.25))
+figure4_distribution.plot
+#16*16 landscape
 
 
 #######################################################################################
