@@ -47,17 +47,17 @@ data$ES_ID <- as.numeric(1:nrow(data)) #add a new column with the effect size ID
 names(data)
 length(unique(data$study_id)) #154 articles for PCC analysis
 sort(unique(data$study_id))  
-sort(unique(data$pcc_factor_unit))  #69
-length(unique(data$pcc_factor_unit)) #70
+sort(unique(data$pcc_factor_unit))  #70
+length(unique(data$pcc_factor_unit)) #71
 
 length(unique(data$m_dp_recla)) #10 systems
-sort(unique(data$country)) #45
+sort(unique(data$country)) #44
 sort(unique(data$limitation_of_use_obs))
 
 #######  Included FACTORS -------
-length(unique(data$x_metric_recla)) #50
+length(unique(data$x_metric_recla)) #51
 sort(unique(data$x_metric_recla))
-length(unique(data$x_metric_recla2))#39
+length(unique(data$x_metric_recla2))#40
 
 str(data)
 sort(unique(data$factor_metric))

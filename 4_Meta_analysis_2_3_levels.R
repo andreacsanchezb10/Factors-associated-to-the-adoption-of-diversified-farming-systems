@@ -158,7 +158,7 @@ overall_2level <- function(data, metric_unit) {
 
 # Vector of factor_metric_unit levels
 factor_metric_units <- unique(pcc_data_2level$pcc_factor_unit)
-
+factor_metric_units
 # List to store the results of all models
 overall_2level_list <- list()
 
@@ -171,7 +171,7 @@ for (unit in factor_metric_units) {
 # Combine overall results into one table
 overall_2level_results_list<- do.call(rbind, overall_2level_list)
 
-overall_2level_results <- as.data.frame(overall_2level_results_list)%>%
+overall_2level_results <- as.data.frame(overall_2level_results_list)
   rownames_to_column(., var = "pcc_factor_unit")%>%
   mutate(ci.lb = sapply(ci.lb, as.numeric),
          ci.ub = sapply(ci.ub, as.numeric))%>%

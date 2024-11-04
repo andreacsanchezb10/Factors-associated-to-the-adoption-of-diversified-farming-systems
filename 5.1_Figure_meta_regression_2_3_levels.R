@@ -13,8 +13,8 @@ library("xlsx")
 ################ META-REGRESSION FIGURES ############################################################################################
 ##############################################################################################################################
 factors_metric_assessed <- read_excel(
-  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
-                                      sheet = "FACTORS_metric_assessed_2")
+  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx",
+                                      sheet = "FACTORS_metric_assessed")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
                                                  " (",factors_metric_assessed$pcc_unit,")", sep="")
@@ -68,7 +68,7 @@ write.xlsx(m_intervention_system_components, "results/meta_regression_interventi
 m_farm_size_distribution<-pcc_data%>%
   filter(!is.na(m_mean_farm_size_ha))%>%
   group_by( pcc_factor_unit)%>%
-  dplyr::summarise(n_articles = n_distinct(article_id),
+  dplyr::summarise(n_studies = n_distinct(study_id),
                    n_ES = n_distinct(ES_ID))
 
 m_farm_size<- meta_regression%>%
@@ -88,13 +88,13 @@ m_farm_size<- meta_regression%>%
   left_join(m_farm_size_distribution, by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
   mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))
 
-m_farm_size$ID <- as.numeric(seq(1, 34, by = 1))
+m_farm_size$ID <- as.numeric(seq(1, 38, by = 1))
 
 #Moderator: education------
 m_education_distribution<-pcc_data%>%
   filter(!is.na(m_education_years))%>%
   group_by( pcc_factor_unit)%>%
-  dplyr::summarise(n_articles = n_distinct(article_id),
+  dplyr::summarise(n_studies = n_distinct(study_id),
                    n_ES = n_distinct(ES_ID))
 
 
@@ -121,12 +121,12 @@ m_methods<- meta_regression%>%
   filter(moderator== "m_endogeneity_correction"|
            moderator== "m_exact_variance_value"|
            moderator== "m_exposure_correction"|
-           moderator== "m_model_method"|
+           moderator== "model_method_recla"|
            moderator== "m_random_sample"|
            moderator== "m_sampling_unit"|
            moderator== "m_type_data"|
-           moderator== "n_predictors_num"|
-           moderator== "n_samples_num"|
+           moderator== "n_factors"|
+           moderator== "n_samples"|
            moderator=="m_av_year_assessment")%>%
   select("factor_sub_class", "pcc_factor_unit","moderator","f_test")%>%
   distinct(., .keep_all = TRUE)%>%
@@ -137,33 +137,33 @@ write.xlsx(m_methods, "results/meta_regression_methods.xlsx",
 
 #Moderator: diversified farming systems------
 m_dfs_distribution<-pcc_data%>%
-  group_by(pcc_factor_unit, m_intervention_recla2)%>%
-  dplyr::summarise(n_articles = n_distinct(article_id),
+  group_by(pcc_factor_unit, m_dp_recla)%>%
+  dplyr::summarise(n_studies = n_distinct(study_id),
                    n_ES = n_distinct(ES_ID))%>%
-  dplyr::rename("moderator_class"="m_intervention_recla2")
+  dplyr::rename("moderator_class"="m_dp_recla")
 names(pcc_data)
 
 m_dfs<- meta_regression%>%
-  filter(moderator== "m_intervention_recla2")%>%
+  filter(moderator== "m_dp_recla")%>%
   left_join(m_dfs_distribution, by=c("pcc_factor_unit"="pcc_factor_unit",
                                      "moderator_class"="moderator_class"))%>%
   mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))
 
 #Moderator: Region------
 m_region_distribution<-pcc_data%>%
-  group_by( pcc_factor_unit, m_region)%>%
-  dplyr::summarise(n_articles = n_distinct(article_id),
+  group_by( pcc_factor_unit, m_un_region)%>%
+  dplyr::summarise(n_studies = n_distinct(study_id),
                    n_ES = n_distinct(ES_ID))%>%
-  dplyr::rename("moderator_class"="m_region")
+  dplyr::rename("moderator_class"="m_un_region")
 
 m_region<- meta_regression%>%
-  filter(moderator== "m_region")%>%
+  filter(moderator== "m_un_region")%>%
   left_join(m_region_distribution, by=c("pcc_factor_unit"="pcc_factor_unit",
                                      "moderator_class"="moderator_class"))%>%
-  mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))%>%
+  mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))
   rbind(c(factor_sub_class = "Biophysical context",
              pcc_factor_unit = "Soil fertility (1= moderate)",
-          moderator= "m_region",
+          moderator= "m_un_region",
              moderator_class = "Africa", 
              rep(NA, ncol(.) - 4)))
 
@@ -171,13 +171,13 @@ sort(unique(m_region$moderator_class))
   
 #Moderator: Region------
 m_subregion_distribution<-pcc_data%>%
-  group_by( pcc_factor_unit, m_sub_region)%>%
-  dplyr::summarise(n_articles = n_distinct(article_id),
+  group_by( pcc_factor_unit, m_un_subregion)%>%
+  dplyr::summarise(n_studies = n_distinct(study_id),
                    n_ES = n_distinct(ES_ID))%>%
-  dplyr::rename("moderator_class"="m_sub_region")
-sort(unique())
+  dplyr::rename("moderator_class"="m_un_subregion")
+
 m_subregion<- meta_regression%>%
-  filter(moderator== "m_sub_region")%>%
+  filter(moderator== "m_un_subregion")%>%
   left_join(m_subregion_distribution, by=c("pcc_factor_unit"="pcc_factor_unit",
                                         "moderator_class"="moderator_class"))%>%
   mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))
@@ -193,7 +193,7 @@ overall<-m_farm_size%>%
 
 #___________________________
 ## Overall results for the most studied factors
-fills <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#92c46d","#92c46d","#297d7d")
+fills <- c("#f0c602", "#F09319","#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#92c46d","#92c46d","#297d7d")
 significance <- c("#F7ADA4","#FF4933","#D3D3D3","#BAF2C4","#256C32")
 
 overall<-m_farm_size%>%

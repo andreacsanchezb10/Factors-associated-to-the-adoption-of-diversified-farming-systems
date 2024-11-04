@@ -7,8 +7,8 @@ library(stringr)
 
 ################# META-REGRESSION ----------------
 factors_metric_assessed <- read_excel(
-  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
-                                      sheet = "FACTORS_metric_assessed_2")
+  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx",
+                                      sheet = "FACTORS_metric_assessed")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
                                                  " (",factors_metric_assessed$pcc_unit,")", sep="")
@@ -20,15 +20,15 @@ pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 #### THREE-LEVEL META-ANALYSIS
 #Data
 pcc_data_3level<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")%>%
-  mutate_at(vars(m_mean_farm_size_ha,n_samples_num,n_predictors_num,m_education_years ), as.numeric)%>%
+  mutate_at(vars(m_mean_farm_size_ha,n_samples,n_factors,m_education_years ), as.numeric)%>%
   group_by( pcc_factor_unit)%>%
-  dplyr::mutate(n_articles = n_distinct(article_id))
+  dplyr::mutate(n_studies = n_distinct(study_id))%>%
   dplyr::mutate(n_es = n_distinct(ES_ID))%>%
   #filter(n_articles>9)
   filter(n_es>9)
     
 sort(unique(pcc_data_3level$pcc_factor_unit))
-sort(unique(pcc_data_3level$m_model_method))
+sort(unique(pcc_data_3level$model_method_recla))
 names(pcc_data_3level)
 
 
@@ -39,12 +39,12 @@ heterogeneity_3level<- read.csv("results/heterogeneity_3levels.csv",header = TRU
 sort(unique(heterogeneity_3level$pcc_factor_unit))
 
 # List of moderators
-moderators <- c("m_intervention_recla2","m_intervention_system_components",
-                "m_region", "m_sub_region",
+moderators <- c("m_dp_recla",
+                "m_un_region", "m_un_subregion",
                 "m_mean_farm_size_ha","m_education_years",
-                "n_samples_num","n_predictors_num","m_av_year_assessment",
+                "n_samples","n_factors","m_av_year_assessment",
                 "m_sampling_unit","m_random_sample","m_exact_variance_value",
-                "m_type_data","m_model_method",
+                "m_type_data","model_method_recla",
                 "m_endogeneity_correction",
                 "m_exposure_correction")
 
@@ -64,7 +64,7 @@ for (moderator in moderators) {
       if (length(unique(subset_data[[moderator]])) > 1 && !all(is.na(subset_data[[moderator]]))) {
         # Determine whether to include "-1" in the formula
         formula_suffix <- ifelse(grepl(
-          "m_region|m_sub_region|m_intervention_recla2|m_model_method|m_intervention_system_components",
+          "m_un_region|m_un_subregion|m_dp_recla|model_method_recla",
           moderator), "-1", "")
         
         # Check if there are more than one level for the moderator in this subset
@@ -72,7 +72,7 @@ for (moderator in moderators) {
           tryCatch({
             # Run the analysis
             extension <- rma.mv(fis.yi, fis.vi, 
-                                random = list(~ 1 | ES_ID, ~ 1 | article_id),
+                                random = list(~ 1 | ES_ID, ~ 1 | study_id),
                                 mods = as.formula(paste("~", moderator, formula_suffix)),
                                 data = subset_data,
                                 method = "REML", 
@@ -147,7 +147,7 @@ write.csv(meta_regression_3levels_df,"results/meta_regression_3levels.csv", row.
 pcc_data_2level<- read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ",")%>%
   mutate(m_mean_farm_size_ha= as.numeric(m_mean_farm_size_ha))%>%
   group_by( pcc_factor_unit)%>%
-  dplyr::mutate(n_articles = n_distinct(article_id))%>%
+  dplyr::mutate(n_studies = n_distinct(study_id))%>%
   dplyr::mutate(n_es = n_distinct(ES_ID))%>%
   filter(n_es>9)
 
@@ -183,7 +183,7 @@ for (moderator in moderators) {
       if (length(unique(subset_data[[moderator]])) > 1 && !all(is.na(subset_data[[moderator]]))) {
         # Determine whether to include "-1" in the formula
         formula_suffix <- ifelse(grepl(
-          "m_region|m_sub_region|m_intervention_recla2|m_model_method|m_intervention_system_components",
+          "m_un_region|m_un_subregion|m_dp_recla|model_method_recla",
           moderator), "-1", "")
         
         # Check if there are more than one level for the moderator in this subset

@@ -324,7 +324,7 @@ adoption_binary<-adoption_binary%>%
 length(sort(unique(adoption_binary$study_id))) # Number of articles 155
 table(adoption_binary$y_metric_recla) #Number of rows 3927
 sort(unique(adoption_binary$country)) #Countries 44
-length(sort(unique(adoption_binary$x_metric_recla))) # Unique factors 205
+length(sort(unique(adoption_binary$x_metric_recla))) # Unique factors 208
 sort(unique(adoption_binary$study_id))
 sort(unique(adoption_binary$model_coefficient_variance_type))
 table(adoption_binary$coefficient_variance_type,adoption_binary$model_method_recla)
@@ -461,7 +461,7 @@ adoption_binary$se_logOR[!is.na(adoption_binary$transformation_variance_num)] <-
 
 length(unique(adoption_binary$study_id)) # Number of PCC studies 155
 length(unique(adoption_binary$study_id[!is.na(adoption_binary$b_logOR)])) #139
-length(unique(adoption_binary$x_metric_recla)) #205 factors
+length(unique(adoption_binary$x_metric_recla)) #208 factors
 sort(unique(adoption_binary$study_id))
 
 
@@ -582,7 +582,6 @@ factors<-adoption_binary_clean%>%
   
 sort(unique(factors$factor_sub_class))
 
-
 ####### Remove !=no limitation data AND reclassify MODERATORS-------
 m_education_years<- adoption_binary_clean%>%
   filter(factor_metric == "hh education (years)")%>%
@@ -649,12 +648,12 @@ names(pcc_adoption_binary_clean)
 sort(unique(pcc_adoption_binary_clean$m_av_year_assessment)) # 1988 - 2023
 sort(unique(pcc_adoption_binary_clean$m_sampling_unit)) # 
 
-length(unique(pcc_adoption_binary_clean$study_id)) #155 studies for PCC analysis
-sort(unique(pcc_adoption_binary_clean$study_id)) #155 studies
+length(unique(pcc_adoption_binary_clean$study_id)) #154 studies for PCC analysis
+sort(unique(pcc_adoption_binary_clean$study_id)) 
 length(unique(pcc_adoption_binary_clean$m_dp_recla)) #10 practices
-length(unique(pcc_adoption_binary_clean$x_metric_recla)) #47
-sort(unique(pcc_adoption_binary_clean$x_metric_recla)) #47
-sort(unique(pcc_adoption_binary_clean$country)) #45
+length(unique(pcc_adoption_binary_clean$x_metric_recla)) #51
+sort(unique(pcc_adoption_binary_clean$x_metric_recla)) #51
+sort(unique(pcc_adoption_binary_clean$country)) #44
 sort(unique(pcc_adoption_binary_clean$limitation_of_use_obs)) 
 
 ### Moderators ---

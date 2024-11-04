@@ -14,7 +14,7 @@ factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metri
 pcc_data<-read.csv( "data/pcc_data.csv", header = TRUE, sep = ",")%>%
   mutate(pcc_factor_unit= as.factor(pcc_factor_unit))
 
-levels(pcc_data$pcc_factor_unit) #64
+levels(pcc_data$pcc_factor_unit) #70
 names(pcc_data)
 ######## COMPARISON between 2-level and 3-level model structure -------------- 
 
@@ -176,8 +176,8 @@ comparison<- modelnovar2_results%>%
   filter(pcc_factor_unit!= "Primary education (1= yes, 0= no)")%>%
   filter(pcc_factor_unit!="High school education (1= yes, 0= no)")
 
-length((comparison$best_model[comparison$best_model %in% "Three-level"])) #13
-length((comparison$best_model[comparison$best_model %in% "Two-level"])) #50
+length((comparison$best_model[comparison$best_model %in% "Three-level"])) #11
+length((comparison$best_model[comparison$best_model %in% "Two-level"])) #59
 sort(unique(comparison$pcc_factor_unit))
 
 write.csv(comparison, "results/comparison_best_model.csv", row.names=FALSE)
