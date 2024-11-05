@@ -171,7 +171,7 @@ for (unit in factor_metric_units) {
 # Combine overall results into one table
 overall_2level_results_list<- do.call(rbind, overall_2level_list)
 
-overall_2level_results <- as.data.frame(overall_2level_results_list)
+overall_2level_results <- as.data.frame(overall_2level_results_list)%>%
   rownames_to_column(., var = "pcc_factor_unit")%>%
   mutate(ci.lb = sapply(ci.lb, as.numeric),
          ci.ub = sapply(ci.ub, as.numeric))%>%

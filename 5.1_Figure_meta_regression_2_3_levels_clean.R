@@ -30,19 +30,19 @@ pcc_data<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
 
 #### Meta-regression results
 meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",")%>%
-  select(factor_sub_class,pcc_factor_unit, moderator, moderator_class,estimate,ci.lb, ci.ub,tval, pval, f_test, significance,significance2)%>%
-  
+  select(factor_sub_class,pcc_factor_unit, moderator, moderator_class,estimate,ci.lb, ci.ub,tval, pval, f_test, significance,significance2,
+         pcc.estimate, pcc.ci.lb,pcc.ci.ub)%>%
   mutate(factor_sub_class= if_else(factor_sub_class=="Financial risk-mechanisms","Political_1",
                                    if_else(factor_sub_class=="Knowledge access","Political_2",
                                            if_else(factor_sub_class=="Land tenure","Political_3",
                                                    factor_sub_class))))%>%
   arrange(factor_sub_class, moderator, 
           moderator_class)%>%
-  dplyr::mutate(estimate2= ifelse(estimate > 0.33, "large",
-                                  ifelse(estimate >= 0.17, "moderate",
-                                         ifelse(estimate > -0.17, "small",
-                                                ifelse(estimate >= -0.33, "moderate", "large")))))%>%
-  mutate(estimate2_significance2= paste(estimate2,significance2,sep = "_"))%>%
+  dplyr::mutate(pcc.estimate2= ifelse(pcc.estimate > 0.33, "large",
+                                  ifelse(pcc.estimate >= 0.17, "moderate",
+                                         ifelse(pcc.estimate > -0.17, "small",
+                                                ifelse(pcc.estimate >= -0.33, "moderate", "large")))))%>%
+  mutate(estimate2_significance2= paste(pcc.estimate2,significance2,sep = "_"))%>%
   mutate(significance3 = if_else(pval <=0.001,"***",
                                 if_else(pval>0.001&pval<0.01,"**",
                                         if_else(pval>0.01&pval<=0.05,"*",""))))
@@ -50,18 +50,6 @@ meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",
 
 sort(unique(meta_regression$factor_sub_class))
 sort(unique(meta_regression$estimate2_significance2))
-
-
-#Moderator: diversification practices components ------
-m_intervention_system_components<- meta_regression%>%
-  filter(moderator== "m_intervention_system_components")%>%
-  select("factor_sub_class", "pcc_factor_unit","moderator_class",  "estimate" ,
-         "ci.lb", "ci.ub","tval", "significance","f_test")%>%
-  mutate(moderator_class = paste0(toupper(substr(moderator_class, 1, 1)), substr(moderator_class, 2, nchar(moderator_class))))
-
-
-write.xlsx(m_intervention_system_components, "results/meta_regression_intervention_components.xlsx", 
-           sheetName = "farm_size", col.names = TRUE, row.names = TRUE, append = FALSE)
 
 
 #Moderator: farm size------
@@ -76,7 +64,8 @@ m_farm_size<- meta_regression%>%
   mutate(moderator_class= if_else(moderator_class=="","Farm size (ha)","Intercept"))%>%
   mutate(f_test= if_else(moderator_class=="Farm size (ha)", "", f_test))%>%
   select("factor_sub_class", "pcc_factor_unit","moderator_class",  "estimate" ,
-         "ci.lb", "ci.ub","tval", "significance","f_test")
+         "ci.lb", "ci.ub","tval", "significance","f_test",
+         pcc.estimate, pcc.ci.lb,pcc.ci.ub)
 
 write.xlsx(m_farm_size, "results/meta_regression_farm_size.xlsx", 
            sheetName = "farm_size", col.names = TRUE, row.names = TRUE, append = FALSE)
@@ -84,7 +73,6 @@ write.xlsx(m_farm_size, "results/meta_regression_farm_size.xlsx",
 m_farm_size<- meta_regression%>%
   filter(moderator== "m_mean_farm_size_ha")%>%
   filter(moderator_class!="intrcpt")%>%
-  
   left_join(m_farm_size_distribution, by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
   mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))
 
@@ -103,7 +91,8 @@ m_education<- meta_regression%>%
   mutate(moderator_class= if_else(moderator_class=="","Education (years)","Intercept"))%>%
   mutate(f_test= if_else(moderator_class=="Education (years)", "", f_test))%>%
   select("factor_sub_class", "pcc_factor_unit","moderator_class",  "estimate" ,
-         "ci.lb", "ci.ub","tval", "significance","f_test")
+         "ci.lb", "ci.ub","tval", "significance","f_test",
+         pcc.estimate, pcc.ci.lb,pcc.ci.ub)
 
 write.xlsx(m_education, "results/meta_regression_education.xlsx", 
            sheetName = "education", col.names = TRUE, row.names = TRUE, append = FALSE)
@@ -111,7 +100,6 @@ write.xlsx(m_education, "results/meta_regression_education.xlsx",
 m_education<- meta_regression%>%
   filter(moderator== "m_education_years")%>%
   filter(moderator_class!="intrcpt")%>%
-
   left_join(m_education_distribution, by=c("pcc_factor_unit"="pcc_factor_unit"))%>%
   mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))
 
@@ -160,7 +148,7 @@ m_region<- meta_regression%>%
   filter(moderator== "m_un_region")%>%
   left_join(m_region_distribution, by=c("pcc_factor_unit"="pcc_factor_unit",
                                      "moderator_class"="moderator_class"))%>%
-  mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))
+  mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))%>%
   rbind(c(factor_sub_class = "Biophysical context",
              pcc_factor_unit = "Soil fertility (1= moderate)",
           moderator= "m_un_region",
@@ -267,15 +255,16 @@ overall_distribution_strips <- strip_themed(
 m_region$ID <- overall$ID[match(m_region$pcc_factor_unit, overall$pcc_factor_unit)]
 
 sort(unique(m_region$estimate2_significance2))
-region<-ggplot(m_region, aes(x=moderator_class,y=reorder(pcc_factor_unit,ID,decreasing=T))) +
+region<-
+ggplot(m_region, aes(x=moderator_class,y=reorder(pcc_factor_unit,ID,decreasing=T))) +
   geom_tile(aes(fill=factor(estimate2_significance2)),color= "grey45",lwd = 0.5,fill = "white") +
   geom_point(aes(size = factor(icon_n_es), fill=factor(estimate2_significance2),
                  colour= factor(estimate2_significance2)), shape = 21, 
              show.legend=F) +
-  scale_fill_manual(values = c("#8F1D1E","#D3D3D3","#184620",
+  scale_fill_manual(values = c("#D3D3D3","#184620",
                                "#D3D3D3","#329244",
                                "#D3D3D3","#BAF2C4"))+
-  scale_colour_manual(values = c("#8F1D1E","#D3D3D3","#184620",
+  scale_colour_manual(values = c("#D3D3D3","#184620",
                                  "#D3D3D3","#329244",
                                  "#D3D3D3","#BAF2C4"))+
   scale_size_manual(values=c(5,11))+
