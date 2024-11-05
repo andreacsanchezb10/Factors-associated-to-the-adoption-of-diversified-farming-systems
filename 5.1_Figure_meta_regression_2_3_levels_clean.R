@@ -374,10 +374,12 @@ regression.plot
 #Diversified practices
 library(stringr)
 fills <- c("#f0c602", "#ea6044","#d896ff","#6a57b8",  "#87CEEB", "#496491", "#92c46d", "#92c46d","#92c46d","#297d7d")
+sort(unique(m_dfs$pcc_factor_unit))
 
+# Figure 5 ----
 m_dfs_significant<- m_dfs%>%
-  filter(!str_detect(estimate2_significance2,"non_significant"))%>%
-  mutate(ci.ub_l = ifelse(ci.ub > 3, 3, NA),
+  filter(!str_detect(estimate2_significance2,"non_significant"))
+  mutate(pcc.ci.ub_l = ifelse(pcc.ci.ub > 3, 3, NA),
          ci.lb_l=ifelse(ci.ub > 3, ci.lb, NA))
 m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Cover crops"] <-"1_Cover crops"
 m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Agroforestry"] <-"2_Agroforestry"
@@ -385,14 +387,12 @@ m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Intercr
 m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Embedded seminatural habitats"] <-"4_Embedded seminatural"
 m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Crop rotation"] <-"5_Crop rotation"
 m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Fallow"] <-"6_Fallow"
-m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Combined systems"] <-"7_Combined systems"
+m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Combined practices"] <-"7_Combined practices"
 
 m_dfs_significant<-m_dfs_significant%>%
   arrange(moderator_class, factor_sub_class, desc(estimate))%>%
-  mutate(ID= seq(1, 33 ))%>%
+  mutate(ID= seq(1, 38 ))%>%
   mutate(pcc_factor_unit= paste(ID,pcc_factor_unit,sep = "  "))
-  
-  
   
 #m_dfs_significant$ID <- overall$ID[match(m_dfs_significant$pcc_factor_unit, overall$pcc_factor_unit)]
 
@@ -414,16 +414,15 @@ theme_overall<-theme(
   axis.line = element_line(colour = "black"))
 
 dfs_significant<-
-  #ggplot(subset(m_dfs_significant,moderator_class=="5_Crop rotation"),
-            ggplot(m_dfs_significant, 
-         aes(y=reorder(pcc_factor_unit, desc(ID)),x=estimate,
-             xmin=ci.lb, xmax=ci.ub,group=pcc_factor_unit,
+ggplot(m_dfs_significant, 
+         aes(y=reorder(pcc_factor_unit, desc(ID)),x=pcc.estimate,
+             xmin=pcc.ci.lb, xmax=pcc.ci.ub,group=pcc_factor_unit,
              colour = factor(factor_sub_class) ))+
   geom_vline(xintercept=0, colour = "grey30",linetype = 1, linewidth=0.5)+
   geom_errorbar(width=0,size=1, position = (position_dodge(width = -0.2)),
                 show.legend = F)+
   geom_point(size = 3.5, position = (position_dodge(width = -0.2)),show.legend = F)+
-  geom_text(aes(label=significance3, x=ci.ub+0.01, group=pcc_factor_unit), 
+  geom_text(aes(label=significance3, x=pcc.ci.ub+0.02, group=pcc_factor_unit), 
             vjust=0.7, hjust=-0.005,size=7,
             color="black",  family="sans",position = (position_dodge(width = -0.5)))+
   
@@ -431,11 +430,10 @@ dfs_significant<-
   facet_grid2(vars(moderator_class),
              scales= "free", space='free_y', switch = "y",
               strip = overall_strips)+
-  scale_x_continuous(limit = c(-2.5,3.5),expand = c(0.01, 0.01),
-                     breaks = c(-2,-1,0,1,2,3),
-                     labels = c("-2","-1","0","1","2","3"))+
+  scale_x_continuous(limit = c(-1,1.25),expand = c(0.01, 0.01),
+                     breaks = c(-1,-0.5,0,0.5,1),
+                     labels = c("-1","-0.5","0","0.5","1"))+
   xlab("")+
-  #xlab(bquote(bold("Partial correlation coefficient (" *italic(r)[p]*")")))+
   theme_overall+
   theme(strip.placement.y = "outside",
         plot.margin = unit(c(t=0.5,r=0,b=0.5,l=0.5), "cm"),
@@ -445,50 +443,45 @@ dfs_significant
 
 dfs_significant_distribution<-
         ggplot(m_dfs_significant, 
-         aes(x=n_articles, y=reorder(pcc_factor_unit, desc(ID)),
+         aes(x=n_studies, y=reorder(pcc_factor_unit, desc(ID)),
              fill = factor(factor_sub_class))) +
   geom_bar(stat="identity",show.legend = F)+
   geom_errorbar(aes(xmin=0, xmax=n_ES), 
-                width=0, position = position_dodge(width = 0.9),size = 0.7,
+                width=0, position = position_dodge(width = 0.9),size = 4, alpha=0.6,
                 show.legend = F)+ 
-  geom_point(aes(x=n_ES, y=reorder(pcc_factor_unit, estimate),
-                 fill = factor(factor_sub_class)),
-             shape=18,size=2, position = (position_dodge(width = -0.2)),
-             show.legend = F)+
   scale_fill_manual(values = fills)+
   facet_grid2(vars(moderator_class),
               scales= "free", space='free_y', switch = "x", strip=overall_distribution_strips)+
   xlab("")+
-  #xlab("Number")+
   theme_overall+
   theme(strip.placement.y = "outside",
         axis.text.y =element_blank(),
         axis.line.y = element_line(colour = "black"),
         plot.margin = unit(c(t=0.5,r=0.5,b=0.5,l=0.5), "cm"))+
   scale_x_continuous(
-    limit = c(0,40),expand = c(0,0),
+    limit = c(0,50),expand = c(0,0),
     breaks = c(0,10,20,30,40,50),
     labels= c("0","10","20","30","40","50"))
 dfs_significant_distribution
 overall.plot<-ggarrange(dfs_significant,dfs_significant_distribution,ncol = 2,widths = c(1, 0.2))
 overall.plot
-#19x23
+#19x23 portrait
 #1000 1500
 
-#Regions -----
+# Figure 6 -----
 m_region_significant<- m_region%>%
   filter(!str_detect(estimate2_significance2,"non_significant"))%>%
- mutate(estimate = as.numeric(estimate),
-        ci.lb = as.numeric(ci.lb),
-        ci.ub = as.numeric(ci.ub),
+ mutate(pcc.estimate = as.numeric(pcc.estimate),
+        pcc.ci.lb = as.numeric(pcc.ci.lb),
+        pcc.ci.ub = as.numeric(pcc.ci.ub),
         factor_sub_class = as.factor(factor_sub_class),
-        n_articles = as.numeric(n_articles),
+        n_studies = as.numeric(n_studies),
         n_ES = as.numeric(n_ES) )%>%
-  arrange(moderator_class, factor_sub_class, desc(estimate))%>%
-  mutate(ID= seq(1, 9 ))%>%
+  arrange(moderator_class, factor_sub_class, desc(pcc.estimate))%>%
+  mutate(ID= seq(1, 14 ))%>%
   mutate(pcc_factor_unit= paste(ID,pcc_factor_unit,sep = "  "))
 
-fills <- c( "#ea6044","#d896ff", "#92c46d", "#92c46d","#297d7d")
+fills <- c("#f0c602", "#ea6044","#6a57b8", "#92c46d", "#92c46d","#92c46d","#297d7d")
 
 overall_regions <- strip_themed(
   # Vertical strips
@@ -510,17 +503,17 @@ theme_overall<-theme(
   panel.background = element_blank(),
   axis.line = element_line(colour = "black"))
 
-region_significant<-
+region_significant
   ggplot(m_region_significant, 
-         aes(y=reorder(pcc_factor_unit, desc(ID)),x=estimate,
-             xmin=ci.lb, xmax=ci.ub,group=pcc_factor_unit,
+         aes(y=reorder(pcc_factor_unit, desc(ID)),x=pcc.estimate,
+             xmin=pcc.ci.lb, xmax=pcc.ci.ub,group=pcc_factor_unit,
              colour = factor(factor_sub_class) ))+
   geom_vline(xintercept=0, colour = "grey30",linetype = 1, linewidth=0.5)+
   
   geom_errorbar(width=0,size=1, position = (position_dodge(width = -0.2)),
                 show.legend = F)+
   geom_point(size = 3.5, position = (position_dodge(width = -0.2)),show.legend = F)+
-  geom_text(aes(label=significance3, x=ci.ub+0.01, group=pcc_factor_unit), 
+  geom_text(aes(label=significance3, x=pcc.ci.ub+0.02, group=pcc_factor_unit), 
             vjust=0.7, hjust=-0.005,size=7,
             color="black",  family="sans",position = (position_dodge(width = -0.5)))+
   
@@ -528,9 +521,9 @@ region_significant<-
   facet_grid2(vars(moderator_class),
               scales= "free", space='free_y', switch = "y",
               strip = overall_strips)+
-  scale_x_continuous(limit = c(-0.7,2),expand = c(0.01, 0.01),
-                     breaks = c(-0.5,0,0.5,1,1.5,2),
-                     labels = c("-0.5","0","0.5","1","1.5","2"))+
+  scale_x_continuous(limit = c(-0.1,1.05),expand = c(0, 0),
+                     breaks = c(-0.1,0,0.25,0.5,0.75,1),
+                     labels = c("","0","0.25","0.5","0.75","1"))+
   xlab("")+
   theme_overall+
   theme(strip.placement.y = "outside",
@@ -541,16 +534,12 @@ region_significant
 
 region_significant_distribution<-
 ggplot(m_region_significant, 
-       aes(x=n_articles, y=reorder(pcc_factor_unit, desc(ID)),
+       aes(x=n_studies, y=reorder(pcc_factor_unit, desc(ID)),
            fill = factor(factor_sub_class))) +
   geom_bar(stat="identity",show.legend = F)+
   geom_errorbar(aes(xmin=0, xmax=n_ES), 
-                width=0, position = position_dodge(width = 0.9),size = 0.7,
-                show.legend = F)+
-  geom_point(aes(x=n_ES, y=reorder(pcc_factor_unit, estimate),
-                 fill = factor(factor_sub_class)),
-             shape=15,size=2, position = (position_dodge(width = -0.2)),
-             show.legend = F)+
+                width=0, position = position_dodge(width = 0.9),size = 4,
+                show.legend = F, alpha=0.6)+
   scale_fill_manual(values = fills)+
   facet_grid2(vars(moderator_class),
               scales= "free", space='free_y', switch = "x", strip=overall_distribution_strips)+
@@ -563,7 +552,7 @@ ggplot(m_region_significant,
         axis.ticks.y=element_line(colour = "grey"),
         plot.margin = unit(c(t=0.5,r=0.5,b=0.5,l=0.5), "cm"))+
   scale_x_continuous(
-    limit = c(0,40),expand = c(0,0),
+    limit = c(0,50),expand = c(0,0),
     breaks = c(0,10,20,30,40,50),
     labels= c("0","10","20","30","40","50"))
 region_significant_distribution
