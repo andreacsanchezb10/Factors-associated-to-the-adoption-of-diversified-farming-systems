@@ -31,7 +31,6 @@ sort(unique(pcc_data_3level$pcc_factor_unit))
 sort(unique(pcc_data_3level$model_method_recla))
 names(pcc_data_3level)
 
-
 #Heterogeneity
 heterogeneity_3level<- read.csv("results/heterogeneity_3levels.csv",header = TRUE, sep = ",")%>%
   filter(I2_1<=25)
@@ -117,8 +116,8 @@ meta_regression_3levels_df <- bind_rows(results_list)%>%
   mutate(moderator=str_replace_all(moderator, "~", ""))%>%
   mutate(moderator=str_replace_all(moderator, "-1", ""))%>%
   mutate(moderator_class= str_replace(.$moderator_class, paste0(".*", .$moderator), ""))%>%
-  mutate_at(c("estimate","se","tval","pval" ,"ci.lb","ci.ub",
-              "QM", "QMp"),  ~round(.,4))%>%
+  #mutate_at(c("estimate","se","tval","pval" ,"ci.lb","ci.ub",
+   #           "QM", "QMp"),  ~round(.,4))%>%
   mutate(significance2 = if_else(estimate >0 & pval<=0.05,"positive5",
                                  if_else(estimate <0 & pval <=0.05, "negative5",
                                          if_else(estimate >0 &pval>0.05&pval<=0.1, "non_significant",
@@ -126,15 +125,15 @@ meta_regression_3levels_df <- bind_rows(results_list)%>%
                                                          "non_significant")))))%>%
   mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p = ",QMp, sep = ""))%>%
   select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
-         "estimate","ci.lb","ci.ub","tval","df","pval" ,
+         "estimate","se","ci.lb","ci.ub","tval","df","pval" ,
          "f_test","significance2","QMp")%>%
   #Transform back fisher's z to PCC
   mutate(pcc.estimate= transf.ztor(estimate))%>%
   mutate(pcc.ci.lb= transf.ztor(ci.lb))%>%
-  mutate(pcc.ci.ub= transf.ztor(ci.ub))
-  
+  mutate(pcc.ci.ub= transf.ztor(ci.ub))%>%
+  mutate_at(c("pcc.estimate","pcc.ci.lb","pcc.ci.ub"),  ~round(.,2))
 
-                     
+
 names(meta_regression_3levels_df)
 sort(unique(meta_regression_3levels_df$moderator))
 sort(unique(meta_regression_3levels_df$pcc_factor_unit))
@@ -231,27 +230,27 @@ for (moderator in moderators) {
 
 # Combine results from the list into a single data frame
 meta_regression_2levels_df <- bind_rows(results_list2)%>%
-  #rename("beta"="estimate")%>%
   left_join(pcc_factor_class_unit, by= "pcc_factor_unit")%>%
   mutate(moderator=str_replace_all(moderator, "~", ""))%>%
   mutate(moderator=str_replace_all(moderator, "-1", ""))%>%
   mutate(moderator_class= str_replace(.$moderator_class, paste0(".*", .$moderator), ""))%>%
-  mutate_at(c("estimate","se","tval","pval","ci.lb","ci.ub",
-              "QM", "QMp"),  ~round(.,4))%>%
+  #mutate_at(c("estimate","se","tval","pval","ci.lb","ci.ub",
+   #           "QM", "QMp"),  ~round(.,4))%>%
   mutate(significance2 = if_else(estimate >0 & pval<=0.05,"positive5",
                                  if_else(estimate <0 & pval <=0.05, "negative5",
                                          if_else(estimate >0 &pval>0.05&pval<=0.1, "non_significant",
                                                  if_else(estimate <0 &pval>0.05&pval<=0.1, "non_significant",
                                                          "non_significant")))))%>%
   mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p = ",QMp, sep = ""))%>%
-  
   select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
-         "estimate","ci.lb","ci.ub","tval","df","pval" ,
+         "estimate","se","ci.lb","ci.ub","tval","df","pval" ,
          "f_test","significance2","QMp")%>%
   #Transform back fisher's z to PCC
   mutate(pcc.estimate= transf.ztor(estimate))%>%
   mutate(pcc.ci.lb= transf.ztor(ci.lb))%>%
-  mutate(pcc.ci.ub= transf.ztor(ci.ub))
+  mutate(pcc.ci.ub= transf.ztor(ci.ub))%>%
+  mutate_at(c("pcc.estimate","pcc.ci.lb","pcc.ci.ub"),  ~round(.,2))
+  
 
 sort(unique(meta_regression_2levels_df$moderator))
 sort(unique(meta_regression_2levels_df$pcc_factor_unit))
@@ -260,7 +259,6 @@ write.csv(meta_regression_2levels_df,"results/meta_regression_2levels.csv", row.
 
 meta_regression_df<- rbind(meta_regression_3levels_df,meta_regression_2levels_df)%>%
   mutate(significance= format(pval, scientific = TRUE))%>%
-  
   mutate(significance = if_else(pval <=0.001,paste(significance,"***",sep=""),
                                 if_else(pval>0.001&pval<0.01,paste(significance,"**",sep=""),
                                         if_else(pval>0.01&pval<=0.05,paste(significance,"*",sep=""),
