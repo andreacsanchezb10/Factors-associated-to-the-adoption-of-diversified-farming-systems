@@ -313,6 +313,7 @@ subregion<-ggplot(m_subregion, aes(x=moderator_class,y=reorder(pcc_factor_unit,I
   theme_overall+
   theme(strip.placement.y = "outside",
         plot.margin = unit(c(t=0.5,r=0,b=0.5,l=0), "cm"),
+        axis.text.x =element_text(color="black",size=9,angle=45, family = "sans"),
         axis.text.y =element_text(color="black",size=9, family = "sans"))
 
 subregion 
@@ -468,6 +469,14 @@ overall.plot
 #15x19
 
 # Figure 6 -----
+m_region_nonsignificant<- m_region%>%
+  filter(str_detect(estimate2_significance2,"non_significant"))
+sort(unique(m_region_nonsignificant$pcc_factor_unit))
+
+m_subregion_nonsignificant<- m_subregion%>%
+  filter(str_detect(estimate2_significance2,"non_significant"))
+sort(unique(m_subregion_nonsignificant$pcc_factor_unit))
+
 m_region_significant<- m_region%>%
   filter(!str_detect(estimate2_significance2,"non_significant"))%>%
  mutate(pcc.estimate = as.numeric(pcc.estimate),
