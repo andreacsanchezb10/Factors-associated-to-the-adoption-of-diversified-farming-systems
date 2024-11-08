@@ -71,7 +71,7 @@ overal_results<- overall_3level_results%>%
                                                    factor_sub_class))))%>%
   #mutate(significance1= if_else(pval>0.05&pval<=0.1,"†",""))%>%
   arrange(desc(pcc.beta))%>%
-  mutate(pcc_factor_unit2= seq(70, 1 ))%>%
+  mutate(pcc_factor_unit2= seq(71, 1 ))%>%
   mutate(label= paste("(",n_studies,"|",n_ES,")",sep=""))
 
 
@@ -89,19 +89,19 @@ overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Relatives an
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Trust in extension services"] <- "7Trust in extension\nservices"
 
 overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Farmers attitudes"] <- "3Farmers attitudes"
-overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Awareness"] <- "8Awareness"
-overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived production constraint"] <- "90Perceived production constraint"
-overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Environmental attitude"] <- "91Environmental attitude"
-overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Productivist attitude"] <- "92Productivist attitude"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Awareness"] <- "80Awareness"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived production constraint"] <- "81Perceived production constraint"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Environmental attitude"] <- "90Environmental attitude"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Productivist attitude"] <- "91Productivist attitude"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Positive attitude toward practice"] <- "92Positive attitude toward practice"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived benefit from practice"& overal_results$pcc_unit %in% "Environmental"] <- "93Perceived benefit from practice"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived benefit from practice"& overal_results$pcc_unit %in% "Financial"] <- "94Perceived benefit from practice"
 
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived benefit from practice"& overal_results$pcc_unit %in% "Production"] <- "95Perceived benefit from practice"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived benefit from practice"& overal_results$pcc_unit %in% "Soil fertility"] <- "96Perceived benefit from practice"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived benefit from practice"& overal_results$pcc_unit %in% "Soil erosion reduction"] <- "97Perceived benefit from practice"
-overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived constraint from practice"] <- "98Perceived constraint from practice"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived limitation to implement sustainable practices"] <- "98Perceived limitation to implement sustainable practices"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Attitude to risk"] <- "99Attitude to risk"
-
 
 #Figure 3 -----
 overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Political_3"] <- "1Political_3"

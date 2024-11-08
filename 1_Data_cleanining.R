@@ -487,14 +487,14 @@ adoption_binary_clean<-adoption_binary%>%
     
     # Farmers' attitudes
       x_metric_recla=="hh risk attitude"| 
-      x_metric_recla=="attitude toward practice"|
+      x_metric_recla=="attitude toward SFP or DFP"|
       x_metric_recla=="environmental attitude"|
       x_metric_recla=="productivist attitude"|
       x_metric_recla=="awareness of climate change" |
       x_metric_recla== "awareness of SFP or DFS"| 
       x_metric_recla=="hh perceive benefits of SFP or DFS"|
-      x_metric_recla=="limitations to implement SFT or DFS"| 
-      x_metric_recla=="production constraints"| #to check |
+      x_metric_recla=="perceived limitations to implement SFT or DFS"| 
+      x_metric_recla=="production constraints"| 
 
       # Financial capital
   x_metric_recla=="access to non-farm income"|

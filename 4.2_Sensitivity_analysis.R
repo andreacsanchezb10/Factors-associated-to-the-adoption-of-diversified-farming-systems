@@ -5,7 +5,7 @@ library(dplyr)
 ########## SENSITIVITY ANALYSIS #######################
 ######################################################
 ############ OVERALL META-ANALYSIS WITH Log-Odds ratio -----
-factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
+factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx",
                                       sheet = "FACTORS_metric_assessed")
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$pcc_unit,")", sep="")
 factors_metric_assessed$logor_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$logor_unit,")", sep="")
@@ -19,26 +19,26 @@ names(pcc_data)
 logor_factor_class_unit<-factors_metric_assessed%>%
   filter(!is.na(logor_unit))%>%
   select(factor_sub_class,logor_factor_unit)
-logor_factor_class_unit<-unique(logor_factor_unit)
+logor_factor_class_unit<-unique(logor_factor_class_unit$logor_factor_unit)
 
 ######## THREE-LEVEL META-ANALYSIS -------------- 
 logor_data_3level<- pcc_data%>%
   left_join(comparison, by= "pcc_factor_unit")%>%
   filter(best_model == "Three-level" )%>%
-  filter(m_model_method== "logit" |
-           m_model_method=="probit")%>%
+  filter(model_method_recla== "logit" |
+           model_method_recla=="probit")%>%
   filter(!is.na(logor_unit))
 
 names(logor_data_3level)
 sort(unique(logor_data_3level$factor_metric))
-sort(unique(logor_data_3level$m_model_method))
+sort(unique(logor_data_3level$model_method_recla))
 
 write.csv(logor_data_3level,"data/logor_data_3levels.csv", row.names=FALSE)
 
 #### Estimate the overall effect by fitting an intercept-only model ----
 logor_overall_3level <- function(data, metric_unit) {
   overal_model <- rma.mv(b_logOR, v_logOR, 
-                         random = list(~ 1 | ES_ID, ~ 1 | article_id),
+                         random = list(~ 1 | ES_ID, ~ 1 | study_id),
                          data = data,
                          method = "REML", 
                          test = "t",
@@ -83,7 +83,7 @@ logor_overall_3level_results <- as.data.frame(logor_overall_3level_results_list)
   mutate(sigma2.2= as.numeric(str_extract(sigma2, "(?<=, ).*")))%>%
   mutate(s.nlevels=substr(s.nlevels, 3, nchar(s.nlevels) - 1))%>%
   mutate(n_ES= as.numeric(str_extract(s.nlevels, ".*(?=\\,)")))%>%
-  mutate(n_articles= as.numeric(str_extract(s.nlevels, "(?<=, ).*")))%>%
+  mutate(n_studies= as.numeric(str_extract(s.nlevels, "(?<=, ).*")))%>%
   mutate_at(2:7, as.numeric)%>%
   mutate_at(8:9,as.character)%>%
   mutate_at(10:12, as.numeric)%>%
@@ -91,7 +91,7 @@ logor_overall_3level_results <- as.data.frame(logor_overall_3level_results_list)
   #mutate(across(where(is.numeric), ~ round(., 3)))%>%
   mutate(QEp= as.character(QEp))%>%
   mutate(QEp= if_else(QEp==0, "<0.001", QEp))%>%
-  select(logor_factor_unit, beta,se, ci.lb, ci.ub,zval,pval,significance,n_ES, n_articles,sigma2.1,sigma2.2,QEdf,QE,QEp)%>%
+  select(logor_factor_unit, beta,se, ci.lb, ci.ub,zval,pval,significance,n_ES, n_studies,sigma2.1,sigma2.2,QEdf,QE,QEp)%>%
   #Transform back Odds-ratio
   mutate(or.beta= exp(beta))%>%
   mutate(or.ci.lb= exp(ci.lb))%>%
@@ -106,16 +106,16 @@ write.csv(logor_overall_3level_results,"results/logor_overall_results_3levels.cs
 logor_data_2level<- pcc_data%>%
   left_join(comparison, by= "pcc_factor_unit")%>%
   filter(best_model == "Two-level" )%>%
-  filter(m_model_method== "logit" |
-           m_model_method=="probit")%>%
+  filter(model_method_recla== "logit" |
+           model_method_recla=="probit")%>%
   filter(!is.na(logor_unit))%>%
   filter(!is.na(v_logOR))
-select(b_logOR,v_logOR)
+#select(b_logOR,v_logOR)
 
 names(logor_data_2level)
 sort(unique(logor_data_2level$logor_factor_unit))
 sort(unique(logor_data_2level$factor_metric))
-sort(unique(logor_data_2level$m_model_method))
+sort(unique(logor_data_2level$model_method_recla))
 write.csv(logor_data_2level,"data/logor_data_2levels.csv", row.names=FALSE)
 
 #### Estimate the overall effect by fitting an intercept-only model ----

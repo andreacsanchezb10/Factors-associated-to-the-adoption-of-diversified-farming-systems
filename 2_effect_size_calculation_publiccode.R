@@ -63,9 +63,9 @@ sort(unique(data$country)) #44
 sort(unique(data$limitation_of_use_obs))
 
 #######  Included FACTORS -------
-length(unique(data$x_metric_recla)) #51
+length(unique(data$x_metric_recla)) #52
 sort(unique(data$x_metric_recla))
-length(unique(data$x_metric_recla2))#40
+length(unique(data$x_metric_recla2))#41
 
 str(data)
 sort(unique(data$factor_metric))
