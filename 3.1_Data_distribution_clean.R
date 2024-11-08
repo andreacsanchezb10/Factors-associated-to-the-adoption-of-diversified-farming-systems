@@ -58,12 +58,11 @@ pcc_data<-pcc_data%>%
   
 length(unique(pcc_data$study_id)) #154
 sort(unique(pcc_data$x_metric_recla2))
-sort(unique(pcc_data$m_intervention_system_components))
 sort(unique(pcc_data$m_dp_recla))
 
 sort(unique(pcc_data$factor_sub_class.x))
 
-sort(unique(pcc_data$m_sub_region))
+sort(unique(pcc_data$m_un_subregion))
 sort(unique(pcc_data$country))
 
 ### Figure: Represented countries ---------
@@ -213,12 +212,12 @@ fills <- c("AFRICA"="#843272",
            "POLITICAL AND\nINSTITUTIONAL\nCONTEXT"="#92c46d",
 
            "SOCIAL\nCAPITAL"= "#297d7d",
-           "Agroforestry"=  "#545454", "Crop rotation"="#545454", 
-           "Cover crops"="#545454", "Fallow"="#545454",
+           "Agroforestry"=  "#545454", "Crop\nrotation"="#545454", 
+           "Cover\ncrops"="#545454", "Fallow"="#545454",
            "Intercropping"="#545454",
-           "Rotational grazing"="#545454",
-           "Combined systems"="#545454",
-           "Agro-aquaculture"="#545454","Embedded seminatural habitats"="#545454",
+           "Rotational\ngrazing"="#545454",
+           "Combined\npractices"="#545454",
+           "Agro-aquaculture"="#545454","Embedded\nseminatural\nhabitats"="#545454",
            "Agro-silvopasture"="#545454")
 
 
@@ -244,3 +243,4 @@ ggplot(skey_region_factor_systems,
     axis.title = element_blank(), 
     axis.ticks = element_blank(),
     panel.background = element_rect(fill = "transparent"))
+#16*12

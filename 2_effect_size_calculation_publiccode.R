@@ -35,9 +35,17 @@ data<-read.csv("data/binary_adoption_clean_data.csv",header = TRUE, sep = ",")%>
           "m_dp_recla" ,"m_exact_variance_value","m_random_sample", "m_mean_farm_size_ha",
           "m_sampling_unit", "m_type_data", "m_av_year_assessment", "m_education_years"
           )%>%
-  left_join(factors_metric_assessed, by= c("factor_metric"))
+  left_join(factors_metric_assessed, by= c("factor_metric"))%>%
+  mutate(study_model_id=paste(study_id, model_id, sep="_"))
+
+length(unique(data$study_model_id)) #245
+
+factors_models<- data%>%
+  group_by( study_model_id)%>%
+  dplyr::summarise(n_models = n_distinct(pcc_factor_unit))
 
 sort(unique(data$pcc_factor_unit))
+sort(unique(data$factor_metric))
 sort(unique(data$factor_metric))
 
 names(data)    

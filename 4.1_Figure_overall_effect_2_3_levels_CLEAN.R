@@ -58,7 +58,7 @@ overal_results<- overall_3level_results%>%
   mutate(pcc.ci.lb_l = ifelse(pcc.ci.lb < -0.27, -0.27, NA),
          pcc.ci.ub_l = ifelse(pcc.ci.ub > 0.75, 0.75, NA))%>%
   mutate(pcc.ci.ub_l1= ifelse(pcc_factor_unit=="Soil slope (Steep)", pcc.ci.ub,
-                                     ifelse(pcc_factor_unit=="Perceived benefit from practice (Erosion reduction)",pcc.ci.ub,
+                                     ifelse(pcc_factor_unit=="Perceived benefit from practice (Soil erosion reduction)",pcc.ci.ub,
                                             ifelse(pcc_factor_unit=="Plot size (Plot size)",pcc.ci.ub,
                                                    ifelse(pcc_factor_unit=="Access to irrigation (Access to irrigation)",pcc.ci.ub,
                                                           NA)))))%>%
@@ -88,18 +88,20 @@ overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Communicate 
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Relatives and friends"] <- "6Relatives and friends"
 overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Trust in extension services"] <- "7Trust in extension\nservices"
 
-overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Farmers behaviour"] <- "3Farmers behaviour"
-overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Attitude toward practice"] <- "8Attitude toward practice"
-overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Attitude to risk"] <- "90Attitude to risk"
-overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived production constraint"] <- "91Perceived production constraint"
-overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Awareness"] <- "92Awareness"
-overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived benefit from practice"] <- "93Perceived benefit from practice"
-overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived constraint from practice"] <- "94Perceived constraint from practice"
+overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Farmers attitudes"] <- "3Farmers attitudes"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Awareness"] <- "8Awareness"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived production constraint"] <- "90Perceived production constraint"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Environmental attitude"] <- "91Environmental attitude"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Productivist attitude"] <- "92Productivist attitude"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived benefit from practice"& overal_results$pcc_unit %in% "Environmental"] <- "93Perceived benefit from practice"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived benefit from practice"& overal_results$pcc_unit %in% "Financial"] <- "94Perceived benefit from practice"
 
-overal_results$pcc_unit[overal_results$pcc_factor_unit %in%"Perceived benefit from practice (Environmental)"]<-"95Evironmental"
-overal_results$pcc_unit[overal_results$pcc_factor_unit %in%"Perceived benefit from practice (Financial)"]<-"96Financial"
-overal_results$pcc_unit[overal_results$pcc_factor_unit %in%"Perceived benefit from practice (Soil fertility)"]<-"97Soil fertility"
-overal_results$pcc_unit[overal_results$pcc_factor_unit %in%"Perceived benefit from practice (Erosion reduction)"]<-"98Erosion reduction"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived benefit from practice"& overal_results$pcc_unit %in% "Production"] <- "95Perceived benefit from practice"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived benefit from practice"& overal_results$pcc_unit %in% "Soil fertility"] <- "96Perceived benefit from practice"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived benefit from practice"& overal_results$pcc_unit %in% "Soil erosion reduction"] <- "97Perceived benefit from practice"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Perceived constraint from practice"] <- "98Perceived constraint from practice"
+overal_results$x_metric_recla2[overal_results$x_metric_recla2 %in% "Attitude to risk"] <- "99Attitude to risk"
+
 
 #Figure 3 -----
 overal_results$factor_sub_class[overal_results$factor_sub_class %in% "Political_3"] <- "1Political_3"
@@ -182,10 +184,7 @@ theme_overall <- theme(
 #Figure 2 -----
 figure2<-
   ggplot(
-    subset(overal_results,factor_sub_class%in%
-             c("1Political_2",
-               "3Farmers behaviour","2Social capital"
-             )),
+    subset(overal_results,factor_sub_class%in%c("1Political_2","2Social capital","3Farmers attitudes")),
     aes(y=reorder(pcc_unit, pcc_factor_unit2),x=pcc.beta,
         xmin=pcc.ci.lb, xmax=pcc.ci.ub,
         colour = factor(factor_sub_class) ))+
@@ -223,18 +222,13 @@ figure2
 
 figure2_distribution<-
 ggplot(
-  subset(overal_results,factor_sub_class%in%
-           c("1Political_2","3Farmers behaviour","2Social capital" )),
+  subset(overal_results,factor_sub_class%in%c("1Political_2","2Social capital","3Farmers attitudes")),
   aes(x=n_studies, y=reorder(pcc_unit, pcc_factor_unit2),
       fill = factor(factor_sub_class))) +
   geom_bar(stat="identity",show.legend = F)+
   geom_errorbar(aes(xmin=0, xmax=n_ES), 
-                width=0, position = position_dodge(width = 0.9),size = 0.7,
-                show.legend = F) +
-  geom_point(aes(x=n_ES, y=reorder(pcc_unit, pcc_factor_unit2),
-                 fill = factor(factor_sub_class)),
-             shape=15,size=2, position = (position_dodge(width = -0.2)),
-             show.legend = F)+
+                width=0, position = position_dodge(width = 0.9),size = 4,
+                show.legend = F, alpha=0.6) +
   scale_fill_manual(values = c( "#92c46d","#297d7d","#ea6044"))+
   facet_grid2(vars(x_metric_recla2),
               scales= "free", space='free_y', switch = "x", strip=overall_distribution_strips)+
@@ -254,7 +248,8 @@ figure2_distribution
 
 figure2_distribution.plot<-ggarrange(figure2,figure2_distribution,ncol = 2,widths = c(1, 0.25))
 figure2_distribution.plot
-16x12
+#16x12
+#landscape
 
 #Figure 3 ----
 figure3<-
