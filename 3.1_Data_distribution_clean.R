@@ -118,9 +118,6 @@ world<-
   
   scale_size_continuous(limits=c(1,361),breaks = c(5,10,25,50,100,200),
                         name = "Number of effect sizes",range = c(3, 13))+
-  #geom_text(data = centroids, 
-   #         aes(x= lon, y=lat, group=region,label=n_articles), size =3,
-      #      color="black",show.legend = F)+
   theme(legend.position = "none",
         panel.background = element_blank(),
         panel.grid.major = element_blank(), 
