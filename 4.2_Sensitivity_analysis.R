@@ -19,6 +19,8 @@ names(pcc_data)
 logor_factor_class_unit<-factors_metric_assessed%>%
   filter(!is.na(logor_unit))%>%
   select(factor_sub_class,logor_factor_unit)
+sort(unique(logor_factor_class_unit$logor_factor_unit))
+
 logor_factor_class_unit<-unique(logor_factor_class_unit$logor_factor_unit)
 
 ######## THREE-LEVEL META-ANALYSIS -------------- 
@@ -31,6 +33,8 @@ logor_data_3level<- pcc_data%>%
 
 names(logor_data_3level)
 sort(unique(logor_data_3level$factor_metric))
+sort(unique(logor_data_3level$model_method_recla))
+length(unique(logor_data_3level$study_id))
 sort(unique(logor_data_3level$model_method_recla))
 
 write.csv(logor_data_3level,"data/logor_data_3levels.csv", row.names=FALSE)
@@ -48,7 +52,7 @@ logor_overall_3level <- function(data, metric_unit) {
   return(summary(overal_model, digits = 3))
   
 }
-
+sort(unique(logor_data_3level$logor_factor_unit))
 # Vector of factor_metric_unit levels
 factor_metric_units <- unique(logor_data_3level$logor_factor_unit)
 
@@ -63,7 +67,6 @@ for (unit in factor_metric_units) {
 
 # Combine overall results into one table
 logor_overall_3level_results_list<- do.call(rbind, logor_overall_3level_list)
-class(logor_overall_3level_results)
 
 logor_overall_3level_results <- as.data.frame(logor_overall_3level_results_list)%>%
   rownames_to_column(., var = "logor_factor_unit")%>%
@@ -100,8 +103,7 @@ logor_overall_3level_results <- as.data.frame(logor_overall_3level_results_list)
 sapply(logor_overall_3level_results, class)
 
 write.csv(logor_overall_3level_results,"results/logor_overall_results_3levels.csv", row.names=FALSE)
-
-
+sort(unique(logor_overall_3level_results$logor_factor_unit))
 ######## TWO-LEVEL META-ANALYSIS -------------- 
 logor_data_2level<- pcc_data%>%
   left_join(comparison, by= "pcc_factor_unit")%>%
@@ -109,13 +111,17 @@ logor_data_2level<- pcc_data%>%
   filter(model_method_recla== "logit" |
            model_method_recla=="probit")%>%
   filter(!is.na(logor_unit))%>%
-  filter(!is.na(v_logOR))
-#select(b_logOR,v_logOR)
+  filter(!is.na(v_logOR))%>%
+  filter(se_logOR!=Inf)
 
 names(logor_data_2level)
 sort(unique(logor_data_2level$logor_factor_unit))
 sort(unique(logor_data_2level$factor_metric))
 sort(unique(logor_data_2level$model_method_recla))
+sort(unique(logor_data_2level$logor_factor_unit))
+sort(unique(logor_data_2level$factor_sub_class.x))
+sort(unique(logor_data_2level$factor_metric))
+
 write.csv(logor_data_2level,"data/logor_data_2levels.csv", row.names=FALSE)
 
 #### Estimate the overall effect by fitting an intercept-only model ----
@@ -131,6 +137,7 @@ logor_overall_2level <- function(data, metric_unit) {
 }
 
 # Vector of factor_metric_unit levels
+sort(unique(logor_data_2level$logor_factor_unit))
 factor_metric_units <- unique(logor_data_2level$logor_factor_unit)
 
 # List to store the results of all models
@@ -144,7 +151,6 @@ for (unit in factor_metric_units) {
 
 # Combine overall results into one table
 logor_overall_2level_results_list<- do.call(rbind, logor_overall_2level_list)
-sapply(logor_overall_2level_results, class)
 
 logor_overall_2level_results <- as.data.frame(logor_overall_2level_results_list)%>%
   tibble::rownames_to_column(., var = "logor_factor_unit")%>%
@@ -156,7 +162,6 @@ logor_overall_2level_results <- as.data.frame(logor_overall_2level_results_list)
                                         if_else(pval>0.01&pval<=0.05,"*",
                                                 if_else(pval>0.05&pval>=0.1,"","",
                                                         "")))))%>%
-  #mutate(significance1= if_else(pval>0.05&pval<=0.1,"\u0A76",""))%>%
   dplyr::rename("n_ES"="k")%>%
   select(logor_factor_unit, beta,ci.lb,ci.ub,
          zval, pval,
@@ -172,7 +177,9 @@ logor_overall_2level_results <- as.data.frame(logor_overall_2level_results_list)
   mutate(or.ci.ub= exp(ci.ub))
 
 write.csv(logor_overall_2level_results,"results/logor_overall_results_2levels.csv", row.names=FALSE)
+sort(unique(logor_overall_2level_results$logor_factor_unit))
 
 
 logor_data<- rbind(logor_data_3level, logor_data_2level)
-length(unique(logor_data$article_id))
+length(unique(logor_data$study_id))
+sort(unique(logor_data$logor_factor_unit))

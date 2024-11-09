@@ -124,3 +124,4 @@ names(fis_data)
 
 write.csv(logor_data, "data/pcc_data.csv", row.names=FALSE)
 
+length(unique(logor_data$study_id))
