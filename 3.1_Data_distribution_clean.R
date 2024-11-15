@@ -19,23 +19,25 @@ library(grid)
 library(gridExtra) 
 library(stringr)
 
-factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx",
-                                      sheet = "FACTORS_metric_assessed")
+data_path <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/"
 
-factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
+factors_metric_assessed <- read_excel(paste0(data_path,"Meta_data_2024.02.15.xlsx"), sheet = "FACTORS_metric_assessed")%>%
+  select(factor_category, factor_subcategory,factor_metric, pcc_unit, logor_unit)
+
+
+factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$factor_subcategory,
                                                  " (",factors_metric_assessed$pcc_unit,")", sep="")
 
 pcc_factor_class_unit<-factors_metric_assessed%>%
-  select(factor_sub_class,pcc_factor_unit)
+  select(factor_category,pcc_factor_unit)
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 #### PCC data 
-pcc_data<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
-  rbind(read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ","))
+pcc_data<-read.csv("data/pcc_data.csv",header = TRUE, sep = ",")
 
-pcc_data$factor_sub_class.x <- toupper(pcc_data$factor_sub_class.x)
+pcc_data$factor_category <- toupper(pcc_data$factor_category)
 pcc_data$m_un_region <- toupper(pcc_data$m_un_region)
-names(pcc_data)
+
 pcc_data<-pcc_data%>%
   mutate(m_un_region= if_else(m_un_region=="LATIN AMERICA AND THE CARIBBEAN","LATIN\nAMERICA",
                            if_else(m_un_region=="NORTHERN AMERICA","NORTH\nAMERICA",m_un_region)))%>%
@@ -43,32 +45,30 @@ pcc_data<-pcc_data%>%
   mutate(m_un_subregion = str_replace_all(m_un_subregion, " ", "\n"))%>%
   mutate(m_dp_recla = str_replace_all(m_dp_recla, " ", "\n"))%>%
   
-  filter(factor_sub_class.x!="NO SE")%>%
-  mutate(factor_sub_class.x= if_else(factor_sub_class.x=="FINANCIAL RISK-MECHANISMS"|
-                                       factor_sub_class.x=="KNOWLEDGE ACCESS"|
-                                       factor_sub_class.x=="LAND TENURE","POLITICAL AND\nINSTITUTIONAL\nCONTEXT",
-                                     factor_sub_class.x))%>%
-  mutate(factor_sub_class.x=if_else(factor_sub_class.x=="SOCIAL CAPITAL","SOCIAL\nCAPITAL",
-                                    if_else(factor_sub_class.x=="NATURAL CAPITAL","NATURAL\nCAPITAL",
-                                            if_else(factor_sub_class.x=="FINANCIAL CAPITAL","FINANCIAL\nCAPITAL",
-                                                    if_else(factor_sub_class.x=="PHYSICAL CAPITAL","PHYSICAL\nCAPITAL",
-                                                            factor_sub_class.x)))))
+  filter(factor_category!="NO SE")%>%
+  mutate(factor_category= if_else(factor_category=="FINANCIAL RISK-MECHANISMS"|
+                                       factor_category=="KNOWLEDGE ACCESS"|
+                                       factor_category=="LAND TENURE","POLITICAL AND\nINSTITUTIONAL\nCONTEXT",
+                                     factor_category))%>%
+  mutate(factor_category=if_else(factor_category=="SOCIAL CAPITAL","SOCIAL\nCAPITAL",
+                                    if_else(factor_category=="NATURAL CAPITAL","NATURAL\nCAPITAL",
+                                            if_else(factor_category=="FINANCIAL CAPITAL","FINANCIAL\nCAPITAL",
+                                                    if_else(factor_category=="PHYSICAL CAPITAL","PHYSICAL\nCAPITAL",
+                                                            factor_category)))))
   
   
   
 length(unique(pcc_data$study_id)) #154
-sort(unique(pcc_data$x_metric_recla2))
+sort(unique(pcc_data$factor_subcategory))
 sort(unique(pcc_data$m_dp_recla))
-
-sort(unique(pcc_data$factor_sub_class.x))
-
+sort(unique(pcc_data$factor_category))
 sort(unique(pcc_data$m_un_subregion))
 sort(unique(pcc_data$country))
 
 ### Figure: Represented countries ---------
 pcc_data$country[pcc_data$country %in%"Viet Nam" ] <- "Vietnam"
 
-sort(unique(pcc_data$pcc_factor_unit)) #70
+sort(unique(pcc_data$pcc_factor_unit)) #71
 sort(unique(pcc_data$country)) #44
 table(pcc_data$m_un_region , pcc_data$pcc_factor_unit)
 sort(unique(pcc_data$country))
@@ -161,37 +161,37 @@ region<- pcc_data%>%
 sum(region$percentage_ES)
 sum(region$n_ES)
 
-## Data distribution by pcc_factor_sub_class 
-factor_sub_class<- pcc_data%>%
-  group_by(factor_sub_class.x)%>%
+## Data distribution by pcc_factor_category 
+factor_category<- pcc_data%>%
+  group_by(factor_category)%>%
   dplyr::summarise(n_studies = n_distinct(study_id),
                    n_ES = n_distinct(ES_ID))%>%
   mutate(percentage_ES= (n_ES/sum(n_ES))*100,
          percentage_studies= (n_studies/sum(n_studies))*100)
 
-sum(factor_sub_class$n_ES)
+sum(factor_category$n_ES)
 
 ## Data distribution by m_dp_recla 
-systems<- pcc_data%>%
+dp_practices<- pcc_data%>%
   group_by(m_dp_recla)%>%
   dplyr::summarise(n_studies = n_distinct(study_id),
                    n_ES = n_distinct(ES_ID))%>%
   mutate(percentage_ES= (n_ES/sum(n_ES))*100,
          percentage_studies= (n_studies/sum(n_studies))*100)
 
-sum(systems$n_ES)
+sum(dp_practices$n_ES)
 
 ## Data distribution by region, factor class, system
 library(ggsankey)
 
-region_factor_systems<- pcc_data%>%
-  select(ES_ID,m_un_region, factor_sub_class.x,m_dp_recla)
+region_factor_dp_practices<- pcc_data%>%
+  select(ES_ID,m_un_region, factor_category,m_dp_recla)
 
-skey_region_factor_systems <- region_factor_systems %>%
-  make_long(m_un_region, factor_sub_class.x,m_dp_recla)              
+skey_region_factor_dp_practices <- region_factor_dp_practices %>%
+  make_long(m_un_region, factor_category,m_dp_recla)              
 
-sort(unique(skey_region_factor_systems$node))
-sort(unique(skey_region_factor_systems$next_node))
+sort(unique(skey_region_factor_dp_practices$node))
+sort(unique(skey_region_factor_dp_practices$next_node))
 
 
 fills <- c("AFRICA"="#843272",
@@ -218,7 +218,7 @@ fills <- c("AFRICA"="#843272",
            "Agro-silvopasture"="#545454")
 
 
-ggplot(skey_region_factor_systems, 
+ggplot(skey_region_factor_dp_practices, 
        aes(x = x,         next_x = next_x, node = node,
            next_node = next_node,
            fill = node,
