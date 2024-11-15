@@ -487,13 +487,13 @@ sort(unique(adoption_binary_clean$country[adoption_binary_clean$m_un_subregion %
 ####### Factors classification -------
 data_path <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/"
 
-factors_assessed <- read_excel(paste0(data_path,"Meta_data_2024.02.15.xlsx"), sheet = "FACTORS_metric_assessed")%>%
+factors_metric_assessed <- read_excel(paste0(data_path,"Meta_data_2024.02.15.xlsx"), sheet = "FACTORS_metric_assessed")%>%
   select(factor_category, factor_subcategory,factor_metric, pcc_unit, logor_unit)
 
 
 ####### CHECK NO LIMITATION DATA -------
 factors<-adoption_binary_clean%>%
-  left_join(factors_assessed, by="factor_metric")%>%
+  left_join(factors_metric_assessed, by="factor_metric")%>%
   filter(limitation_of_use_obs== "no limitation")%>%
   group_by(factor_category, factor_subcategory,factor_metric ) %>%
   dplyr::summarise(n_articles = n_distinct(study_id))%>%

@@ -7,7 +7,7 @@ library(stringr)
 
 ################# FACTOR CLASS ----------------
 factors_metric_assessed <- read_excel(
-  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/Meta_data_2024.02.15.xlsx",
+  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx",
   sheet = "FACTORS_metric_assessed")
 
 factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
@@ -53,7 +53,7 @@ factor_metric_units <- unique(pcc_data_3level$pcc_factor_unit)
 egger_3level_list <- lapply(factor_metric_units, function(unit) {
   # Fit the model
   egger_model <- rma.mv(fis.yi, fis.vi, 
-                        random = list(~ 1 | ES_ID, ~ 1 | article_id),
+                        random = list(~ 1 | ES_ID, ~ 1 | study_id),
                         data = pcc_data_3level,
                         mod = ~pcc_precision,
                         method = "REML", 
@@ -221,20 +221,22 @@ funnel_2level(factor_metric_units2, pcc_data_2level)
 
 ##--------- TRIM AND FILL METHOD ----
 ### TWO-LEVEL DATA-----
+sort(unique(pcc_data_2level$pcc_factor_unit))
 trimfill_data<-pcc_data_2level%>%
-  filter(pcc_factor_unit=="Access to irrigation (1= yes, 0= others)"|
-           pcc_factor_unit=="Association member (1= yes, 0= no)"|
-           pcc_factor_unit==  "Awareness of climate change (1= yes, 0= no)"|
-           pcc_factor_unit=="Farming experience (continuous)"|
-           pcc_factor_unit=="Flat slope (1= yes, 0= others)"|
-           pcc_factor_unit=="Hired labour (continuous)"|
-           pcc_factor_unit=="Land tenure security (continuous)"|
-           pcc_factor_unit=="Post-secondary education (1= yes, 0= no)"|
-           pcc_factor_unit=="Positive attitude toward practice (1= yes, 0= others)"|
-           pcc_factor_unit=="Total income (continuous)"|
-           pcc_factor_unit=="Access to training (1= yes, 0= no)"|
-           pcc_factor_unit=="Communicate with other farmers (1= yes, 0= no)"|
-           pcc_factor_unit=="Relatives and friends (continuous)")
+  filter(
+    pcc_factor_unit=="Soil slope (Flat)"|
+      pcc_factor_unit== "Fertilizer use (Organic or manure)"|
+      pcc_factor_unit== "Perceived production constraint (Soil erosion)"|
+      pcc_factor_unit=="Non-farm income (Amount)" |
+      pcc_factor_unit== "Total income (Total income)"|
+      pcc_factor_unit=="Household head (Farming experience)"|
+      pcc_factor_unit=="Hired labour (Number of workers)"|
+      pcc_factor_unit=="Access to irrigation (Access to irrigation)"|
+      pcc_factor_unit=="Access to training (Access to training)"|
+      pcc_factor_unit=="Land tenure security (Secure tenure)"|
+      pcc_factor_unit=="Association membership (Association membership)"|
+      pcc_factor_unit=="Communicate with other farmers (Communicate with other farmers)"|
+      pcc_factor_unit=="Relatives and friends (Relatives and friends)")
          
 trimfill_2level <- function(data, metric_unit) {
   overal_model <- rma(fis.yi, fis.vi, 
