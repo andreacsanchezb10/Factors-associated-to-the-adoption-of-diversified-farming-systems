@@ -5,11 +5,15 @@ library(dplyr)
 library(metafor)
 library(tibble)
 
+data_path <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/"
 
-factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx",
-                                      sheet = "FACTORS_metric_assessed")
-factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$pcc_unit,")", sep="")
-factors_metric_assessed$logor_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$logor_unit,")", sep="")
+factors_metric_assessed <- read_excel(paste0(data_path,"Meta_data_2024.02.15.xlsx"), sheet = "FACTORS_metric_assessed")%>%
+  select(factor_category, factor_subcategory,factor_metric, pcc_unit, logor_unit)
+
+
+factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$factor_subcategory," (",factors_metric_assessed$pcc_unit,")", sep="")
+
+factors_metric_assessed$logor_factor_unit <- paste(factors_metric_assessed$factor_subcategory," (",factors_metric_assessed$logor_unit,")", sep="")
 
 pcc_data<-read.csv("data/pcc_data.csv",header = TRUE, sep = ",")
 names(pcc_data)
@@ -125,7 +129,7 @@ overall_3level_sampling_variance$I2_3<-((overall_3level_sampling_variance$sigma2
 
 overall_3level_sampling_variance<-overall_3level_sampling_variance%>%
   left_join(pcc_factor_class_unit, by="pcc_factor_unit")%>%
-  select("factor_sub_class","pcc_factor_unit", "sigma2.1", "sigma2.2",
+  select("factor_category","pcc_factor_unit", "sigma2.1", "sigma2.2",
          "heterogeneity_test", "I2_1",
          "I2_2", "I2_3")%>%
   mutate(across(where(is.numeric), ~ round(., 5)))
@@ -208,8 +212,6 @@ overall_2level_sampling_variance<-  overall_2level_results%>%
   mutate(heterogeneity_test= paste("Q(df = ", dfs,") = ",QE,", p ", QEp, sep = ""))%>%
   mutate(tau2_se= paste(tau2," (",se.tau2,")",sep=""))%>%
   left_join(pcc_factor_class_unit, by="pcc_factor_unit")%>%
-  select(factor_sub_class,pcc_factor_unit,tau2_se, heterogeneity_test, I2)
+  select(factor_category,pcc_factor_unit,tau2_se, heterogeneity_test, I2)
   
 write.csv(overall_2level_sampling_variance,"results/heterogeneity_2levels.csv", row.names=FALSE)
-
-
