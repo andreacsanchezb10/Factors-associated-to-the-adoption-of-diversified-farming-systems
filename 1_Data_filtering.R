@@ -2,6 +2,7 @@
 library(readxl)
 library(dplyr)
 
+
 # Set the file path and name of the .xlsx file -------
 data_path <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/"
 
@@ -101,8 +102,7 @@ m_education_years<- adoption_binary%>%
 
 
 adoption_binary_clean<- adoption_binary%>%
-  left_join(m_education_years, by=c("study_id"="study_id",
-                                    "model_id"="model_id"))%>%
+  left_join(m_education_years, by=c("study_id","model_id"))%>%
   mutate(m_sampling_unit= if_else(sampling_unit== "farmers" |
                                     sampling_unit=="household"|
                                     sampling_unit=="household data collection"|
