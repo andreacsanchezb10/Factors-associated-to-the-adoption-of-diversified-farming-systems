@@ -5,16 +5,18 @@ library(dplyr)
 library(tidyr)
 library(metafor)
 
-factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx",
-                                      sheet = "FACTORS_metric_assessed")
+data_path <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/"
 
-factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
+factors_metric_assessed <- read_excel(paste0(data_path,"Meta_data_2024.02.15.xlsx"), sheet = "FACTORS_metric_assessed")%>%
+  select(factor_category, factor_subcategory,factor_metric, pcc_unit, logor_unit)
+
+factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$factor_subcategory,
                                                  " (",factors_metric_assessed$pcc_unit,")", sep="")
 
 pcc_data<-read.csv( "data/pcc_data.csv", header = TRUE, sep = ",")%>%
   mutate(pcc_factor_unit= as.factor(pcc_factor_unit))
 
-levels(pcc_data$pcc_factor_unit) #70
+levels(pcc_data$pcc_factor_unit) #71
 names(pcc_data)
 ######## COMPARISON between 2-level and 3-level model structure -------------- 
 
@@ -153,7 +155,7 @@ names(modelnovar3_results)
 #Likelihood Ratio Test (LRT) and p-value. The three-level model was chosen as the best model
 #when its AIC was lower and the LRT statistically significant comparing to both two-level models. 
 pcc_factor_class_unit<-factors_metric_assessed%>%
-  select(factor_sub_class,pcc_factor_unit)
+  select(factor_category,pcc_factor_unit)
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 comparison<- modelnovar2_results%>%
@@ -168,13 +170,13 @@ comparison<- modelnovar2_results%>%
          LRT.pval.between = paste("LRT = ", LRT.between,", p = ",pval.between, sep = ""))%>%
   mutate_all(~ gsub(" = <", " <", .))%>%
   left_join(pcc_factor_class_unit, by= "pcc_factor_unit")%>%
-  select("factor_sub_class","pcc_factor_unit",
+  select("factor_category","pcc_factor_unit",
          "AIC.three_level", "AIC.within",   "AIC.between",
          "LRT.pval.within", "LRT.pval.between",
          "best_model")
 
-length((comparison$best_model[comparison$best_model %in% "Three-level"])) #11
-length((comparison$best_model[comparison$best_model %in% "Two-level"])) #60
+length((comparison$best_model[comparison$best_model %in% "Three-level"])) #12
+length((comparison$best_model[comparison$best_model %in% "Two-level"])) #59
 sort(unique(comparison$pcc_factor_unit))
 
 write.csv(comparison, "results/comparison_best_model.csv", row.names=FALSE)
