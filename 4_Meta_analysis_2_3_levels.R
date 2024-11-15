@@ -19,7 +19,7 @@ sort(unique(comparison$best_model))
 
 ############ OVERALL META-ANALYSIS WITH FISHERS' Z -----
 pcc_factor_class_unit<-factors_metric_assessed%>%
-  select(factor_sub_class,pcc_factor_unit)
+  select(factor_category,pcc_factor_unit)
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 ######## THREE-LEVEL META-ANALYSIS -------------- 
