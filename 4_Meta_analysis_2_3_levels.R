@@ -28,10 +28,11 @@ pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 ######## THREE-LEVEL META-ANALYSIS -------------- 
 pcc_data_3level<- pcc_data%>%
-  left_join(comparison, by= "pcc_factor_unit")%>%
+  left_join(comparison, by= c("pcc_factor_unit","factor_category"))%>%
   filter(best_model == "Three-level" )
 
 sort(unique(pcc_data_3level$pcc_factor_unit))
+sort(unique(pcc_data_3level$factor_category))
 
 write.csv(pcc_data_3level,"data/pcc_data_3levels.csv", row.names=FALSE)
 
@@ -140,7 +141,7 @@ write.csv(overall_3level_sampling_variance,"results/heterogeneity_3levels.csv", 
 
 ######## TWO-LEVEL META-ANALYSIS -------------- 
 pcc_data_2level<- pcc_data%>%
-  left_join(comparison, by= "pcc_factor_unit")%>%
+  left_join(comparison, by= c("pcc_factor_unit","factor_category"))%>%
   filter(best_model == "Two-level" )
 
 names(pcc_data_2level)
