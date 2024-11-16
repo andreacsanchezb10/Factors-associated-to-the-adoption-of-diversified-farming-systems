@@ -6,15 +6,17 @@ library(ggh4x)
 library(readxl)
 library(dplyr)
 
-factors_metric_assessed <- read_excel(
-  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx",
-  sheet = "FACTORS_metric_assessed")
+data_path <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/"
 
-factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
-                                                 " (",factors_metric_assessed$pcc_unit,")", sep="")
+factors_metric_assessed <- read_excel(paste0(data_path,"Meta_data_2024.02.15.xlsx"), sheet = "FACTORS_metric_assessed")%>%
+  select(factor_category, factor_subcategory,factor_metric, pcc_unit, logor_unit)
+
+factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$factor_subcategory," (",factors_metric_assessed$pcc_unit,")", sep="")
+factors_metric_assessed$logor_factor_unit <- paste(factors_metric_assessed$factor_subcategory," (",factors_metric_assessed$logor_unit,")", sep="")
+
 
 pcc_factor_class_unit<-factors_metric_assessed%>%
-  select(factor_sub_class,pcc_factor_unit)
+  select(factor_category,pcc_factor_unit)
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 pcc_data<-read.csv("data/pcc_data.csv",header = TRUE, sep = ",")
@@ -23,12 +25,10 @@ names(pcc_data)
 # F-Test moderators
 #Meta-regression results
 meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",")%>%
-  dplyr::select(moderator, factor_sub_class, pcc_factor_unit,QMp)%>%
-  filter(moderator!="m_exact_variance_value")%>%
-  filter(moderator!="n_samples" )
-meta_regression$factor_sub_class[meta_regression$factor_sub_class %in% c("Land tenure")] <- "Political context"
-meta_regression$factor_sub_class[meta_regression$factor_sub_class %in% c( "Financial risk-mechanisms")] <- "Political context"
-meta_regression$factor_sub_class[meta_regression$factor_sub_class %in% c( "Knowledge access")] <- "Political context"
+  dplyr::select(moderator, factor_category, pcc_factor_unit,QMp)
+meta_regression$factor_category[meta_regression$factor_category %in% c("Land tenure")] <- "Political context"
+meta_regression$factor_category[meta_regression$factor_category %in% c( "Financial risk-mechanisms")] <- "Political context"
+meta_regression$factor_category[meta_regression$factor_category %in% c( "Knowledge access")] <- "Political context"
 meta_regression$moderator[meta_regression$moderator %in% c("m_dp_recla")] <- "Diversification\npractice"
 meta_regression$moderator[meta_regression$moderator %in% c("m_education_years")] <- "Education\n(years)"
 meta_regression$moderator[meta_regression$moderator %in% c("m_mean_farm_size_ha")] <- "Farm size (ha)"
@@ -40,61 +40,61 @@ meta_regression$moderator[meta_regression$moderator %in% c("m_type_data")] <- "P
 meta_regression$moderator[meta_regression$moderator %in% c("n_factors")] <- "Number of\npredictors"
 meta_regression$moderator[meta_regression$moderator %in% c("m_un_region")] <- "Region"
 meta_regression$moderator[meta_regression$moderator %in% c("m_un_subregion")] <- "Sub-region"
-sort(unique(meta_regression$factor_sub_class))
+sort(unique(meta_regression$factor_category))
 
 factors<-meta_regression%>%
-  group_by(factor_sub_class)%>%
-  summarise(total.factor_sub_class = n_distinct(pcc_factor_unit))%>%
-  ungroup()%>%
-  mutate(total.factor_sub_class= if_else(factor_sub_class=="Human capital", 8,total.factor_sub_class))
-sort(unique(factors$factor_sub_class))
+  group_by(factor_category)%>%
+  dplyr::summarise(total.factor_category = n_distinct(pcc_factor_unit))%>%
+  ungroup()
+sort(unique(factors$factor_category))
+sum(factors$total.factor_category)
 
 factors2<-meta_regression%>%
-  select(factor_sub_class,moderator)
+  select(factor_category,moderator)
 factors2<-unique(factors2)
-sort(unique(factors2$factor_sub_class))
+sort(unique(factors2$factor_category))
 
 meta_regression<-meta_regression%>%
   filter(QMp<=0.05)
 meta_regression<-unique(meta_regression)
 
 sort(unique(meta_regression$moderator))
-sort(unique(meta_regression$factor_sub_class))
+sort(unique(meta_regression$factor_category))
 
-meta_regression2<-as.data.frame(table(meta_regression$factor_sub_class, meta_regression$moderator))%>%
-  dplyr::rename("factor_sub_class"="Var1",
+meta_regression2<-as.data.frame(table(meta_regression$factor_category, meta_regression$moderator))%>%
+  dplyr::rename("factor_category"="Var1",
                 "moderator"= "Var2")%>%
-  right_join(factors2, by= c("factor_sub_class","moderator"))%>%
+  right_join(factors2, by= c("factor_category","moderator"))%>%
   mutate(Freq= if_else(is.na(Freq),0,Freq))%>%
-  left_join(factors, by= "factor_sub_class")%>%
+  left_join(factors, by= "factor_category")%>%
    mutate(total= 38)
 
 important_ftest<- meta_regression2%>%
   mutate(percentage= round((Freq/total)*100,3))%>%
   filter(percentage!=0)
-important_ftest$importance[important_ftest$factor_sub_class %in% c("Biophysical context")] <- 8
-important_ftest$importance[important_ftest$factor_sub_class %in% c("Farmers attitudes")] <- 7
-important_ftest$importance[important_ftest$factor_sub_class %in% c("Financial capital")] <- 6
-important_ftest$importance[important_ftest$factor_sub_class %in% c("Human capital")] <- 5
-important_ftest$importance[important_ftest$factor_sub_class %in% c("Physical capital")] <- 3
-important_ftest$importance[important_ftest$factor_sub_class %in% c("Political context")] <- 2
-important_ftest$importance[important_ftest$factor_sub_class %in% c("Social capital")] <- 1
+important_ftest$importance[important_ftest$factor_category %in% c("Biophysical context")] <- 8
+important_ftest$importance[important_ftest$factor_category %in% c("Farmers attitudes")] <- 7
+important_ftest$importance[important_ftest$factor_category %in% c("Financial capital")] <- 6
+important_ftest$importance[important_ftest$factor_category %in% c("Human capital")] <- 5
+important_ftest$importance[important_ftest$factor_category %in% c("Physical capital")] <- 3
+important_ftest$importance[important_ftest$factor_category %in% c("Political context")] <- 2
+important_ftest$importance[important_ftest$factor_category %in% c("Social capital")] <- 1
 important_ftest<-important_ftest%>%
   mutate(importance= paste("2important/",importance,sep=""))
 
-sort(unique(important_ftest$factor_sub_class))
+sort(unique(important_ftest$factor_category))
   
 non_important_ftest<- meta_regression2%>%
-  mutate(percentage= round(((total.factor_sub_class-Freq)/total)*100,3))%>%
+  mutate(percentage= round(((total.factor_category-Freq)/total)*100,3))%>%
   filter(percentage!=0)
-non_important_ftest$importance[non_important_ftest$factor_sub_class %in% c("Biophysical context")] <- 8
-non_important_ftest$importance[non_important_ftest$factor_sub_class %in% c("Farmers attitudes")] <- 7
-non_important_ftest$importance[non_important_ftest$factor_sub_class %in% c("Financial capital")] <- 6
-non_important_ftest$importance[non_important_ftest$factor_sub_class %in% c("Human capital")] <- 5
-non_important_ftest$importance[non_important_ftest$factor_sub_class %in% c("Natural capital")] <- 4
-non_important_ftest$importance[non_important_ftest$factor_sub_class %in% c("Physical capital")] <- 3
-non_important_ftest$importance[non_important_ftest$factor_sub_class %in% c("Political context")] <- 2
-non_important_ftest$importance[non_important_ftest$factor_sub_class %in% c("Social capital")] <- 1
+non_important_ftest$importance[non_important_ftest$factor_category %in% c("Biophysical context")] <- 8
+non_important_ftest$importance[non_important_ftest$factor_category %in% c("Farmers attitudes")] <- 7
+non_important_ftest$importance[non_important_ftest$factor_category %in% c("Financial capital")] <- 6
+non_important_ftest$importance[non_important_ftest$factor_category %in% c("Human capital")] <- 5
+non_important_ftest$importance[non_important_ftest$factor_category %in% c("Natural capital")] <- 4
+non_important_ftest$importance[non_important_ftest$factor_category %in% c("Physical capital")] <- 3
+non_important_ftest$importance[non_important_ftest$factor_category %in% c("Political context")] <- 2
+non_important_ftest$importance[non_important_ftest$factor_category %in% c("Social capital")] <- 1
 non_important_ftest<-non_important_ftest%>%
   mutate(importance= paste("1non-important/",importance,sep=""))      
 
@@ -106,7 +106,8 @@ important_total_ftest<- rbind(important_ftest,non_important_ftest)%>%
 library(ggpubr)
 
 moderator_ftest<- c("Year of\nassessment","Household\nsampling unit","Primary data",
-              "Farm size (ha)","Education\n(years)" ,"Random\nsampling","Number of\npredictors","Region","Model type",
+              "Farm size (ha)","Education\n(years)" ,"Random\nsampling","Number of\npredictors","Model type",
+              "Region",
                "Diversification\npractice", "Sub-region")
 
 importance_ftest<- ggplot(important_total_ftest, aes(y= moderator, x=percentage,colour= importance,fill=importance)) +

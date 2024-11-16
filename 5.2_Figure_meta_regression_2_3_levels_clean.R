@@ -12,15 +12,16 @@ library("xlsx")
 ####################################################################################################################################
 ################ META-REGRESSION FIGURES ############################################################################################
 ##############################################################################################################################
-factors_metric_assessed <- read_excel(
-  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx",
-                                      sheet = "FACTORS_metric_assessed")
+data_path <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/"
 
-factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
-                                                 " (",factors_metric_assessed$pcc_unit,")", sep="")
+factors_metric_assessed <- read_excel(paste0(data_path,"Meta_data_2024.02.15.xlsx"), sheet = "FACTORS_metric_assessed")%>%
+  select(factor_category, factor_subcategory,factor_metric, pcc_unit, logor_unit)
+
+factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$factor_subcategory," (",factors_metric_assessed$pcc_unit,")", sep="")
+factors_metric_assessed$logor_factor_unit <- paste(factors_metric_assessed$factor_subcategory," (",factors_metric_assessed$logor_unit,")", sep="")
 
 pcc_factor_class_unit<-factors_metric_assessed%>%
-  select(factor_sub_class,pcc_factor_unit)
+  select(factor_category,pcc_factor_unit)
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 #### PCC data 
@@ -30,13 +31,13 @@ pcc_data<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
 
 #### Meta-regression results
 meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",")%>%
-  select(factor_sub_class,pcc_factor_unit, moderator, moderator_class,estimate,ci.lb, ci.ub,tval, pval, f_test, significance,significance2,
+  select(factor_category,pcc_factor_unit, moderator, moderator_class,estimate,ci.lb, ci.ub,tval, pval, f_test, significance,significance2,
          pcc.estimate, pcc.ci.lb,pcc.ci.ub)%>%
-  mutate(factor_sub_class= if_else(factor_sub_class=="Financial risk-mechanisms","Political_1",
-                                   if_else(factor_sub_class=="Knowledge access","Political_2",
-                                           if_else(factor_sub_class=="Land tenure","Political_3",
-                                                   factor_sub_class))))%>%
-  arrange(factor_sub_class, moderator, 
+  mutate(factor_category= if_else(factor_category=="Financial risk-mechanisms","Political_1",
+                                   if_else(factor_category=="Knowledge access","Political_2",
+                                           if_else(factor_category=="Land tenure","Political_3",
+                                                   factor_category))))%>%
+  arrange(factor_category, moderator, 
           moderator_class)%>%
   dplyr::mutate(pcc.estimate2= ifelse(pcc.estimate > 0.33, "large",
                                   ifelse(pcc.estimate >= 0.17, "moderate",
@@ -48,7 +49,7 @@ meta_regression<- read.csv("results/meta_regression.csv",header = TRUE, sep = ",
                                         if_else(pval>0.01&pval<=0.05,"*",""))))
                                              
 
-sort(unique(meta_regression$factor_sub_class))
+sort(unique(meta_regression$factor_category))
 sort(unique(meta_regression$estimate2_significance2))
 sort(unique(meta_regression$pcc_factor_unit))
 
@@ -64,7 +65,7 @@ m_farm_size<- meta_regression%>%
   filter(moderator== "m_mean_farm_size_ha")%>%
   mutate(moderator_class= if_else(moderator_class=="","Farm size (ha)","Intercept"))%>%
   mutate(f_test= if_else(moderator_class=="Farm size (ha)", "", f_test))%>%
-  select("factor_sub_class", "pcc_factor_unit","moderator_class",  "estimate" ,
+  select("factor_category", "pcc_factor_unit","moderator_class",  "estimate" ,
          "ci.lb", "ci.ub","tval", "significance","f_test",
          pcc.estimate, pcc.ci.lb,pcc.ci.ub)
 
@@ -91,7 +92,7 @@ m_education<- meta_regression%>%
   filter(moderator== "m_education_years")%>%
   mutate(moderator_class= if_else(moderator_class=="","Education (years)","Intercept"))%>%
   mutate(f_test= if_else(moderator_class=="Education (years)", "", f_test))%>%
-  select("factor_sub_class", "pcc_factor_unit","moderator_class",  "estimate" ,
+  select("factor_category", "pcc_factor_unit","moderator_class",  "estimate" ,
          "ci.lb", "ci.ub","tval", "significance","f_test",
          pcc.estimate, pcc.ci.lb,pcc.ci.ub)
 
@@ -107,17 +108,13 @@ m_education<- meta_regression%>%
 #Moderator: methodological characteristics------
 sort(unique(meta_regression$moderator))
 m_methods<- meta_regression%>%
-  filter(moderator== "m_endogeneity_correction"|
-           moderator== "m_exact_variance_value"|
-           moderator== "m_exposure_correction"|
-           moderator== "model_method_recla"|
+  filter(moderator== "model_method_recla"|
            moderator== "m_random_sample"|
            moderator== "m_sampling_unit"|
            moderator== "m_type_data"|
            moderator== "n_factors"|
-           moderator== "n_samples"|
            moderator=="m_av_year_assessment")%>%
-  select("factor_sub_class", "pcc_factor_unit","moderator","f_test")%>%
+  select("factor_category", "pcc_factor_unit","moderator","f_test")%>%
   distinct(., .keep_all = TRUE)%>%
   tidyr::pivot_wider(., names_from = moderator, values_from = f_test)
 
@@ -150,7 +147,7 @@ m_region<- meta_regression%>%
   left_join(m_region_distribution, by=c("pcc_factor_unit"="pcc_factor_unit",
                                      "moderator_class"="moderator_class"))%>%
   mutate(icon_n_es= if_else(n_ES>=10,"more10.png","less10.png" ))%>%
-  rbind(c(factor_sub_class = "Biophysical context",
+  rbind(c(factor_category = "Biophysical context",
              pcc_factor_unit = "Soil fertility (1= moderate)",
           moderator= "m_un_region",
              moderator_class = "Africa", 
@@ -234,7 +231,7 @@ dfs<- ggplot(m_dfs, aes(x=moderator_class ,y=reorder(pcc_factor_unit,ID,decreasi
                                  "#F7ADA4","#D3D3D3","#BAF2C4"))+
   scale_size_manual(values=c(5,11))+
   
-  facet_grid2(vars(factor_sub_class),
+  facet_grid2(vars(factor_category),
               scales= "free", space='free_y', switch = "y",
               strip = overall_strips)+
   scale_x_discrete(expand =c(0,0),position = "top")+
@@ -270,7 +267,7 @@ ggplot(m_region, aes(x=moderator_class,y=reorder(pcc_factor_unit,ID,decreasing=T
                                  "#D3D3D3","#BAF2C4"))+
   scale_size_manual(values=c(5,11))+
   
-  facet_grid2(vars(factor_sub_class),
+  facet_grid2(vars(factor_category),
               scales= "free", space='free_y', switch = "y",
               strip = overall_strips)+
   scale_x_discrete(expand =c(0,0),position = "top")+
@@ -305,7 +302,7 @@ subregion<-ggplot(m_subregion, aes(x=moderator_class,y=reorder(pcc_factor_unit,I
                                 "#F7ADA4","#D3D3D3","#BAF2C4"))+
   scale_size_manual(values=c(5,11))+
   
-  facet_grid2(vars(factor_sub_class),
+  facet_grid2(vars(factor_category),
               scales= "free", space='free_y', switch = "y",
               strip = overall_strips)+
   scale_x_discrete(expand =c(0,0),position = "top")+
@@ -323,15 +320,16 @@ m_education$ID <- overall$ID[match(m_education$pcc_factor_unit, overall$pcc_fact
 sort(unique(m_education$estimate2_significance2))
 sort(unique(m_education$moderator_class))
 
-education<-ggplot(m_education, aes(x=moderator_class,y=reorder(pcc_factor_unit,ID,decreasing=T))) +
+education<-
+ggplot(m_education, aes(x=moderator_class,y=reorder(pcc_factor_unit,ID,decreasing=T))) +
   geom_tile(aes(fill=factor(estimate2_significance2)),color= "grey45",lwd = 0.5,fill = "white") +
   geom_point(aes(size = factor(icon_n_es), fill=factor(estimate2_significance2),
                  colour= factor(estimate2_significance2)), shape = 21,show.legend=F) +
-  scale_fill_manual(values = c("#F7ADA4","#D3D3D3","#BAF2C4"))+
-  scale_colour_manual(values = c("#F7ADA4","#D3D3D3","#BAF2C4"))+
+  scale_fill_manual(values = c("#D3D3D3","#F7ADA4","#D3D3D3","#BAF2C4"))+
+  scale_colour_manual(values = c("#D3D3D3","#F7ADA4","#D3D3D3","#BAF2C4"))+
   scale_size_manual(values=c(5,11))+
   
-  facet_grid2(vars(factor_sub_class),
+  facet_grid2(vars(factor_category),
               scales= "free", space='free_y', switch = "y",
               strip = overall_strips)+
   scale_x_discrete(expand =c(0,0),position = "top")+
@@ -352,12 +350,14 @@ farm_size<-ggplot(m_farm_size, aes(x=moderator_class,y=reorder(pcc_factor_unit,I
   geom_point(aes(size = factor(icon_n_es), fill=factor(estimate2_significance2),
                  colour= factor(estimate2_significance2)), shape = 21,show.legend=F) +
   scale_fill_manual(values = c("#D3D3D3",
+                               "#D3D3D3",
                                "#F7ADA4", "#D3D3D3","#BAF2C4"))+
   scale_colour_manual(values = c("#D3D3D3",
+                                 "#D3D3D3",
                                  "#F7ADA4", "#D3D3D3","#BAF2C4"))+
   scale_size_manual(values=c(11))+
   
-  facet_grid2(vars(factor_sub_class),
+  facet_grid2(vars(factor_category),
               scales= "free", space='free_y', switch = "y",
               strip = overall_strips)+
   scale_x_discrete(expand =c(0,0),position = "top")+
@@ -392,7 +392,7 @@ m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Fallow"
 m_dfs_significant$moderator_class[m_dfs_significant$moderator_class %in%"Combined practices"] <-"7_Combined practices"
 
 m_dfs_significant<-m_dfs_significant%>%
-  arrange(moderator_class, factor_sub_class, desc(estimate))%>%
+  arrange(moderator_class, factor_category, desc(estimate))%>%
   mutate(ID= seq(1, 38 ))%>%
   mutate(pcc_factor_unit= paste(ID,pcc_factor_unit,sep = "  "))
   
@@ -418,7 +418,7 @@ dfs_significant<-
 ggplot(m_dfs_significant, 
          aes(y=reorder(pcc_factor_unit, desc(ID)),x=pcc.estimate,
              xmin=pcc.ci.lb, xmax=pcc.ci.ub,group=pcc_factor_unit,
-             colour = factor(factor_sub_class) ))+
+             colour = factor(factor_category) ))+
   geom_vline(xintercept=0, colour = "grey30",linetype = 1, linewidth=0.5)+
   geom_errorbar(width=0,size=1.3, position = (position_dodge(width = -0.2)),
                 show.legend = F)+
@@ -445,7 +445,7 @@ dfs_significant
 dfs_significant_distribution<-
         ggplot(m_dfs_significant, 
          aes(x=n_studies, y=reorder(pcc_factor_unit, desc(ID)),
-             fill = factor(factor_sub_class))) +
+             fill = factor(factor_category))) +
   geom_bar(stat="identity",show.legend = F,width = 0.7)+
   geom_errorbar(aes(xmin=0, xmax=n_ES), 
                 width=0, position = position_dodge(width = 0.9),size = 4, alpha=0.6,
@@ -482,10 +482,10 @@ m_region_significant<- m_region%>%
  mutate(pcc.estimate = as.numeric(pcc.estimate),
         pcc.ci.lb = as.numeric(pcc.ci.lb),
         pcc.ci.ub = as.numeric(pcc.ci.ub),
-        factor_sub_class = as.factor(factor_sub_class),
+        factor_category = as.factor(factor_category),
         n_studies = as.numeric(n_studies),
         n_ES = as.numeric(n_ES) )%>%
-  arrange(moderator_class, factor_sub_class, desc(pcc.estimate))%>%
+  arrange(moderator_class, factor_category, desc(pcc.estimate))%>%
   mutate(ID= seq(1, 14 ))%>%
   mutate(pcc_factor_unit= paste(ID,pcc_factor_unit,sep = "  "))
 
@@ -511,7 +511,7 @@ region_significant<-
   ggplot(m_region_significant, 
          aes(y=reorder(pcc_factor_unit, desc(ID)),x=pcc.estimate,
              xmin=pcc.ci.lb, xmax=pcc.ci.ub,group=pcc_factor_unit,
-             colour = factor(factor_sub_class) ))+
+             colour = factor(factor_category) ))+
   geom_vline(xintercept=0, colour = "grey30",linetype = 1, linewidth=0.5)+
   
   geom_errorbar(width=0,size=1.3, position = (position_dodge(width = -0.2)),
@@ -539,7 +539,7 @@ region_significant
 region_significant_distribution<-
 ggplot(m_region_significant, 
        aes(x=n_studies, y=reorder(pcc_factor_unit, desc(ID)),
-           fill = factor(factor_sub_class))) +
+           fill = factor(factor_category))) +
   geom_bar(stat="identity",show.legend = F,width = 0.7)+
   geom_errorbar(aes(xmin=0, xmax=n_ES), 
                 width=0, position = position_dodge(width = 0.9),size = 4,

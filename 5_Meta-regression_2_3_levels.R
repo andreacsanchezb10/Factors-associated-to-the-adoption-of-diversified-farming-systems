@@ -6,15 +6,16 @@ library(readxl)
 library(stringr)
 
 ################# META-REGRESSION ----------------
-factors_metric_assessed <- read_excel(
-  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx",
-                                      sheet = "FACTORS_metric_assessed")
+data_path <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/"
 
-factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
-                                                 " (",factors_metric_assessed$pcc_unit,")", sep="")
+factors_metric_assessed <- read_excel(paste0(data_path,"Meta_data_2024.02.15.xlsx"), sheet = "FACTORS_metric_assessed")%>%
+  select(factor_category, factor_subcategory,factor_metric, pcc_unit, logor_unit)
+
+factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$factor_subcategory," (",factors_metric_assessed$pcc_unit,")", sep="")
+factors_metric_assessed$logor_factor_unit <- paste(factors_metric_assessed$factor_subcategory," (",factors_metric_assessed$logor_unit,")", sep="")
 
 pcc_factor_class_unit<-factors_metric_assessed%>%
-  select(factor_sub_class,pcc_factor_unit)
+  select(factor_category,pcc_factor_unit)
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 #### THREE-LEVEL META-ANALYSIS
@@ -41,11 +42,9 @@ sort(unique(heterogeneity_3level$pcc_factor_unit))
 moderators <- c("m_dp_recla",
                 "m_un_region", "m_un_subregion",
                 "m_mean_farm_size_ha","m_education_years",
-                "n_samples","n_factors","m_av_year_assessment",
-                "m_sampling_unit","m_random_sample","m_exact_variance_value",
-                "m_type_data","model_method_recla",
-                "m_endogeneity_correction",
-                "m_exposure_correction")
+                "n_factors","m_av_year_assessment",
+                "m_sampling_unit","m_random_sample",
+                "m_type_data","model_method_recla")
 
 # List of pcc_factor_unit
 pcc_factor_units <- unique(pcc_data_3level$pcc_factor_unit)
@@ -124,7 +123,7 @@ meta_regression_3levels_df <- bind_rows(results_list)%>%
                                                  if_else(estimate <0 &pval>0.05&pval<=0.1, "non_significant",
                                                          "non_significant")))))%>%
   mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p = ",QMp, sep = ""))%>%
-  select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
+  select("moderator","factor_category","pcc_factor_unit","moderator_class",
          "estimate","se","ci.lb","ci.ub","tval","df","pval" ,
          "f_test","significance2","QMp")%>%
   #Transform back fisher's z to PCC
@@ -242,7 +241,7 @@ meta_regression_2levels_df <- bind_rows(results_list2)%>%
                                                  if_else(estimate <0 &pval>0.05&pval<=0.1, "non_significant",
                                                          "non_significant")))))%>%
   mutate(f_test= paste("QM (", QMdf1,", ",QMdf2, ") = ",QM, ", p = ",QMp, sep = ""))%>%
-  select("moderator","factor_sub_class","pcc_factor_unit","moderator_class",
+  select("moderator","factor_category","pcc_factor_unit","moderator_class",
          "estimate","se","ci.lb","ci.ub","tval","df","pval" ,
          "f_test","significance2","QMp")%>%
   #Transform back fisher's z to PCC
