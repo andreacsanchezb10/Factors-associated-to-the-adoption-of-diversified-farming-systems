@@ -5,10 +5,14 @@ library(dplyr)
 ########## SENSITIVITY ANALYSIS #######################
 ######################################################
 ############ OVERALL META-ANALYSIS WITH Log-Odds ratio -----
-factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx",
-                                      sheet = "FACTORS_metric_assessed")
-factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$pcc_unit,")", sep="")
-factors_metric_assessed$logor_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$logor_unit,")", sep="")
+data_path <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/"
+
+factors_metric_assessed <- read_excel(paste0(data_path,"Meta_data_2024.02.15.xlsx"), sheet = "FACTORS_metric_assessed")%>%
+  select(factor_category, factor_subcategory,factor_metric, pcc_unit, logor_unit)
+
+factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$factor_subcategory," (",factors_metric_assessed$pcc_unit,")", sep="")
+factors_metric_assessed$logor_factor_unit <- paste(factors_metric_assessed$factor_subcategory," (",factors_metric_assessed$logor_unit,")", sep="")
+
 
 comparison<-read.csv("results/comparison_best_model.csv",header = TRUE, sep = ",")
 sort(unique(comparison$best_model))
@@ -18,7 +22,7 @@ names(pcc_data)
 
 logor_factor_class_unit<-factors_metric_assessed%>%
   filter(!is.na(logor_unit))%>%
-  select(factor_sub_class,logor_factor_unit)
+  select(factor_category,logor_factor_unit)
 sort(unique(logor_factor_class_unit$logor_factor_unit))
 
 logor_factor_class_unit<-unique(logor_factor_class_unit$logor_factor_unit)
@@ -119,7 +123,7 @@ sort(unique(logor_data_2level$logor_factor_unit))
 sort(unique(logor_data_2level$factor_metric))
 sort(unique(logor_data_2level$model_method_recla))
 sort(unique(logor_data_2level$logor_factor_unit))
-sort(unique(logor_data_2level$factor_sub_class.x))
+sort(unique(logor_data_2level$factor_category))
 sort(unique(logor_data_2level$factor_metric))
 
 write.csv(logor_data_2level,"data/logor_data_2levels.csv", row.names=FALSE)

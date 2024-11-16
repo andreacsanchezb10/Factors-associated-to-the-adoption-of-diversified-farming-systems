@@ -8,15 +8,18 @@ library(gridExtra)
 library(plyr)
 library(forcats)
 
-factors_metric_assessed <- read_excel("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx",
-                                      sheet = "FACTORS_metric_assessed")
+data_path <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/"
 
-factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$pcc_unit,")", sep="")
-factors_metric_assessed$logor_factor_unit <- paste(factors_metric_assessed$x_metric_recla2," (",factors_metric_assessed$logor_unit,")", sep="")
+factors_metric_assessed <- read_excel(paste0(data_path,"Meta_data_2024.02.15.xlsx"), sheet = "FACTORS_metric_assessed")%>%
+  select(factor_category, factor_subcategory,factor_metric, pcc_unit, logor_unit)
+
+factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$factor_subcategory," (",factors_metric_assessed$pcc_unit,")", sep="")
+factors_metric_assessed$logor_factor_unit <- paste(factors_metric_assessed$factor_subcategory," (",factors_metric_assessed$logor_unit,")", sep="")
+
 
 #### PCC data ----
 pcc_factor_class_unit<-factors_metric_assessed%>%
-  select(factor_sub_class,pcc_factor_unit)
+  select(factor_category,pcc_factor_unit)
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 pcc_data<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
@@ -26,7 +29,7 @@ pcc_data<- read.csv("data/pcc_data_3levels.csv",header = TRUE, sep = ",")  %>%
 #Two-level
 pcc_2level<-read.csv("data/pcc_data_2levels.csv",
                      header = TRUE, sep = ",")  %>%
-  dplyr::group_by(factor_sub_class.x,pcc_factor_unit) %>%
+  dplyr::group_by(factor_category,pcc_factor_unit) %>%
   dplyr::summarise(n_studies = n_distinct(study_id))
 
 overall_2level_results<-read.csv("results/overall_results_2levels.csv",
@@ -48,7 +51,7 @@ sort(unique(overall_3level_results$pcc_factor_unit))
 overal_results<- overall_3level_results%>%
   rbind(overall_2level_results)%>%
   left_join(pcc_factor_class_unit, by="pcc_factor_unit")%>%
-  arrange(factor_sub_class,desc(pcc.beta))%>%
+  arrange(factor_category,desc(pcc.beta))%>%
   mutate_at(vars("n_ES","n_studies"),as.numeric)%>%
   mutate(significance2 = if_else(pcc.beta >0 & pval <=0.05, "significant_positive",
                                  if_else(pcc.beta <0 & pval <=0.05, "significant_negative",
@@ -65,10 +68,10 @@ overal_results<- overall_3level_results%>%
   mutate(pcc.ci.lb_l1= ifelse(pcc_factor_unit=="Plot size (Plot size)", pcc.ci.lb,
                               if_else(pcc_factor_unit=="Land tenure security (Secure tenure)", pcc.ci.lb,
                                       NA)))%>%
-  mutate(factor_sub_class= if_else(factor_sub_class=="Financial risk-mechanisms","Political_1",
-                                   if_else(factor_sub_class=="Knowledge access","Political_2",
-                                           if_else(factor_sub_class=="Land tenure","Political_3",
-                                                   factor_sub_class))))%>%
+  mutate(factor_category= if_else(factor_category=="Financial risk-mechanisms","Political_1",
+                                   if_else(factor_category=="Knowledge access","Political_2",
+                                           if_else(factor_category=="Land tenure","Political_3",
+                                                   factor_category))))%>%
   #mutate(significance1= if_else(pval>0.05&pval<=0.1,"†",""))%>%
   mutate(pcc_factor_unit2= seq(71, 1 ))%>%
   mutate(label= paste("(",n_studies,"|",n_ES,")",sep=""))
@@ -157,30 +160,29 @@ overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%  "Communicat
 overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%  "Relatives and friends (Relatives and friends)"   ] <- 2
 overal_results$pcc_factor_unit2[overal_results$pcc_factor_unit %in%  "Trust in extension services (Trust in extension services)"   ] <- 1
 
-sort(unique(overal_results$factor_sub_class))
+sort(unique(overal_results$factor_category))
 sort(unique(overal_results$significance1))
 sort(unique(overal_results$label))
 
-#overal_results$factor_sub_class <- toupper(overal_results$factor_sub_class)
+#overal_results$factor_category <- toupper(overal_results$factor_category)
 
 #overal_results$ID <- as.numeric(seq(71, 1, by = -1)) #add a new column with the effect size ID number
 
 #### Log-Odds Ratio data ----
 logor_factor_class_unit<-factors_metric_assessed%>%
-  select(factor_sub_class,logor_factor_unit)
+  select(factor_category,logor_factor_unit)
 logor_factor_class_unit<-unique(logor_factor_class_unit)
 
 logor_data<- read.csv("data/logor_data_3levels.csv",header = TRUE, sep = ",")  %>%
   rbind(read.csv("data/logor_data_2levels.csv",header = TRUE, sep = ","))
 
 length(unique(logor_data$study_id)) #151
-length(unique(logor_data$study_model_id)) #151
+length(unique(logor_data$study_model_id)) #241
 
 #### Overall results
 #Two-level
-logor_2level<-read.csv("data/logor_data_2levels.csv",
-                       header = TRUE, sep = ",")  %>%
-  dplyr::group_by(factor_sub_class.x,logor_factor_unit) %>%
+logor_2level<-read.csv("data/logor_data_2levels.csv", header = TRUE, sep = ",")  %>%
+  dplyr::group_by(factor_category.x,logor_factor_unit) %>%
   dplyr::summarise(n_studies = n_distinct(study_id))
 
 logor_overall_2level_results<-read.csv("results/logor_overall_results_2levels.csv",
@@ -201,7 +203,7 @@ sort(unique(logor_overall_3level_results$logor_factor_unit))
 logor_overal_results<- logor_overall_3level_results%>%
   rbind(logor_overall_2level_results)%>%
   left_join(logor_factor_class_unit, by="logor_factor_unit")%>%
-  arrange(factor_sub_class,desc(or.beta))%>%
+  arrange(factor_category,desc(or.beta))%>%
   mutate_at(vars("n_ES","n_studies"),as.numeric)%>%
   mutate(significance2 = if_else(or.beta >0 & pval <=0.05, "significant_positive",
                                  if_else(or.beta <0 & pval <=0.05, "significant_negative",
@@ -213,19 +215,19 @@ logor_overal_results<- logor_overall_3level_results%>%
                               ifelse(logor_factor_unit=="Positive attitude toward practice (1= positive attitude, 0= others)",3.3,
                                      ifelse(logor_factor_unit== "Awareness (1= practice awareness, 0= others)",3.3,
                                      NA))))%>%
-  mutate(factor_sub_class= if_else(factor_sub_class=="Financial risk-mechanisms","Political_1",
-                                   if_else(factor_sub_class=="Knowledge access","Political_2",
-                                           if_else(factor_sub_class=="Land tenure","Political_3",
-                                                   factor_sub_class))))%>%
+  mutate(factor_category= if_else(factor_category=="Financial risk-mechanisms","Political_1",
+                                   if_else(factor_category=="Knowledge access","Political_2",
+                                           if_else(factor_category=="Land tenure","Political_3",
+                                                   factor_category))))%>%
   mutate(logor_factor_unit2= seq(76, 1 ))%>%
   mutate(label= paste("(",n_studies,"|",n_ES,")",sep=""),
          label2= ifelse(or.ci.ub > 3.5, label, NA),
          significance3= ifelse(or.ci.ub > 3.5, significance, NA))%>%
-  mutate(logor_factor_unit3= if_else(factor_sub_class=="Biophysical context"|
-                                       factor_sub_class=="Farmers behaviour"|
-                                       factor_sub_class=="Political_1"|
-                                       factor_sub_class=="Political_2"|
-                                       factor_sub_class=="Social capital","",logor_factor_unit ))
+  mutate(logor_factor_unit3= if_else(factor_category=="Biophysical context"|
+                                       factor_category=="Farmers behaviour"|
+                                       factor_category=="Political_1"|
+                                       factor_category=="Political_2"|
+                                       factor_category=="Social capital","",logor_factor_unit ))
 
 sort(logor_overal_results$logor_factor_unit)
 
@@ -323,7 +325,7 @@ logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %
 logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Relatives and friends (number)"]<-2
 logor_overal_results$logor_factor_unit2[logor_overal_results$logor_factor_unit %in%"Trust in extension services (1= yes, 0= others)"  ]<-1
 
-sort(unique(logor_overal_results$factor_sub_class))
+sort(unique(logor_overal_results$factor_category))
 sort(unique(logor_overal_results$significance1))
 
 
@@ -366,7 +368,7 @@ overall_effect<-
   ggplot(overal_results,
             aes(y=reorder(pcc_factor_unit, pcc_factor_unit2),x=pcc.beta,
              xmin=pcc.ci.lb, xmax=pcc.ci.ub,
-             colour = factor(factor_sub_class) ))+
+             colour = factor(factor_category) ))+
   geom_vline(xintercept=0, colour = "grey30",linetype = 1, linewidth=0.5)+
   geom_errorbar(width=0,size=1, position = (position_dodge(width = -0.2)),
                 show.legend = F)+
@@ -392,7 +394,7 @@ overall_effect<-
                    yend = reorder(pcc_factor_unit, pcc_factor_unit2),
                    x=pcc.beta, xend = pcc.ci.lb_l1),show.legend = F,size=1)+
   scale_colour_manual(values = fills)+
-  facet_grid2(vars(factor_sub_class),
+  facet_grid2(vars(factor_category),
               scales= "free", space='free_y', switch = "y",
               strip = overall_strips)+
   scale_x_continuous(limit = c(-0.27,0.75),expand = c(0.05, 0.05),
@@ -419,12 +421,12 @@ logor_overall_strips<- strip_themed(
 )
 
 
-sort(unique(logor_overal_results$factor_sub_class))
+sort(unique(logor_overal_results$factor_category))
 logor_overall_effect<-
 ggplot(logor_overal_results,
      aes(y=reorder(logor_factor_unit, logor_factor_unit2),x=or.beta,
            xmin=or.ci.lb, xmax=or.ci.ub,
-           colour = factor(factor_sub_class) ))+
+           colour = factor(factor_category) ))+
   geom_vline(xintercept=1, colour = "grey30",linetype = 1, linewidth=0.5)+
   geom_errorbar(width=0,size=1, position = (position_dodge(width = -0.2)),
                 show.legend = F)+
@@ -461,7 +463,7 @@ ggplot(logor_overal_results,
             color="black",  family="sans",position = (position_dodge(width = -0.5)))+
   
 scale_colour_manual(values = fills)+
-  facet_grid2(vars(factor_sub_class),
+  facet_grid2(vars(factor_category),
               scales= "free", space='free_y', switch = "y",
               strip = logor_overall_strips)+
   scale_x_continuous(limit = c(0,3.8),expand = c(0.01,0.16),
