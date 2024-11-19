@@ -6,15 +6,16 @@ library(readxl)
 library(stringr)
 
 ################# FACTOR CLASS ----------------
-factors_metric_assessed <- read_excel(
-  "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/Meta_data_2024.02.15.xlsx",
-  sheet = "FACTORS_metric_assessed")
+data_path <- "C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/data_extraction/checked_data/evidence_paper/"
 
-factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$x_metric_recla2,
-                                                 " (",factors_metric_assessed$pcc_unit,")", sep="")
+factors_metric_assessed <- read_excel(paste0(data_path,"Meta_data_2024.02.15.xlsx"), sheet = "FACTORS_metric_assessed")%>%
+  select(factor_category, factor_subcategory,factor_metric, pcc_unit, logor_unit)
+
+factors_metric_assessed$pcc_factor_unit <- paste(factors_metric_assessed$factor_subcategory," (",factors_metric_assessed$pcc_unit,")", sep="")
+factors_metric_assessed$logor_factor_unit <- paste(factors_metric_assessed$factor_subcategory," (",factors_metric_assessed$logor_unit,")", sep="")
 
 pcc_factor_class_unit<-factors_metric_assessed%>%
-  select(factor_sub_class,pcc_factor_unit)
+  select(factor_category,pcc_factor_unit)
 pcc_factor_class_unit<-unique(pcc_factor_class_unit)
 
 ################################  PUBLICATION BIAS ###################################################################3----------------------------------------------------#
@@ -78,7 +79,7 @@ egger_3level_results <- do.call(rbind, egger_3level_list)
 #### TWO-LEVEL DATA----
 unit_counts <- pcc_data_2level %>%
   group_by(pcc_factor_unit) %>%
-  summarize(n = n())
+  dplyr::summarize(n = n())
 
 # Filter out levels with insufficient data
 selected_units <- unit_counts %>%
@@ -126,7 +127,7 @@ egger_test<- rbind(egger_3level_results,egger_2level_results)%>%
                                                         paste(pval)))))%>%
   mutate(significance= if_else(significance=="0***","<0.0001***",significance))%>%
   left_join(pcc_factor_class_unit, by= "pcc_factor_unit")%>%
-  dplyr::select("factor_sub_class","pcc_factor_unit","moderator","estimate" ,"se" ,"tval", "significance")
+  dplyr::select("factor_category","pcc_factor_unit","moderator","estimate" ,"se" ,"tval", "significance")
   
 write.csv(egger_test,"results/egger_test.csv", row.names=FALSE)
 
@@ -147,7 +148,7 @@ funnel_3level <- function(factor_units, pcc_data) {
     factor_unit_subset <- subset(pcc_data, pcc_factor_unit == factor_unit)
     
     funnel.model <- rma.mv(fis.yi, fis.vi,
-                           random = list(~ 1 | ES_ID, ~ 1 | article_id),
+                           random = list(~ 1 | ES_ID, ~ 1 | study_id),
                            test = "t",
                            dfs="contain",
                            data = factor_unit_subset,
@@ -162,7 +163,7 @@ funnel_3level <- function(factor_units, pcc_data) {
     )
     
     # Generate file name
-    plot_filename <- paste0("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/figures/funnel_plots/", "plot_", gsub(" ", "_", factor_unit), ".png")
+    plot_filename <- paste0("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/figures/GFS_submission_2/funnel_plots/", "plot_", gsub(" ", "_", factor_unit), ".png")
     
     # Save plot
     png(plot_filename)
@@ -173,9 +174,13 @@ funnel_3level <- function(factor_units, pcc_data) {
 
 # Example usage for multiple factor units
 factor_metric_units3 <- unique(pcc_data_3level$pcc_factor_unit)
+factor_metric_units3
+
+#error in "Access to information (Access to information)"                                                   
 
 funnel_3level(factor_metric_units3, pcc_data_3level)
-
+#850x580
+                     
 
 ### TWO-LEVEL DATA-----
 funnel_2level <- function(factor_units, pcc_data) {
@@ -204,7 +209,7 @@ funnel_2level <- function(factor_units, pcc_data) {
     )
     
     # Generate file name
-    plot_filename <- paste0("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/figures/funnel_plots/", "plot_", gsub(" ", "_", gsub("/", "_", factor_unit)), ".png")
+    plot_filename <- paste0("C:/Users/andreasanchez/OneDrive - CGIAR/1_chapter_PhD/meta-analysis/adoption_meta_analysis_2024.02.04/Factors-associated-to-the-adoption-of-diversified-farming-systems/figures/GFS_submission_2/funnel_plots/", "plot_", gsub(" ", "_", gsub("/", "_", factor_unit)), ".png")
     
     # Save plot
     png(plot_filename)
@@ -214,10 +219,19 @@ funnel_2level <- function(factor_units, pcc_data) {
 }
 
 # Example usage for multiple factor units
+pcc_data_2level<- read.csv("data/pcc_data_2levels.csv",header = TRUE, sep = ",")%>%
+  mutate(pcc_se = sqrt(fis.vi),
+         pcc_precision = (1/pcc_se))
+pcc_data_2level<-pcc_data_2level%>%
+  filter(pcc_factor_unit==  "Awareness (Climate change)")
 factor_metric_units2 <- unique(pcc_data_2level$pcc_factor_unit)
-
+factor_metric_units2
 funnel_2level(factor_metric_units2, pcc_data_2level)
-850x580
+
+#850x580
+                         
+# error in "Perceived benefit from practice (Soil erosion reduction)"                                               
+
 
 ##--------- TRIM AND FILL METHOD ----
 ### TWO-LEVEL DATA-----

@@ -87,7 +87,6 @@ m_education_distribution<-pcc_data%>%
   dplyr::summarise(n_studies = n_distinct(study_id),
                    n_ES = n_distinct(ES_ID))
 
-
 m_education<- meta_regression%>%
   filter(moderator== "m_education_years")%>%
   mutate(moderator_class= if_else(moderator_class=="","Education (years)","Intercept"))%>%
@@ -467,6 +466,7 @@ dfs_significant_distribution
 overall.plot<-ggarrange(dfs_significant,dfs_significant_distribution,ncol = 2,widths = c(1, 0.3))
 overall.plot
 #15x19
+#portrait
 
 # Figure 6 -----
 m_region_nonsignificant<- m_region%>%
